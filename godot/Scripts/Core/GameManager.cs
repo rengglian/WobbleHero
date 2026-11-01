@@ -162,6 +162,34 @@ public partial class GameManager : Node
                     compass.SetDungeonSeed(seed);
                 }
             };
+            WebServer.OnPinballLaunchRequested += () =>
+            {
+                if (CurrentGame is GravityPinballGame pinball)
+                {
+                    pinball.LaunchBall();
+                }
+            };
+            WebServer.OnTableNudgeRequested += () =>
+            {
+                if (CurrentGame is GravityPinballGame pinball)
+                {
+                    pinball.NudgeTable();
+                }
+            };
+            WebServer.OnTableInclineChanged += (deg) =>
+            {
+                if (CurrentGame is GravityPinballGame pinball)
+                {
+                    pinball.SetTableIncline(deg);
+                }
+            };
+            WebServer.OnPinballRestitutionChanged += (rest) =>
+            {
+                if (CurrentGame is GravityPinballGame pinball)
+                {
+                    pinball.SetBumperRestitution(rest);
+                }
+            };
             WebServer.OnStartRecordingRequested += () =>
             {
                 if (CurrentGame is SensorLabGame lab) lab.StartRecording();

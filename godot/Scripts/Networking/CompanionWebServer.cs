@@ -45,6 +45,10 @@ public partial class CompanionWebServer : Node
     public event Action<float>? OnCompassOffsetChanged;
     public event Action<float>? OnCompassRotateRequested;
     public event Action<int>? OnCompassSeedChanged;
+    public event Action? OnPinballLaunchRequested;
+    public event Action? OnTableNudgeRequested;
+    public event Action<float>? OnTableInclineChanged;
+    public event Action<float>? OnPinballRestitutionChanged;
     public event Action? OnResetLeaderboardRequested;
     public event Action? OnStartRecordingRequested;
     public event Action? OnStopRecordingRequested;
@@ -67,6 +71,8 @@ public partial class CompanionWebServer : Node
     private string _landerGravity = "moon";
     private float _compassOffsetDeg = 0.0f;
     private int _compassSeed = 4096;
+    private float _tableInclineDeg = 12.0f;
+    private float _pinballRestitution = 0.85f;
 
     public string PlayerName { get; set; } = "Hero 1";
 
@@ -360,6 +366,10 @@ public partial class CompanionWebServer : Node
             bool hasCompassOffset = false;
             float compassDeltaVal = 0.0f;
             bool hasCompassDelta = false;
+            float pinballInclineVal = 12.0f;
+            bool hasPinballIncline = false;
+            float pinballRestVal = 0.85f;
+            bool hasPinballRest = false;
 
             using (var doc = JsonDocument.Parse(messageJson))
             {
@@ -488,6 +498,23 @@ public partial class CompanionWebServer : Node
                     compassDeltaVal = ddF;
                     hasCompassDelta = true;
                 }
+
+                if (root.TryGetProperty("incline", out var incProp) && incProp.TryGetSingle(out var incF))
+                {
+                    pinballInclineVal = incF;
+                    hasPinballIncline = true;
+                }
+                else if (root.TryGetProperty("deg", out var degProp) && degProp.TryGetSingle(out var degF))
+                {
+                    pinballInclineVal = degF;
+                    hasPinballIncline = true;
+                }
+
+                if (root.TryGetProperty("restitution", out var restProp) && restProp.TryGetSingle(out var rF))
+                {
+                    pinballRestVal = rF;
+                    hasPinballRest = true;
+                }
             }
 
             Callable.From(() =>
@@ -591,6 +618,27 @@ public partial class CompanionWebServer : Node
                     case "set_compass_seed":
                         if (hasSeed) _compassSeed = seedVal;
                         OnCompassSeedChanged?.Invoke(_compassSeed);
+                        break;
+                    case "launch_pinball":
+                    case "launch_ball":
+                        OnPinballLaunchRequested?.Invoke();
+                        break;
+                    case "nudge_table":
+                        OnTableNudgeRequested?.Invoke();
+                        break;
+                    case "set_table_incline":
+                        if (hasPinballIncline || sensitivityVal != 1.0f)
+                        {
+                            _tableInclineDeg = hasPinballIncline ? pinballInclineVal : sensitivityVal;
+                        }
+                        OnTableInclineChanged?.Invoke(_tableInclineDeg);
+                        break;
+                    case "set_pinball_restitution":
+                        if (hasPinballRest || sensitivityVal != 1.0f)
+                        {
+                            _pinballRestitution = hasPinballRest ? pinballRestVal : sensitivityVal;
+                        }
+                        OnPinballRestitutionChanged?.Invoke(_pinballRestitution);
                         break;
                     case "set_player_name":
                         if (!string.IsNullOrEmpty(playerName))

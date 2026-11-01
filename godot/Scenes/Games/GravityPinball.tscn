@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Games/GravityPinballGame.cs" id="1_gp"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/GravityPinballHud.tscn" id="2_hud"]
+
+[node name="GravityPinball" type="Node3D"]
+script = ExtResource("1_gp")
+HudScene = ExtResource("2_hud")

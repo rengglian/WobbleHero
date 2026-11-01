@@ -69,6 +69,13 @@ public static class GameRegistry
             "res://Scenes/Games/CompassLabyrinth.tscn"
         ),
         new(
+            "GravityPinball",
+            "Gravity Pinball",
+            "Your board is the table! Tilt gravity across multiple active pinballs, pop bumpers, drop targets, and avoid the drain.",
+            "🧱",
+            "res://Scenes/Games/GravityPinball.tscn"
+        ),
+        new(
             "SensorLab",
             "Sensor Lab & Diagnostics",
             "Real-time 3D balance board visualizer and IMU calibration bench",

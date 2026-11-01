@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Games/DownhillSlalomGame.cs" id="1_ds"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/DownhillSlalomHud.tscn" id="2_hud"]
+
+[node name="DownhillSlalom" type="Node3D"]
+script = ExtResource("1_ds")
+HudScene = ExtResource("2_hud")

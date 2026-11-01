@@ -49,6 +49,7 @@ public partial class CompanionWebServer : Node
     public event Action? OnTableNudgeRequested;
     public event Action<float>? OnTableInclineChanged;
     public event Action<float>? OnPinballRestitutionChanged;
+    public event Action<string, string>? OnSlalomConfigChanged;
     public event Action? OnResetLeaderboardRequested;
     public event Action? OnStartRecordingRequested;
     public event Action? OnStopRecordingRequested;
@@ -73,6 +74,8 @@ public partial class CompanionWebServer : Node
     private int _compassSeed = 4096;
     private float _tableInclineDeg = 12.0f;
     private float _pinballRestitution = 0.85f;
+    private string _slalomCourse = "giant_slalom";
+    private string _slalomWeather = "powder";
 
     public string PlayerName { get; set; } = "Hero 1";
 
@@ -370,6 +373,8 @@ public partial class CompanionWebServer : Node
             bool hasPinballIncline = false;
             float pinballRestVal = 0.85f;
             bool hasPinballRest = false;
+            string slalomCourseVal = string.Empty;
+            string slalomWeatherVal = string.Empty;
 
             using (var doc = JsonDocument.Parse(messageJson))
             {
@@ -515,6 +520,19 @@ public partial class CompanionWebServer : Node
                     pinballRestVal = rF;
                     hasPinballRest = true;
                 }
+
+                if (root.TryGetProperty("course", out var cProp) && cProp.GetString() is { } cStr)
+                {
+                    slalomCourseVal = cStr;
+                }
+                if (root.TryGetProperty("snow", out var sProp) && sProp.GetString() is { } sStr)
+                {
+                    slalomWeatherVal = sStr;
+                }
+                else if (root.TryGetProperty("weather", out var wProp) && wProp.GetString() is { } wStr)
+                {
+                    slalomWeatherVal = wStr;
+                }
             }
 
             Callable.From(() =>
@@ -639,6 +657,21 @@ public partial class CompanionWebServer : Node
                             _pinballRestitution = hasPinballRest ? pinballRestVal : sensitivityVal;
                         }
                         OnPinballRestitutionChanged?.Invoke(_pinballRestitution);
+                        break;
+                    case "set_slalom_course":
+                    case "set_course":
+                        if (!string.IsNullOrEmpty(slalomCourseVal)) _slalomCourse = slalomCourseVal;
+                        OnSlalomConfigChanged?.Invoke(_slalomCourse, _slalomWeather);
+                        break;
+                    case "set_slalom_weather":
+                    case "set_snow":
+                        if (!string.IsNullOrEmpty(slalomWeatherVal)) _slalomWeather = slalomWeatherVal;
+                        OnSlalomConfigChanged?.Invoke(_slalomCourse, _slalomWeather);
+                        break;
+                    case "set_slalom_config":
+                        if (!string.IsNullOrEmpty(slalomCourseVal)) _slalomCourse = slalomCourseVal;
+                        if (!string.IsNullOrEmpty(slalomWeatherVal)) _slalomWeather = slalomWeatherVal;
+                        OnSlalomConfigChanged?.Invoke(_slalomCourse, _slalomWeather);
                         break;
                     case "set_player_name":
                         if (!string.IsNullOrEmpty(playerName))

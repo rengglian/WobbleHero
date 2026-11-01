@@ -1471,6 +1471,99 @@
   </main>
 
   <!-- ============================================================ -->
+  <!-- VIEW: DOWNHILL SLALOM (ALPINE SPEED CARVER) -->
+  <!-- ============================================================ -->
+  <main class="game-view" id="view-DownhillSlalom">
+    <!-- Header & Telemetry Card -->
+    <section class="card">
+      <div class="card-title">
+        <span>🏔️ Downhill Slalom</span>
+        <span id="dsCourseBadge" style="color:#38bdf8; font-weight:800; font-size:0.75rem;">GIANT SLALOM</span>
+      </div>
+      <div style="font-size:0.78rem; color:var(--text-muted); line-height:1.4; margin-bottom:10px;">
+        Carve edge turns down alpine mountain pistes! Lean forward for a 120 km/h aerodynamic speed-tuck, lean back to hockey-stop drift, and weave through slalom gates!
+      </div>
+      <div class="telemetry-grid-4">
+        <div class="telem-item">
+          <div class="telem-label">Score</div>
+          <div class="telem-val" id="dsScore" style="color:var(--gold);">0</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Speed</div>
+          <div class="telem-val" id="dsSpeed" style="color:#10b981;">0 km/h</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Distance</div>
+          <div class="telem-val" id="dsDistance" style="color:#38bdf8;">0m</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Multiplier</div>
+          <div class="telem-val" id="dsMultiplier" style="color:#f43f5e;">1.0x</div>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:0.75rem; font-weight:700; color:var(--text-muted);">
+        <span>🚩 Gates: <strong id="dsGates" style="color:#38bdf8;">0 / 0</strong></span>
+        <span>Snow: <strong id="dsSnow" style="color:#facc15;">POWDER</strong></span>
+        <span id="dsTuckBadge" style="display:none; color:#10b981; font-weight:800; background:rgba(16,185,129,0.12); padding:3px 8px; border-radius:6px; border:1px solid rgba(16,185,129,0.3);">⚡ TUCK</span>
+      </div>
+    </section>
+
+    <!-- 2D Alpine Slope Radar Canvas -->
+    <section class="card">
+      <div class="card-title">
+        <span>Alpine Slope Radar</span>
+        <span id="dsRateLabel" style="font-size:0.7rem; color:#38bdf8;">-- Hz</span>
+      </div>
+      <div style="position:relative; width:100%; height:200px; background:radial-gradient(circle at 50% 20%, #1e293b 0%, #090d16 90%); border:1px solid rgba(255,255,255,0.08); border-radius:14px; overflow:hidden;">
+        <canvas id="dsSlopeCanvas" width="340" height="200" style="width:100%; height:100%; display:block;"></canvas>
+      </div>
+      <div style="display:flex; justify-content:space-around; align-items:center; margin-top:8px; font-size:0.68rem; font-weight:700; color:var(--text-muted);">
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; margin-right:4px;"></span>Skier</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#ef4444; margin-right:4px;"></span>Red Gate</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#3b82f6; margin-right:4px;"></span>Blue Gate</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#059669; margin-right:4px;"></span>Pine Tree</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#38bdf8; margin-right:4px;"></span>Ice Patch</span>
+      </div>
+    </section>
+
+    <!-- Course & Snow Controls -->
+    <section class="card">
+      <div class="card-title">
+        <span>Course & Snow Setup</span>
+      </div>
+      <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:6px;">Course Discipline:</div>
+      <div class="action-row" style="margin-bottom:10px;">
+        <button id="btnCourseSlalom" class="btn-toggle" onclick="setSlalomCourse('slalom')">Slalom</button>
+        <button id="btnCourseGS" class="btn-toggle active" onclick="setSlalomCourse('giant_slalom')">Giant Slalom</button>
+        <button id="btnCourseDownhill" class="btn-toggle" onclick="setSlalomCourse('downhill')">Downhill</button>
+      </div>
+
+      <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:6px;">Piste Condition:</div>
+      <div class="action-row" style="margin-bottom:12px;">
+        <button id="btnSnowPowder" class="btn-toggle active" onclick="setSlalomSnow('powder')">Powder Snow</button>
+        <button id="btnSnowIce" class="btn-toggle" onclick="setSlalomSnow('ice')">Glacier Ice Sheet</button>
+      </div>
+
+      <!-- Tare & Tilt Sensitivity -->
+      <div class="cal-actions" style="margin-top:12px;">
+        <button class="btn-tare" onclick="sendWsMessage({ type: 'tare_board' })">🎯 Tare Zero (Set Level)</button>
+        <button class="btn-secondary" onclick="sendWsMessage({ type: 'reset_cal' })">Reset Zero</button>
+      </div>
+
+      <div class="slider-row" style="margin-top:12px;">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Tilt Sensitivity:</span>
+        <input type="range" id="dsSensitivitySlider" min="0.5" max="2.5" step="0.1" value="1.0" oninput="onSensitivityInput(this.value)">
+        <span id="dsSensitivityText" style="font-size:0.8rem; font-weight:800; min-width:36px;">1.0x</span>
+      </div>
+
+      <div class="invert-deck" style="margin-top:10px;">
+        <button class="btn-toggle active" id="dsBtnInvertRoll" onclick="toggleInvert('roll')">Invert Roll</button>
+        <button class="btn-toggle active" id="dsBtnInvertPitch" onclick="toggleInvert('pitch')">Invert Pitch</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================================ -->
   <!-- VIEW 3: SENSOR LAB & DIAGNOSTICS -->
   <!-- ============================================================ -->
   <main class="game-view" id="view-SensorLab">
@@ -1764,6 +1857,27 @@
     let bumperRestitution = 0.85;
     let nudgeAnimTimer = 0;
 
+    // Downhill Slalom Elements
+    const viewDownhillSlalom = document.getElementById('view-DownhillSlalom');
+    const dsCourseBadge = document.getElementById('dsCourseBadge');
+    const dsScore = document.getElementById('dsScore');
+    const dsSpeed = document.getElementById('dsSpeed');
+    const dsDistance = document.getElementById('dsDistance');
+    const dsMultiplier = document.getElementById('dsMultiplier');
+    const dsGates = document.getElementById('dsGates');
+    const dsSnow = document.getElementById('dsSnow');
+    const dsTuckBadge = document.getElementById('dsTuckBadge');
+    const dsRateLabel = document.getElementById('dsRateLabel');
+    const dsSensitivitySlider = document.getElementById('dsSensitivitySlider');
+    const dsSensitivityText = document.getElementById('dsSensitivityText');
+    const dsBtnInvertRoll = document.getElementById('dsBtnInvertRoll');
+    const dsBtnInvertPitch = document.getElementById('dsBtnInvertPitch');
+    const btnCourseSlalom = document.getElementById('btnCourseSlalom');
+    const btnCourseGS = document.getElementById('btnCourseGS');
+    const btnCourseDownhill = document.getElementById('btnCourseDownhill');
+    const btnSnowPowder = document.getElementById('btnSnowPowder');
+    const btnSnowIce = document.getElementById('btnSnowIce');
+
     // Sensor Lab Elements
     const viewSensorLab = document.getElementById('view-SensorLab');
     const slRecHzBadge = document.getElementById('slRecHzBadge');
@@ -1800,7 +1914,8 @@
       'WobbleSumo': viewWobbleSumo,
       'LunarLander': viewLunarLander,
       'CompassLabyrinth': viewCompassLabyrinth,
-      'GravityPinball': viewGravityPinball
+      'GravityPinball': viewGravityPinball,
+      'DownhillSlalom': viewDownhillSlalom
     };
 
     function connectWs() {
@@ -2055,6 +2170,9 @@
       }
       else if (current === 'gravitypinball') {
         renderPinballTelemetry(data, b, normX, normY, rollDeg, pitchDeg);
+      }
+      else if (current === 'downhillslalom') {
+        renderSlalomTelemetry(data, b, normX, normY, rollDeg, pitchDeg);
       }
       else if (current === 'sensorlab') {
         // Sensor Lab
@@ -3614,6 +3732,205 @@
         restitution: bumperRestitution,
         value: bumperRestitution
       });
+    }
+
+    // Downhill Slalom Telemetry & Radar
+    let slalomPisteOffset = 0;
+
+    function renderSlalomTelemetry(data, b, normX, normY, rollDeg, pitchDeg) {
+      if (dsScore) dsScore.textContent = data.game ? (data.game.score || 0).toLocaleString() : 0;
+      if (dsRateLabel) dsRateLabel.textContent = `${b.hz || 0} Hz`;
+
+      const stats = (data.game && data.game.stats) ? data.game.stats : {};
+      const spd = typeof stats.speedKmh === 'number' ? stats.speedKmh : 0;
+      const dist = typeof stats.distance === 'number' ? stats.distance : 0;
+      const mult = typeof stats.multiplier === 'number' ? stats.multiplier : 1.0;
+      const cleared = typeof stats.gatesCleared === 'number' ? stats.gatesCleared : 0;
+      const missed = typeof stats.gatesMissed === 'number' ? stats.gatesMissed : 0;
+      const course = stats.courseType || 'giant_slalom';
+      const snow = stats.snowCondition || 'powder';
+      const isTuck = !!stats.isTucking;
+
+      if (dsSpeed) {
+        dsSpeed.textContent = `${spd} km/h`;
+        dsSpeed.style.color = isTuck ? '#10b981' : (spd > 90 ? '#facc15' : '#38bdf8');
+      }
+      if (dsDistance) dsDistance.textContent = `${dist.toLocaleString()}m`;
+      if (dsMultiplier) {
+        dsMultiplier.textContent = `${mult.toFixed(1)}x`;
+        dsMultiplier.style.color = mult >= 3.0 ? '#f43f5e' : (mult > 1.2 ? '#facc15' : '#38bdf8');
+      }
+      if (dsGates) dsGates.textContent = `${cleared} / ${cleared + missed}`;
+      if (dsSnow) dsSnow.textContent = snow.toUpperCase();
+      if (dsCourseBadge) dsCourseBadge.textContent = course.replace('_', ' ').toUpperCase();
+
+      if (dsTuckBadge) {
+        dsTuckBadge.style.display = isTuck ? 'inline-block' : 'none';
+      }
+
+      drawSlalomRadar(stats, normX, rollDeg, spd, isTuck);
+    }
+
+    function drawSlalomRadar(stats, normX, rollDeg, speedKmh, isTuck) {
+      const canvas = document.getElementById('dsSlopeCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Piste scroll animation
+      slalomPisteOffset = (slalomPisteOffset + (speedKmh / 3.6) * 0.15) % 40;
+
+      // 1. Alpine Piste perspective boundaries
+      const topWidth = 140;
+      const bottomWidth = 260;
+      const topX = (w - topWidth) / 2;
+      const bottomX = (w - bottomWidth) / 2;
+
+      ctx.save();
+      // Snow piste surface
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.moveTo(topX, 10);
+      ctx.lineTo(topX + topWidth, 10);
+      ctx.lineTo(bottomX + bottomWidth, h - 10);
+      ctx.lineTo(bottomX, h - 10);
+      ctx.closePath();
+      ctx.fill();
+
+      // Piste outer snowbanks
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 6;
+      ctx.stroke();
+      ctx.restore();
+
+      // 2. Snow contour lines
+      ctx.save();
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.15)';
+      ctx.lineWidth = 1;
+      for (let y = 15; y < h - 10; y += 30) {
+        const py = (y + slalomPisteOffset) % (h - 25) + 10;
+        const progress = (py - 10) / (h - 20);
+        const curW = topWidth + (bottomWidth - topWidth) * progress;
+        const curX = (w - curW) / 2;
+        ctx.beginPath();
+        ctx.moveTo(curX, py);
+        ctx.lineTo(curX + curW, py);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // 3. Roadside Pine Trees
+      ctx.save();
+      ctx.fillStyle = '#059669';
+      for (let y = 20; y < h; y += 45) {
+        const ty = (y + slalomPisteOffset) % (h - 15) + 15;
+        const progress = (ty - 10) / (h - 20);
+        const curW = topWidth + (bottomWidth - topWidth) * progress;
+        const lx = (w - curW) / 2 - 14;
+        const rx = (w + curW) / 2 + 14;
+        const treeSize = 6 + progress * 6;
+
+        // Left pine
+        ctx.beginPath();
+        ctx.moveTo(lx, ty - treeSize);
+        ctx.lineTo(lx - treeSize * 0.7, ty + treeSize);
+        ctx.lineTo(lx + treeSize * 0.7, ty + treeSize);
+        ctx.fill();
+
+        // Right pine
+        ctx.beginPath();
+        ctx.moveTo(rx, ty - treeSize);
+        ctx.lineTo(rx - treeSize * 0.7, ty + treeSize);
+        ctx.lineTo(rx + treeSize * 0.7, ty + treeSize);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // 4. Slalom Gates cascading down
+      for (let i = 0; i < 3; i++) {
+        const gy = ((i * 65 + slalomPisteOffset * 1.5) % (h - 35)) + 15;
+        const progress = (gy - 10) / (h - 20);
+        const curW = topWidth + (bottomWidth - topWidth) * progress;
+        const gateSpan = 22 + progress * 20;
+        const isRed = (i % 2 === 0);
+        const gateColor = isRed ? '#ef4444' : '#3b82f6';
+        const waveX = Math.sin(i * 1.8 + (stats.distance || 0) * 0.05) * (curW * 0.28);
+        const gx = w / 2 + waveX;
+
+        ctx.save();
+        ctx.strokeStyle = gateColor;
+        ctx.fillStyle = gateColor;
+        ctx.shadowColor = gateColor;
+        ctx.shadowBlur = 8;
+        ctx.lineWidth = 2.5;
+
+        // Left Flag Pole
+        ctx.beginPath();
+        ctx.arc(gx - gateSpan / 2, gy, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Right Flag Pole
+        ctx.beginPath();
+        ctx.arc(gx + gateSpan / 2, gy, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Connecting Banner Ribbon
+        ctx.beginPath();
+        ctx.moveTo(gx - gateSpan / 2, gy);
+        ctx.lineTo(gx + gateSpan / 2, gy);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // 5. Skier Avatar
+      const skierX = w / 2 + (normX * (bottomWidth * 0.42));
+      const skierY = h - 35;
+
+      ctx.save();
+      // Tuck speed glow
+      if (isTuck) {
+        ctx.shadowColor = '#10b981';
+        ctx.shadowBlur = 15;
+      }
+
+      // Twin Skis
+      const skiLean = (rollDeg / 25) * 6;
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(skierX - 6, skierY - 10 + skiLean, 3, 20);
+      ctx.fillRect(skierX + 3, skierY - 10 - skiLean, 3, 20);
+
+      // Skier Body
+      ctx.fillStyle = isTuck ? '#10b981' : '#38bdf8';
+      ctx.beginPath();
+      ctx.arc(skierX, skierY, 7, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Helmet visor
+      ctx.fillStyle = '#facc15';
+      ctx.beginPath();
+      ctx.arc(skierX, skierY - 2, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function setSlalomCourse(course) {
+      if (btnCourseSlalom) btnCourseSlalom.className = course === 'slalom' ? 'btn-toggle active' : 'btn-toggle';
+      if (btnCourseGS) btnCourseGS.className = course === 'giant_slalom' ? 'btn-toggle active' : 'btn-toggle';
+      if (btnCourseDownhill) btnCourseDownhill.className = course === 'downhill' ? 'btn-toggle active' : 'btn-toggle';
+
+      sendWsMessage({ type: 'set_course', course: course });
+    }
+
+    function setSlalomSnow(snow) {
+      if (btnSnowPowder) btnSnowPowder.className = snow === 'powder' ? 'btn-toggle active' : 'btn-toggle';
+      if (btnSnowIce) btnSnowIce.className = snow === 'ice' ? 'btn-toggle active' : 'btn-toggle';
+
+      sendWsMessage({ type: 'set_snow', snow: snow });
     }
 
     function resetLeaderboard() {

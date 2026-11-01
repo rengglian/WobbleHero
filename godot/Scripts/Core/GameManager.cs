@@ -190,6 +190,13 @@ public partial class GameManager : Node
                     pinball.SetBumperRestitution(rest);
                 }
             };
+            WebServer.OnSlalomConfigChanged += (course, weather) =>
+            {
+                if (CurrentGame is DownhillSlalomGame slalom)
+                {
+                    slalom.SetSlalomConfig(course, weather);
+                }
+            };
             WebServer.OnStartRecordingRequested += () =>
             {
                 if (CurrentGame is SensorLabGame lab) lab.StartRecording();

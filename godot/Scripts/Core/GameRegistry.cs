@@ -76,6 +76,13 @@ public static class GameRegistry
             "res://Scenes/Games/GravityPinball.tscn"
         ),
         new(
+            "DownhillSlalom",
+            "Downhill Slalom",
+            "High-speed alpine skiing! Carve tight slalom gates, tuck forward for 120 km/h speed runs, and hit jump kickers.",
+            "🏔️",
+            "res://Scenes/Games/DownhillSlalom.tscn"
+        ),
+        new(
             "SensorLab",
             "Sensor Lab & Diagnostics",
             "Real-time 3D balance board visualizer and IMU calibration bench",

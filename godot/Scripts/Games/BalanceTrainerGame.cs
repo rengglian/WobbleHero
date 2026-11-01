@@ -18,8 +18,8 @@ public partial class BalanceTrainerGame : BaseGameMode
     public override string GameIcon => "⚖️";
 
     [Export] public float DishRadius { get; set; } = 6.0f;
-    [Export] public float Gravity { get; set; } = 18.0f;
-    [Export] public float Friction { get; set; } = 0.985f;
+    [Export] public float Gravity { get; set; } = 6.5f;
+    [Export] public float Damping { get; set; } = 0.88f;
 
     // Node references
     private Node3D? _dishNode;
@@ -68,20 +68,20 @@ public partial class BalanceTrainerGame : BaseGameMode
         dishMesh.Position = new Vector3(0, -0.2f, 0);
         _dishNode.AddChild(dishMesh);
 
-        // Outer rim border
+        // Outer bouncy rim bumper
         var rimMesh = new MeshInstance3D
         {
             Mesh = new TorusMesh
             {
-                InnerRadius = DishRadius - 0.2f,
-                OuterRadius = DishRadius + 0.2f
+                InnerRadius = DishRadius - 0.45f,
+                OuterRadius = DishRadius + 0.15f
             }
         };
         var rimMat = new StandardMaterial3D
         {
-            AlbedoColor = new Color(0.85f, 0.35f, 0.2f),
+            AlbedoColor = new Color(0.95f, 0.45f, 0.2f),
             EmissionEnabled = true,
-            Emission = new Color(0.85f, 0.35f, 0.2f) * 0.4f
+            Emission = new Color(0.95f, 0.45f, 0.2f) * 0.4f
         };
         rimMesh.MaterialOverride = rimMat;
         rimMesh.Position = new Vector3(0, 0.05f, 0);
@@ -105,11 +105,11 @@ public partial class BalanceTrainerGame : BaseGameMode
         _ballMesh.Position = new Vector3(0, 0.45f, 0);
         _dishNode.AddChild(_ballMesh);
 
-        // 3. Target Ring
+        // 3. Target Ring (slightly wider for comfortable standing balance)
         _targetRing = new MeshInstance3D
         {
             Name = "TargetRing",
-            Mesh = new TorusMesh { InnerRadius = 0.8f, OuterRadius = 1.0f }
+            Mesh = new TorusMesh { InnerRadius = 0.95f, OuterRadius = 1.25f }
         };
         var targetMat = new StandardMaterial3D
         {
@@ -201,7 +201,7 @@ public partial class BalanceTrainerGame : BaseGameMode
         }
 
         // 1. Tilt Dish: Roll rotates Z (sideways tilt), Pitch rotates X (forward/backward tilt)
-        float maxTiltRad = Mathf.DegToRad(18.0f);
+        float maxTiltRad = Mathf.DegToRad(14.0f);
         float targetTiltX = boardState.Pitch * maxTiltRad;
         float targetTiltZ = -boardState.Roll * maxTiltRad;
 
@@ -210,15 +210,24 @@ public partial class BalanceTrainerGame : BaseGameMode
             _dishNode.Rotation = new Vector3(targetTiltX, 0, targetTiltZ);
         }
 
-        // 2. Physics: Marble accelerates down the dish slope
+        // 2. Physics:
+        // A. Tilt acceleration from board lean
         Vector2 tiltAccel = new(boardState.Roll * Gravity, boardState.Pitch * Gravity);
-        _ballVel += tiltAccel * dt;
-        _ballVel *= Friction;
+
+        // B. Subtle concave dish bowl centering tendency:
+        // Creates a restorative gravity well towards the center so the ball stabilizes when level,
+        // rather than endlessly sliding across a flat frictionless plane.
+        Vector2 bowlForce = -_ballPos * 0.40f;
+
+        _ballVel += (tiltAccel + bowlForce) * dt;
+
+        // C. Viscous rolling damping (smooth exponential decay per frame)
+        _ballVel *= MathF.Pow(Damping, dt * 60f);
         _ballPos += _ballVel * dt;
 
-        // 3. Collision with Target Ring
+        // 3. Collision with Target Ring (generous capture radius for standing board play)
         float distToTarget = _ballPos.DistanceTo(_targetPos);
-        if (distToTarget < 1.0f)
+        if (distToTarget < 1.35f)
         {
             _ringsCollected++;
             _multiplier = Math.Min(4.0f, _multiplier + 0.2f);
@@ -233,18 +242,31 @@ public partial class BalanceTrainerGame : BaseGameMode
             }
         }
 
-        // 4. Fall-off handling: Respawn in center with combo reset (Game does NOT end!)
-        if (_ballPos.Length() > DishRadius)
+        // 4. Elastic Bumper Rim & Soft Containment:
+        // When standing on an elevated round board (Koor Board), rim bouncing keeps the game in flow!
+        float rimMargin = DishRadius - 0.45f;
+        float currentDist = _ballPos.Length();
+        if (currentDist > rimMargin)
         {
-            _fallsCount++;
-            _multiplier = 1.0f;
-            _ballPos = Vector2.Zero;
-            _ballVel = Vector2.Zero;
+            Vector2 normal = _ballPos.Normalized();
+            _ballPos = normal * rimMargin;
 
-            if (_feedbackLabel != null)
+            // Soft elastic bounce inward
+            float radialVel = _ballVel.Dot(normal);
+            if (radialVel > 0f)
             {
-                _feedbackLabel.Text = "FELL OFF! Respawned (Combo Reset)";
-                _feedbackTimer = 2.0f;
+                _ballVel -= normal * (radialVel * 1.45f);
+            }
+
+            // Slight combo decay if pinned against the rim under hard tilt
+            if (tiltAccel.Length() > Gravity * 0.75f && _multiplier > 1.0f && _feedbackTimer <= 0f)
+            {
+                _multiplier = 1.0f;
+                if (_feedbackLabel != null)
+                {
+                    _feedbackLabel.Text = "RIM BUMP! (Combo Reset)";
+                    _feedbackTimer = 1.2f;
+                }
             }
         }
 

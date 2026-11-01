@@ -33,6 +33,9 @@ public partial class CompanionWebServer : Node
     public event Action<float>? OnSensitivityChanged;
     public event Action<string>? OnToggleInvertRequested;
     public event Action<string>? OnPlayerNameChanged;
+    public event Action? OnStartRecordingRequested;
+    public event Action? OnStopRecordingRequested;
+    public Func<string>? OnGetRecordingCsv;
 
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
@@ -237,6 +240,26 @@ public partial class CompanionWebServer : Node
                 response.ContentLength64 = okBytes.Length;
                 await response.OutputStream.WriteAsync(okBytes, ct);
             }
+            else if (path == "/api/recording/latest.csv" || path == "/api/recordings/latest.csv")
+            {
+                string csv = OnGetRecordingCsv?.Invoke() ?? string.Empty;
+                if (!string.IsNullOrEmpty(csv))
+                {
+                    byte[] csvBytes = Encoding.UTF8.GetBytes(csv);
+                    response.ContentType = "text/csv; charset=utf-8";
+                    response.Headers.Add("Content-Disposition", "attachment; filename=\"sensor_session.csv\"");
+                    response.ContentLength64 = csvBytes.Length;
+                    await response.OutputStream.WriteAsync(csvBytes, ct);
+                }
+                else
+                {
+                    byte[] notFoundBytes = Encoding.UTF8.GetBytes("No recording session available yet. Start and stop a recording in SensorLab first.");
+                    response.StatusCode = 404;
+                    response.ContentType = "text/plain";
+                    response.ContentLength64 = notFoundBytes.Length;
+                    await response.OutputStream.WriteAsync(notFoundBytes, ct);
+                }
+            }
             else
             {
                 response.StatusCode = 404;
@@ -346,6 +369,12 @@ public partial class CompanionWebServer : Node
                             PlayerName = playerName;
                             OnPlayerNameChanged?.Invoke(PlayerName);
                         }
+                        break;
+                    case "start_recording":
+                        OnStartRecordingRequested?.Invoke();
+                        break;
+                    case "stop_recording":
+                        OnStopRecordingRequested?.Invoke();
                         break;
                 }
             }).CallDeferred();

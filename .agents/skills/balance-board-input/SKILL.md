@@ -37,11 +37,31 @@ Where:
 
 ---
 
-## 3. Tare Calibration & Deadzone
-- **Tare Calibration**: Pressing the Tare button stores $\text{TareOffset} = \theta_{\text{fused}}$, defining the board's resting angle as true zero.
-- **Center Deadzone**: Suppresses natural human standing tremor ($|\text{steer}| < 0.05 \implies 0.0$).
-- **Exponential Smoothing (EMA)**:
-  $$u(t) = u(t - 1) + 0.35 \cdot (u_{\text{raw}} - u(t - 1))$$
+## 3. Tare Calibration, Deadzone & Progressive Curve
+
+On an **elevated round board** (such as a round Koor Board with a raised dome/pedestal to fit electronics and power banks), the center of mass is elevated. This creates an inverted pendulum effect where natural standing ankle micro-tremors (~1.5°–2.0°) occur continuously.
+
+The filtering pipeline applies:
+1. **Dynamic Tare Calibration**:
+   $$\theta_{\text{cal}} = \theta_{\text{fused}} - \text{TareOffset}$$
+2. **Comfort Normalization Limit**:
+   $$\theta_{\max} = 20.0^\circ \quad (\text{comfort tilt limit for round board})$$
+3. **Progressive Deadzone & Curved Remapping**:
+   Suppresses standing tremor while giving fine, gentle control near level and full deflection on deep leans:
+   $$u_{\text{remapped}} = \begin{cases} 0.0 & \text{if } |u_{\text{raw}}| \le 0.07 \\ \text{sign}(u_{\text{raw}}) \cdot \left(\frac{|u_{\text{raw}}| - 0.07}{1.0 - 0.07}\right)^{1.35} & \text{otherwise} \end{cases}$$
+4. **Exponential Smoothing (EMA)**:
+   Low-pass filter coefficient $\alpha = 0.18$ at 100 Hz suppresses standing ankle tremors without noticeable latency:
+   $$u(t) = u(t - 1) + 0.18 \cdot (u_{\text{curved}}(t) - u(t - 1))$$
+
+---
+
+## 4. Ball & Plate Game Physics Tuning (Elevated Boards)
+
+To make balance mini-games playable and satisfying when standing:
+1. **Gentle Gravity**: $g = 6.5\text{ m/s}^2$ (rather than extreme $18\text{ m/s}^2$).
+2. **Viscous Rolling Damping**: $v(t) = v(t - 1) \cdot (0.88)^{60 \cdot \Delta t}$ prevents runaway speed.
+3. **Concave Dish Bowl Centering**: A subtle restorative force towards the center ($F_{\text{bowl}} = -0.40 \cdot \vec{r}$) creates a natural stability well when the board is level.
+4. **Elastic Bumper Rim**: The outer perimeter acts as a soft bouncy cushion that keeps the marble in play rather than repeatedly dropping off.
 
 ---
 

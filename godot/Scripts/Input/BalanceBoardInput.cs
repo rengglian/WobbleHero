@@ -45,6 +45,7 @@ public partial class BalanceBoardInput : Node
     }
 
     public event Action? OnRestartRequested;
+    public event Action<BoardState>? OnPacketReceived;
 
     private float _localSensitivity = 1.0f;
     private bool _localInvertRoll;
@@ -65,6 +66,7 @@ public partial class BalanceBoardInput : Node
         if (HardwareReceiver != null)
         {
             HardwareReceiver.OnRestartRequested += () => OnRestartRequested?.Invoke();
+            HardwareReceiver.OnPacketReceived += (snapshot) => OnPacketReceived?.Invoke(snapshot);
         }
     }
 
@@ -100,6 +102,9 @@ public partial class BalanceBoardInput : Node
                 IsButtonPressed = HardwareReceiver.IsRestartPressed,
                 Hz = HardwareReceiver.Hz,
                 Seq = HardwareReceiver.Seq,
+                RawAccel = HardwareReceiver.RawAccel,
+                RawGyro = HardwareReceiver.RawGyro,
+                TimestampUs = HardwareReceiver.TimestampUs,
                 DeviceIp = HardwareReceiver.DeviceIp,
                 Source = "atoms3"
             };

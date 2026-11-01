@@ -129,6 +129,18 @@ If you do not have the physical AtomS3 controller powered on, simulate 100 Hz UD
 python3 scripts/sensor_bridge.py --simulate --port 8080
 ```
 
+### 4. Movement Recording & Filter Evaluation (SensorLab)
+To capture real movement data while standing on your balancing board:
+1. In the game or companion app, select **🔬 Sensor Lab**.
+2. Tap **⏺️ Start Recording Session** on your phone (or press `Space`/`R` on desktop).
+3. Perform standing balance, deliberate leans, or holding steady.
+4. Tap **⏹️ Stop Recording**; tap **📥 Download CSV Session** right on your phone!
+5. Run the analyzer script to evaluate tremor spectra and filter simulations:
+   ```bash
+   python3 scripts/analyze_session.py
+   ```
+   *Outputs packet arrival jitter, ankle tremor frequency peaks (FFT), and simulated filter metrics.*
+
 ### 4. Connect Phone Companion Remote
 1. Ensure your smartphone is connected to the same Wi-Fi network.
 2. Open your phone camera and scan the **QR code** on the game screen, or navigate to:

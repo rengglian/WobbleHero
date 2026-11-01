@@ -40,8 +40,13 @@ public partial class HardwareUdpReceiver : Node
 
     public Vector3 RawAccel { get; private set; }
     public Vector3 RawGyro { get; private set; }
+    public Vector3 RawMag { get; private set; }
+    public bool HasMag { get; private set; }
+    public float CompassHeadingDeg { get; private set; }
+    public uint TimestampUs { get; private set; }
 
     public event Action? OnRestartRequested;
+    public event Action<BoardState>? OnPacketReceived;
 
     private UdpClient? _udpClientPrimary;
     private UdpClient? _udpClientSecondary;
@@ -77,6 +82,7 @@ public partial class HardwareUdpReceiver : Node
         try
         {
             _udpClientPrimary = new UdpClient(ListenPort);
+            _udpClientPrimary.Client.ReceiveBufferSize = 1024 * 1024; // 1MB buffer to prevent OS packet drops
             Task.Run(() => ReceiveLoopAsync(_udpClientPrimary, ListenPort, _cts.Token));
             GD.Print($"[HardwareUdpReceiver] Listening on primary UDP port {ListenPort} for AtomS3 binary packets.");
         }
@@ -91,6 +97,7 @@ public partial class HardwareUdpReceiver : Node
             try
             {
                 _udpClientSecondary = new UdpClient(AlternatePort);
+                _udpClientSecondary.Client.ReceiveBufferSize = 1024 * 1024;
                 Task.Run(() => ReceiveLoopAsync(_udpClientSecondary, AlternatePort, _cts.Token));
                 GD.Print($"[HardwareUdpReceiver] Listening on secondary UDP port {AlternatePort} for AtomS3 binary packets.");
             }
@@ -151,6 +158,38 @@ public partial class HardwareUdpReceiver : Node
 
         RawAccel = new Vector3(ax, ay, az);
         RawGyro = new Vector3(gx, gy, gz);
+
+        // Optional 3-DoF Magnetometer (Bytes 32-43 if 44-byte packet format)
+        if (data.Length >= 44)
+        {
+            float mx = BinaryPrimitives.ReadSingleLittleEndian(data.AsSpan(32, 4));
+            float my = BinaryPrimitives.ReadSingleLittleEndian(data.AsSpan(36, 4));
+            float mz = BinaryPrimitives.ReadSingleLittleEndian(data.AsSpan(40, 4));
+
+            if (float.IsFinite(mx) && float.IsFinite(my) && float.IsFinite(mz))
+            {
+                RawMag = new Vector3(mx, my, mz);
+                HasMag = RawMag.LengthSquared() > 0.01f;
+                if (HasMag)
+                {
+                    float heading = Mathf.RadToDeg(MathF.Atan2(my, mx));
+                    if (heading < 0f) heading += 360f;
+                    CompassHeadingDeg = heading;
+                }
+                else
+                {
+                    CompassHeadingDeg = 0f;
+                }
+            }
+        }
+        else
+        {
+            RawMag = Vector3.Zero;
+            HasMag = false;
+            CompassHeadingDeg = 0f;
+        }
+
+        TimestampUs = timestampUs;
         Seq = seq;
         Button = button;
 
@@ -192,18 +231,22 @@ public partial class HardwareUdpReceiver : Node
         float calRoll = _fusedRollDeg - CalOffsetRoll;
         float calPitch = _fusedPitchDeg - CalOffsetPitch;
 
-        // 5. Normalization with 28° comfort limit
-        const float maxComfortDeg = 28.0f;
+        // 5. Normalization with ergonomic comfort limit
+        // Elevated round boards (like Koor Board) operate comfortably within ~18° - 20°
+        const float maxComfortDeg = 20.0f;
         float rawNormRoll = Math.Clamp(calRoll / maxComfortDeg, -1.0f, 1.0f);
         float rawNormPitch = Math.Clamp(calPitch / maxComfortDeg, -1.0f, 1.0f);
 
-        // 6. Deadzones
-        if (MathF.Abs(rawNormRoll) < 0.04f) rawNormRoll = 0.0f;
-        if (MathF.Abs(rawNormPitch) < 0.04f) rawNormPitch = 0.0f;
+        // 6. Progressive Deadzone & Curve:
+        // Standing on an elevated dome pivot creates continuous foot micro-tremors (~1.5°).
+        // A 0.07 deadzone with a 1.35x power curve allows stable standing near zero while keeping full lean range.
+        const float deadzone = 0.07f;
+        rawNormRoll = ApplyDeadzoneAndCurve(rawNormRoll, deadzone);
+        rawNormPitch = ApplyDeadzoneAndCurve(rawNormPitch, deadzone);
 
-        // 7. Exponential smoothing
-        _filteredRoll += (rawNormRoll - _filteredRoll) * 0.35f;
-        _filteredPitch += (rawNormPitch - _filteredPitch) * 0.35f;
+        // 7. Exponential smoothing (0.18 at 100 Hz filters high-frequency standing ankle wobble)
+        _filteredRoll += (rawNormRoll - _filteredRoll) * 0.18f;
+        _filteredPitch += (rawNormPitch - _filteredPitch) * 0.18f;
 
         // 8. Inversion and Sensitivity
         float finalRoll = InvertRoll ? -_filteredRoll : _filteredRoll;
@@ -242,6 +285,42 @@ public partial class HardwareUdpReceiver : Node
             IsRestartPressed = false;
         }
         _lastRestartState = currentRestart;
+
+        // Dispatch raw packet arrival for telemetry and high-frequency recording
+        var snapshot = new BoardState
+        {
+            Roll = Roll,
+            Pitch = Pitch,
+            FusedRollDeg = _fusedRollDeg,
+            FusedPitchDeg = _fusedPitchDeg,
+            CalOffsetRoll = CalOffsetRoll,
+            CalOffsetPitch = CalOffsetPitch,
+            IsActive = true,
+            IsButtonPressed = IsRestartPressed,
+            Hz = Hz,
+            Seq = Seq,
+            RawAccel = RawAccel,
+            RawGyro = RawGyro,
+            RawMag = RawMag,
+            HasMag = HasMag,
+            CompassHeadingDeg = CompassHeadingDeg,
+            TimestampUs = TimestampUs,
+            DeviceIp = DeviceIp,
+            Source = "atoms3"
+        };
+        OnPacketReceived?.Invoke(snapshot);
+    }
+
+    private static float ApplyDeadzoneAndCurve(float val, float deadzone)
+    {
+        float abs = MathF.Abs(val);
+        if (abs <= deadzone) return 0f;
+
+        // Smoothly ramp from 0 at the deadzone edge up to 1.0 at maximum tilt
+        float remapped = (abs - deadzone) / (1.0f - deadzone);
+        // Progressive curve (1.35x power) gives fine micro-control near level, but full range on deep lean
+        float curved = MathF.Pow(remapped, 1.35f);
+        return MathF.Sign(val) * curved;
     }
 
     public void TareZero()

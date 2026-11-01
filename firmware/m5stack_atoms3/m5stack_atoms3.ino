@@ -18,7 +18,7 @@ const uint16_t udpPort = 8080;
 IPAddress piIP;
 bool configMode = false;
 
-// Binary packet structure (32 bytes total)
+// Binary packet structure (44 bytes total: 6-DoF IMU + 3-DoF Magnetometer)
 #pragma pack(push, 1)
 struct ControllerPacket {
   uint16_t magic;        // 2 bytes: Identifier 0x4553 ('E', 'S' for Endless Ride Sensor, little-endian 0x53, 0x45)
@@ -31,9 +31,12 @@ struct ControllerPacket {
   float    gx;           // 4 bytes: Gyroscope X in deg/s (IEEE 754 float)
   float    gy;           // 4 bytes: Gyroscope Y in deg/s (IEEE 754 float)
   float    gz;           // 4 bytes: Gyroscope Z in deg/s (IEEE 754 float)
+  float    mx;           // 4 bytes: Magnetometer X in microtesla uT (IEEE 754 float, 0 if unavailable)
+  float    my;           // 4 bytes: Magnetometer Y in microtesla uT (IEEE 754 float, 0 if unavailable)
+  float    mz;           // 4 bytes: Magnetometer Z in microtesla uT (IEEE 754 float, 0 if unavailable)
 };
 #pragma pack(pop)
-static_assert(sizeof(ControllerPacket) == 32, "ControllerPacket must be exactly 32 bytes");
+static_assert(sizeof(ControllerPacket) == 44, "ControllerPacket must be exactly 44 bytes");
 
 const uint16_t PACKET_MAGIC = 0x4553; // 'ES' in hex
 uint8_t packetSeq = 0;
@@ -214,6 +217,10 @@ void setup() {
     return;
   }
 
+  // Disable Wi-Fi modem sleep to prevent packet drop and jitter on high-frequency (100 Hz) UDP streaming
+  WiFi.setSleep(false);
+  WiFi.setTxPower(WIFI_POWER_19_5dBm);
+
   auto sendTargetForm = []() {
     String html = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
                   "<style>body{background:#121212;color:#fff;font-family:sans-serif;text-align:center;padding:24px;}"
@@ -274,6 +281,7 @@ void loop() {
     lastWifiCheckTime = now;
     if (WiFi.status() != WL_CONNECTED) {
       WiFi.reconnect();
+      WiFi.setSleep(false);
     }
   }
 
@@ -312,8 +320,10 @@ void loop() {
 
     float ax = 0, ay = 0, az = 0;
     float gx = 0, gy = 0, gz = 0;
+    float mx = 0, my = 0, mz = 0;
     M5.Imu.getAccel(&ax, &ay, &az);
     M5.Imu.getGyro(&gx, &gy, &gz);
+    M5.Imu.getMag(&mx, &my, &mz); // Safe: returns false with 0 I2C traffic if magnetometer is absent
 
     uint8_t restartFlag = 0;
     if (restartPacketsRemaining > 0) {
@@ -321,7 +331,7 @@ void loop() {
       restartPacketsRemaining--;
     }
 
-    // 32-byte binary UDP packet with raw 6-axis IMU data
+    // 44-byte binary UDP packet with raw 6-axis IMU + 3-axis Magnetometer data
     ControllerPacket pkt;
     pkt.magic        = PACKET_MAGIC;
     pkt.seq          = packetSeq++;
@@ -333,6 +343,9 @@ void loop() {
     pkt.gx           = gx;
     pkt.gy           = gy;
     pkt.gz           = gz;
+    pkt.mx           = mx;
+    pkt.my           = my;
+    pkt.mz           = mz;
 
     udp.beginPacket(piIP, udpPort);
     udp.write((const uint8_t*)&pkt, sizeof(pkt));

@@ -375,6 +375,28 @@
       border-color: #38bdf8;
       color: #93c5fd;
     }
+
+    /* Recording Session Deck */
+    .btn-record {
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-record.recording {
+      background: linear-gradient(135deg, #dc2626, #991b1b);
+      box-shadow: 0 0 24px rgba(239, 68, 68, 0.7);
+      animation: pulseRecord 1s ease infinite alternate;
+    }
+
+    @keyframes pulseRecord {
+      from { transform: scale(1.0); }
+      to { transform: scale(1.02); }
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 6px 20px var(--emerald-glow);
+    }
   </style>
 </head>
 <body>
@@ -463,6 +485,31 @@
     </div>
   </section>
 
+  <!-- SensorLab Motion Recording Card -->
+  <section class="card" id="recordingCard">
+    <div class="card-title">
+      <span>Movement Data Recorder</span>
+      <span id="recStatusBadge" style="font-size:0.7rem; color:var(--text-muted);">100 Hz Raw IMU</span>
+    </div>
+    <div style="margin-bottom:12px; font-size:0.8rem; color:var(--text-muted); line-height:1.4;">
+      Record raw accelerometer, gyroscope, and fused angles to analyze standing wobble and evaluate custom filters.
+    </div>
+    <button id="btnRecordToggle" class="btn-main btn-record" onclick="toggleRecordingSession()">
+      <span id="btnRecordIcon">⏺️</span>
+      <span id="btnRecordText">Start Recording Session</span>
+    </button>
+    <div id="recordingStatsRow" style="display:none; margin-top:12px; font-size:0.85rem; display:flex; justify-content:space-between; color:var(--text-muted); font-variant-numeric:tabular-nums;">
+      <div>Duration: <span id="recDurationText" style="color:#f87171; font-weight:800;">0.0s</span></div>
+      <div>Samples: <span id="recSampleText" style="color:#60a5fa; font-weight:800;">0</span></div>
+    </div>
+    <div id="downloadRow" style="display:none; margin-top:12px;">
+      <a id="btnDownloadCsv" href="/api/recording/latest.csv" download="wobble_sensor_session.csv" class="btn-main btn-download" style="text-decoration:none;">
+        <span>📥</span>
+        <span>Download CSV Session</span>
+      </a>
+    </div>
+  </section>
+
   <script>
     let ws = null;
     let currentGameState = 'START';
@@ -488,6 +535,16 @@
     const sensitivityText = document.getElementById('sensitivityText');
     const btnInvertRoll = document.getElementById('btnInvertRoll');
     const btnInvertPitch = document.getElementById('btnInvertPitch');
+
+    const recordingCard = document.getElementById('recordingCard');
+    const btnRecordToggle = document.getElementById('btnRecordToggle');
+    const btnRecordIcon = document.getElementById('btnRecordIcon');
+    const btnRecordText = document.getElementById('btnRecordText');
+    const recordingStatsRow = document.getElementById('recordingStatsRow');
+    const recDurationText = document.getElementById('recDurationText');
+    const recSampleText = document.getElementById('recSampleText');
+    const downloadRow = document.getElementById('downloadRow');
+    let isRecordingActive = false;
 
     function connectWs() {
       const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -582,6 +639,33 @@
         btnInvertRoll.classList.toggle('active', !!data.settings.invertRoll);
         btnInvertPitch.classList.toggle('active', !!data.settings.invertPitch);
       }
+
+      // 5. Motion Recording Session Telemetry
+      if (data.game && data.game.stats) {
+        const stats = data.game.stats;
+        if (typeof stats.isRecording === 'boolean') {
+          isRecordingActive = stats.isRecording;
+          if (isRecordingActive) {
+            btnRecordToggle.className = 'btn-main btn-record recording';
+            btnRecordIcon.textContent = '⏹️';
+            btnRecordText.textContent = 'Stop Recording Session';
+            recordingStatsRow.style.display = 'flex';
+            recDurationText.textContent = `${(stats.recordDuration || 0).toFixed(1)}s`;
+            recSampleText.textContent = stats.sampleCount || 0;
+            downloadRow.style.display = 'none';
+          } else {
+            btnRecordToggle.className = 'btn-main btn-record';
+            btnRecordIcon.textContent = '⏺️';
+            btnRecordText.textContent = 'Start Recording Session';
+            if (stats.hasRecording) {
+              recordingStatsRow.style.display = 'flex';
+              recDurationText.textContent = `${(stats.recordDuration || 0).toFixed(1)}s`;
+              recSampleText.textContent = stats.sampleCount || 0;
+              downloadRow.style.display = 'block';
+            }
+          }
+        }
+      }
     }
 
     function renderGames(games, activeId) {
@@ -642,6 +726,14 @@
 
     function toggleInvert(axis) {
       sendWsMessage({ type: 'toggle_invert', axis: axis });
+    }
+
+    function toggleRecordingSession() {
+      if (isRecordingActive) {
+        sendWsMessage({ type: 'stop_recording' });
+      } else {
+        sendWsMessage({ type: 'start_recording' });
+      }
     }
 
     // Connect WebSocket on load

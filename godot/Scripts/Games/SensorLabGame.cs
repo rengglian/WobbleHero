@@ -20,10 +20,15 @@ public partial class SensorLabGame : BaseGameMode
     private Node3D? _boardPivot;
     private Label3D? _telemetryLabel;
     private Label3D? _statusLabel;
+    private Label3D? _recordLabel;
     private MeshInstance3D? _bubbleIndicator;
+
+    public MovementRecorder Recorder { get; } = new();
 
     private float _displayRoll;
     private float _displayPitch;
+    private bool _lastSpaceKeyState;
+    private BoardState _latestBoardState = BoardState.Default;
 
     public override void _Ready()
     {
@@ -128,6 +133,17 @@ public partial class SensorLabGame : BaseGameMode
         };
         AddChild(_statusLabel);
 
+        // 5. Session Recording Status Label
+        _recordLabel = new Label3D
+        {
+            Text = "[Press SPACE / Phone to Record Session]",
+            FontSize = 22,
+            Position = new Vector3(0, 1.7f, 0),
+            Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
+            Modulate = new Color(0.85f, 0.85f, 0.9f)
+        };
+        AddChild(_recordLabel);
+
         // Camera & Lighting
         var camera = new Camera3D
         {
@@ -145,10 +161,51 @@ public partial class SensorLabGame : BaseGameMode
         AddChild(light);
     }
 
+    public override void Initialize(GameManager manager)
+    {
+        base.Initialize(manager);
+        if (Manager?.BoardInput != null)
+        {
+            Manager.BoardInput.OnPacketReceived += HandlePacketReceived;
+        }
+    }
+
+    public override void _ExitTree()
+    {
+        if (Manager?.BoardInput != null)
+        {
+            Manager.BoardInput.OnPacketReceived -= HandlePacketReceived;
+        }
+        base._ExitTree();
+    }
+
+    private void HandlePacketReceived(BoardState snapshot)
+    {
+        if (Recorder.IsRecording)
+        {
+            Recorder.RecordSample(snapshot);
+        }
+    }
+
     public override void UpdateBoardInput(BoardState boardState, double delta)
     {
+        _latestBoardState = boardState;
         _displayRoll = boardState.FusedRollDeg;
         _displayPitch = boardState.FusedPitchDeg;
+
+        // Toggle recording with Space or R key
+        bool spacePressed = Godot.Input.IsKeyPressed(Key.Space) || Godot.Input.IsKeyPressed(Key.R);
+        if (spacePressed && !_lastSpaceKeyState)
+        {
+            ToggleRecording();
+        }
+        _lastSpaceKeyState = spacePressed;
+
+        // Fallback: capture motion sample in physics loop only if not receiving hardware UDP packets
+        if (Recorder.IsRecording && !boardState.IsActive)
+        {
+            Recorder.RecordSample(boardState);
+        }
 
         // Apply 3D rotation to board pivot
         if (_boardPivot != null)
@@ -171,7 +228,8 @@ public partial class SensorLabGame : BaseGameMode
         {
             string signRoll = _displayRoll >= 0 ? "+" : "";
             string signPitch = _displayPitch >= 0 ? "+" : "";
-            _telemetryLabel.Text = $"ROLL: {signRoll}{_displayRoll:F1}° | PITCH: {signPitch}{_displayPitch:F1}°";
+            string magText = boardState.HasMag ? $" | COMPASS: {boardState.CompassHeadingDeg:F0}°" : "";
+            _telemetryLabel.Text = $"ROLL: {signRoll}{_displayRoll:F1}° | PITCH: {signPitch}{_displayPitch:F1}°{magText}";
         }
 
         if (_statusLabel != null)
@@ -181,6 +239,53 @@ public partial class SensorLabGame : BaseGameMode
             _statusLabel.Text = $"SOURCE: {src} | {active} | IP: {boardState.DeviceIp}";
             _statusLabel.Modulate = boardState.IsActive ? new Color(0.2f, 0.9f, 0.4f) : new Color(0.9f, 0.4f, 0.3f);
         }
+
+        // Update recording label
+        if (_recordLabel != null)
+        {
+            if (Recorder.IsRecording)
+            {
+                int sec = (int)Recorder.DurationSec;
+                int ms = (int)((Recorder.DurationSec - sec) * 10);
+                _recordLabel.Text = $"🔴 RECORDING [{sec:D2}.{ms}s] • {Recorder.SampleCount} SAMPLES • 100 Hz";
+                _recordLabel.Modulate = new Color(1.0f, 0.25f, 0.25f);
+            }
+            else if (!string.IsNullOrEmpty(Recorder.LastSavedPath))
+            {
+                string filename = System.IO.Path.GetFileName(Recorder.LastSavedPath);
+                _recordLabel.Text = $"💾 Saved: {filename} ({Recorder.SampleCount} samples)\n[Press SPACE / Phone to Record Again]";
+                _recordLabel.Modulate = new Color(0.2f, 0.95f, 0.4f);
+            }
+            else
+            {
+                _recordLabel.Text = "[Press SPACE / Phone to Record Session]";
+                _recordLabel.Modulate = new Color(0.7f, 0.85f, 1.0f);
+            }
+        }
+    }
+
+    public void ToggleRecording()
+    {
+        if (Recorder.IsRecording)
+        {
+            StopRecording();
+        }
+        else
+        {
+            StartRecording();
+        }
+    }
+
+    public void StartRecording()
+    {
+        Recorder.StartRecording();
+        GD.Print("[SensorLabGame] Started movement recording session.");
+    }
+
+    public void StopRecording()
+    {
+        Recorder.StopRecording();
+        GD.Print($"[SensorLabGame] Stopped movement recording session. Saved {Recorder.SampleCount} samples.");
     }
 
     public override Dictionary<string, object> GetLiveStats()
@@ -188,6 +293,13 @@ public partial class SensorLabGame : BaseGameMode
         var stats = base.GetLiveStats();
         stats["rollDeg"] = _displayRoll;
         stats["pitchDeg"] = _displayPitch;
+        stats["hasMag"] = _latestBoardState.HasMag;
+        stats["headingDeg"] = _latestBoardState.CompassHeadingDeg;
+        stats["isRecording"] = Recorder.IsRecording;
+        stats["recordDuration"] = Recorder.DurationSec;
+        stats["sampleCount"] = Recorder.SampleCount;
+        stats["lastSavedPath"] = Recorder.LastSavedPath;
+        stats["hasRecording"] = !string.IsNullOrEmpty(Recorder.LastSessionCsv);
         return stats;
     }
 }

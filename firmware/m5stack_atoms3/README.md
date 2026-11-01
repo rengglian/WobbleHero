@@ -5,7 +5,8 @@ Firmware for the **M5Stack AtomS3 (SKU C126)** mounted on a balancing board (wob
 ## Architecture
 - **Hardware**: M5Stack AtomS3 (ESP32-S3 + Bosch BMI270 6-axis IMU + 128x128 color IPS LCD + push-button).
 - **Streaming Rate**: 100 Hz (10 ms period).
-- **Protocol**: 32-byte raw binary UDP datagram (`magic: 0x4553`, sequence, button, `timestamp_us`, `ax, ay, az, gx, gy, gz`).
+- **Protocol**: 44-byte raw binary UDP datagram (`magic: 0x4553`, sequence, button, `timestamp_us`, `ax, ay, az`, `gx, gy, gz`, `mx, my, mz`). Backward-compatible with 32-byte 6-DoF decoders.
+- **Wi-Fi Optimization**: Automatic modem-sleep disable (`WiFi.setSleep(false)`) for sustained 100 Hz UDP delivery without packet drops.
 - **Target Port**: UDP `8080` (or `8081`).
 - **Configuration**:
   - Wi-Fi AP Onboarding: If not connected to Wi-Fi, the AtomS3 launches a captive portal AP named `AtomS3-Setup` (`192.168.4.1`).

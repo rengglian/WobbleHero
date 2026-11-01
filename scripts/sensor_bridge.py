@@ -13,8 +13,10 @@ import argparse
 import sys
 
 PACKET_MAGIC = 0x4553  # 'ES' in hex
-PACKET_FORMAT = "<HBBI6f"  # uint16 magic, uint8 seq, uint8 button, uint32 timestamp_us, 6 floats (ax, ay, az, gx, gy, gz)
-PACKET_SIZE = struct.calcsize(PACKET_FORMAT)
+PACKET_FORMAT_6DOF = "<HBBI6f"  # uint16 magic, uint8 seq, uint8 button, uint32 timestamp_us, 6 floats (32B)
+PACKET_FORMAT_9DOF = "<HBBI9f"  # uint16 magic, uint8 seq, uint8 button, uint32 timestamp_us, 6 floats + 3 mag floats (44B)
+PACKET_SIZE_6DOF = struct.calcsize(PACKET_FORMAT_6DOF)
+PACKET_SIZE_9DOF = struct.calcsize(PACKET_FORMAT_9DOF)
 
 def run_simulator(host="127.0.0.1", port=8080, rate_hz=100):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -45,7 +47,8 @@ def run_simulator(host="127.0.0.1", port=8080, rate_hz=100):
             gz = 0.0
 
             button = 0
-            packet = struct.pack(PACKET_FORMAT, PACKET_MAGIC, seq, button, timestamp_us, ax, ay, az, gx, gy, gz)
+            mx, my, mz = 0.0, 0.0, 0.0
+            packet = struct.pack(PACKET_FORMAT_9DOF, PACKET_MAGIC, seq, button, timestamp_us, ax, ay, az, gx, gy, gz, mx, my, mz)
             sock.sendto(packet, (host, port))
 
             seq = (seq + 1) & 0xFF
@@ -66,8 +69,15 @@ def run_listener(port=8080):
     try:
         while True:
             data, addr = sock.recvfrom(128)
-            if len(data) == PACKET_SIZE:
-                magic, seq, button, ts_us, ax, ay, az, gx, gy, gz = struct.unpack(PACKET_FORMAT, data)
+            if len(data) >= PACKET_SIZE_6DOF:
+                if len(data) >= PACKET_SIZE_9DOF:
+                    magic, seq, button, ts_us, ax, ay, az, gx, gy, gz, mx, my, mz = struct.unpack(PACKET_FORMAT_9DOF, data[:PACKET_SIZE_9DOF])
+                    has_mag = (mx*mx + my*my + mz*mz) > 0.01
+                else:
+                    magic, seq, button, ts_us, ax, ay, az, gx, gy, gz = struct.unpack(PACKET_FORMAT_6DOF, data[:PACKET_SIZE_6DOF])
+                    has_mag = False
+                    mx, my, mz = 0.0, 0.0, 0.0
+
                 if magic == PACKET_MAGIC:
                     count += 1
                     if count % 50 == 0:
@@ -75,7 +85,8 @@ def run_listener(port=8080):
                         hz = count / elapsed if elapsed > 0 else 0
                         roll_deg = math.atan2(ax, math.sqrt(ay*ay + az*az)) * (180.0 / math.pi)
                         pitch_deg = math.atan2(ay, math.sqrt(ax*ax + az*az)) * (180.0 / math.pi)
-                        print(f"[{addr[0]}] Seq={seq:3d} | Btn={button} | Roll={roll_deg:+5.1f}° | Pitch={pitch_deg:+5.1f}° | Rate={hz:4.1f} Hz")
+                        mag_str = f" | Mag={mx:+.1f},{my:+.1f} µT" if has_mag else ""
+                        print(f"[{addr[0]}] Seq={seq:3d} | Btn={button} | Roll={roll_deg:+5.1f}° | Pitch={pitch_deg:+5.1f}°{mag_str} | Rate={hz:4.1f} Hz")
     except KeyboardInterrupt:
         print("\n[Listener] Stopped.")
     finally:

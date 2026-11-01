@@ -27,6 +27,24 @@ public readonly struct BoardState
     /// <summary>Tare zero calibration offset applied to pitch axis (in degrees)</summary>
     public float CalOffsetPitch { get; init; }
 
+    /// <summary>Raw 3-axis accelerometer readings in g (ax, ay, az)</summary>
+    public Vector3 RawAccel { get; init; }
+
+    /// <summary>Raw 3-axis gyroscope readings in deg/s (gx, gy, gz)</summary>
+    public Vector3 RawGyro { get; init; }
+
+    /// <summary>Raw 3-axis magnetometer readings in microteslas uT (mx, my, mz)</summary>
+    public Vector3 RawMag { get; init; }
+
+    /// <summary>True if a physical magnetometer sensor is present and transmitting non-zero data</summary>
+    public bool HasMag { get; init; }
+
+    /// <summary>Estimated magnetic compass heading [0° .. 360°), or 0 if magnetometer absent</summary>
+    public float CompassHeadingDeg { get; init; }
+
+    /// <summary>Hardware microsecond timestamp from microcontroller clock</summary>
+    public uint TimestampUs { get; init; }
+
     /// <summary>True if receiving valid UDP packets within 350 ms timeout</summary>
     public bool IsActive { get; init; }
 

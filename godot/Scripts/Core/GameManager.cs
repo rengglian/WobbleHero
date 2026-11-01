@@ -4,6 +4,7 @@ using Godot;
 using WobbleHero.Input;
 using WobbleHero.Networking;
 using WobbleHero.UI;
+using WobbleHero.Games;
 
 namespace WobbleHero.Core;
 
@@ -62,6 +63,19 @@ public partial class GameManager : Node
                 if (BoardInput == null) return;
                 if (axis == "pitch") BoardInput.InvertPitch = !BoardInput.InvertPitch;
                 else BoardInput.InvertRoll = !BoardInput.InvertRoll;
+            };
+            WebServer.OnStartRecordingRequested += () =>
+            {
+                if (CurrentGame is SensorLabGame lab) lab.StartRecording();
+            };
+            WebServer.OnStopRecordingRequested += () =>
+            {
+                if (CurrentGame is SensorLabGame lab) lab.StopRecording();
+            };
+            WebServer.OnGetRecordingCsv = () =>
+            {
+                if (CurrentGame is SensorLabGame lab) return lab.Recorder.LastSessionCsv;
+                return string.Empty;
             };
         }
 

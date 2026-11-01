@@ -48,6 +48,13 @@ public static class GameRegistry
             "res://Scenes/Games/AsteroidSurfer.tscn"
         ),
         new(
+            "WobbleSumo",
+            "Wobble Sumo",
+            "Physics brawler in a floating dojo! Knock AI sumos out of the shrinking ring with board tilts & shockwave body slams!",
+            "🦹",
+            "res://Scenes/Games/WobbleSumo.tscn"
+        ),
+        new(
             "SensorLab",
             "Sensor Lab & Diagnostics",
             "Real-time 3D balance board visualizer and IMU calibration bench",

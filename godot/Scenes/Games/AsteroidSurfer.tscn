@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://cx6asgame001"]
+[gd_scene format=3 uid="uid://cx6asgame001"]
 
 [ext_resource type="Script" path="res://Scripts/Games/AsteroidSurferGame.cs" id="1_as"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/AsteroidSurferHud.tscn" id="2_hud"]

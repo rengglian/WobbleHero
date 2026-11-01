@@ -1016,6 +1016,116 @@
   </main>
 
   <!-- ============================================================ -->
+  <!-- VIEW: WOBBLE SUMO (RING KING) -->
+  <!-- ============================================================ -->
+  <main class="game-view" id="view-WobbleSumo">
+    <!-- Header & Telemetry Card -->
+    <section class="card">
+      <div class="card-title">
+        <span>🦹 Sumo Ring King</span>
+        <span id="sumoStateBadge" style="color:#60a5fa; font-size:0.75rem;">START</span>
+      </div>
+      <div style="font-size:0.78rem; color:var(--text-muted); line-height:1.4; margin-bottom:10px;">
+        Physics dojo brawler! Tilt your board to ram rivals off the edge. Snap your weight shift rapidly to unleash kinetic shockwave body slams!
+      </div>
+      <div class="telemetry-grid-3">
+        <div class="telem-item">
+          <div class="telem-label">Knockouts</div>
+          <div class="telem-val" id="sumoKnockouts" style="color:var(--gold);">0</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Opponents</div>
+          <div class="telem-val" id="sumoOpponents" style="color:#f87171;">0</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Wave</div>
+          <div class="telem-val" id="sumoWave" style="color:#a78bfa;">1</div>
+        </div>
+      </div>
+      <div class="telemetry-grid-2" style="margin-top:8px;">
+        <div class="telem-item">
+          <div class="telem-label">Ring Integrity</div>
+          <div class="telem-val" id="sumoRingIntegrity" style="color:#34d399;">100%</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Shockwave</div>
+          <div class="telem-val" id="sumoShockwaveBadge" style="color:#fbbf24; font-size:0.95rem;">⚡ READY</div>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:0.75rem; font-weight:700; color:var(--text-muted);">
+        <span>Score: <strong id="sumoScore" style="color:var(--gold); font-size:0.85rem;">0</strong></span>
+        <span id="sumoJerkLabel" style="color:#38bdf8; font-weight:800;">JERK: 0°/s²</span>
+      </div>
+    </section>
+
+    <!-- 2D Dojo Arena Radar -->
+    <section class="card">
+      <div class="card-title">
+        <span>Dojo Arena Radar (Top-Down)</span>
+        <span id="sumoRateLabel" style="font-size:0.7rem; color:#34d399;">-- Hz</span>
+      </div>
+      <div style="position:relative; width:100%; height:230px; background:radial-gradient(circle at 50% 50%, #1e1b4b 0%, #090d16 80%); border:1px solid rgba(255,255,255,0.08); border-radius:14px; overflow:hidden;">
+        <canvas id="wsRadarCanvas" width="340" height="230" style="width:100%; height:100%; display:block;"></canvas>
+      </div>
+      <div style="display:flex; justify-content:space-around; align-items:center; margin-top:8px; font-size:0.68rem; font-weight:700; color:var(--text-muted);">
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#38bdf8; margin-right:4px;"></span>Hero</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; margin-right:4px;"></span>Scout</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#f59e0b; margin-right:4px;"></span>Brawler</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#ef4444; margin-right:4px;"></span>Yokozuna</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; border:1px dashed #e11d48; margin-right:4px;"></span>Ring Edge</span>
+      </div>
+    </section>
+
+    <!-- Shockwave Action & Controls -->
+    <section class="card">
+      <div class="card-title">
+        <span>Brawler Actions & Tuning</span>
+      </div>
+      <!-- Manual Shockwave Burst Button -->
+      <button id="btnSumoShockwave" class="btn-main" style="background:linear-gradient(135deg, #f59e0b, #ef4444); box-shadow:0 6px 20px rgba(245,158,11,0.4); margin-bottom:12px;" onclick="triggerShockwave()">
+        <span style="font-size:1.3rem;">💥</span>
+        <span>SLAP SHOCKWAVE BURST</span>
+      </button>
+
+      <!-- Difficulty Selector -->
+      <div class="form-group">
+        <label class="form-label" style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); display:block; margin-bottom:4px;">Brawler Difficulty</label>
+        <div class="invert-deck" style="grid-template-columns: repeat(2, 1fr); margin-top:4px;">
+          <button class="btn-toggle active" id="sumoDiffNovice" onclick="setSumoDifficulty('novice')">Novice (Standard AI)</button>
+          <button class="btn-toggle" id="sumoDiffYokozuna" onclick="setSumoDifficulty('yokozuna')">👑 Yokozuna (Rampage)</button>
+        </div>
+      </div>
+
+      <!-- Arena Size Selector -->
+      <div class="form-group" style="margin-top:12px;">
+        <label class="form-label" style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); display:block; margin-bottom:4px;">Arena Size</label>
+        <div class="invert-deck" style="grid-template-columns: repeat(3, 1fr); margin-top:4px;">
+          <button class="btn-toggle" id="sumoSizeCompact" onclick="setSumoArenaSize('compact')">Compact 10m</button>
+          <button class="btn-toggle active" id="sumoSizeStandard" onclick="setSumoArenaSize('standard')">Standard 14m</button>
+          <button class="btn-toggle" id="sumoSizeColosseum" onclick="setSumoArenaSize('colosseum')">Colosseum 18m</button>
+        </div>
+      </div>
+
+      <!-- Tare & Sensitivity -->
+      <div class="cal-actions" style="margin-top:12px;">
+        <button class="btn-tare" onclick="sendWsMessage({ type: 'tare_board' })">🎯 Tare Zero (Set Level)</button>
+        <button class="btn-secondary" onclick="sendWsMessage({ type: 'reset_cal' })">Reset Zero</button>
+      </div>
+
+      <div class="slider-row" style="margin-top:12px;">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Drive Sensitivity:</span>
+        <input type="range" id="sumoSensitivitySlider" min="0.5" max="2.5" step="0.1" value="1.0" oninput="onSensitivityInput(this.value)">
+        <span id="sumoSensitivityText" style="font-size:0.8rem; font-weight:800; min-width:36px;">1.0x</span>
+      </div>
+
+      <div class="invert-deck" style="margin-top:10px;">
+        <button class="btn-toggle active" id="sumoBtnInvertRoll" onclick="toggleInvert('roll')">Invert Steer Roll</button>
+        <button class="btn-toggle active" id="sumoBtnInvertPitch" onclick="toggleInvert('pitch')">Invert Drive Pitch</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================================ -->
   <!-- VIEW 3: SENSOR LAB & DIAGNOSTICS -->
   <!-- ============================================================ -->
   <main class="game-view" id="view-SensorLab">
@@ -1216,6 +1326,32 @@
     let currentWaveSpeed = 28;
     let currentCosmicDensity = 'medium';
 
+    // Wobble Sumo Elements
+    const viewWobbleSumo = document.getElementById('view-WobbleSumo');
+    const sumoStateBadge = document.getElementById('sumoStateBadge');
+    const sumoScore = document.getElementById('sumoScore');
+    const sumoKnockouts = document.getElementById('sumoKnockouts');
+    const sumoOpponents = document.getElementById('sumoOpponents');
+    const sumoWave = document.getElementById('sumoWave');
+    const sumoRingIntegrity = document.getElementById('sumoRingIntegrity');
+    const sumoShockwaveBadge = document.getElementById('sumoShockwaveBadge');
+    const sumoJerkLabel = document.getElementById('sumoJerkLabel');
+    const sumoRateLabel = document.getElementById('sumoRateLabel');
+    const btnSumoShockwave = document.getElementById('btnSumoShockwave');
+    const sumoDiffNovice = document.getElementById('sumoDiffNovice');
+    const sumoDiffYokozuna = document.getElementById('sumoDiffYokozuna');
+    const sumoSizeCompact = document.getElementById('sumoSizeCompact');
+    const sumoSizeStandard = document.getElementById('sumoSizeStandard');
+    const sumoSizeColosseum = document.getElementById('sumoSizeColosseum');
+    const sumoSensitivitySlider = document.getElementById('sumoSensitivitySlider');
+    const sumoSensitivityText = document.getElementById('sumoSensitivityText');
+    const sumoBtnInvertRoll = document.getElementById('sumoBtnInvertRoll');
+    const sumoBtnInvertPitch = document.getElementById('sumoBtnInvertPitch');
+
+    let sumoDifficulty = 'novice';
+    let sumoArenaSize = 'standard';
+    let sumoShockwaveAnim = { active: false, x: 0, y: 0, radius: 0, alpha: 0 };
+
     // Sensor Lab Elements
     const viewSensorLab = document.getElementById('view-SensorLab');
     const slRecHzBadge = document.getElementById('slRecHzBadge');
@@ -1248,7 +1384,8 @@
       'WobbleRunner': viewWobbleRunner,
       'WobbleMaze': viewWobbleMaze,
       'SensorLab': viewSensorLab,
-      'AsteroidSurfer': viewAsteroidSurfer
+      'AsteroidSurfer': viewAsteroidSurfer,
+      'WobbleSumo': viewWobbleSumo
     };
 
     function connectWs() {
@@ -1492,6 +1629,9 @@
         // Render 2D Surf Carve Visualizer
         drawSurfVisualizer(normX, normY, rollDeg, pitchDeg, stats);
       }
+      else if (current === 'wobblesumo') {
+        renderSumoTelemetry(data, b, normX, normY, rollDeg, pitchDeg);
+      }
       else if (current === 'sensorlab') {
         // Sensor Lab
         slSourceBadge.textContent = `${(b.source || 'atoms3').toUpperCase()}`;
@@ -1564,6 +1704,10 @@
           if (wmSensitivityText) wmSensitivityText.textContent = sensText;
           if (asSensitivitySlider) asSensitivitySlider.value = s.sensitivity;
           if (asSensitivityText) asSensitivityText.textContent = sensText;
+          if (sumoSensitivitySlider) sumoSensitivitySlider.value = s.sensitivity;
+          if (sumoSensitivityText) sumoSensitivityText.textContent = sensText;
+          if (sumoBtnInvertRoll) sumoBtnInvertRoll.classList.toggle('active', invRoll);
+          if (sumoBtnInvertPitch) sumoBtnInvertPitch.classList.toggle('active', invPitch);
         }
 
         const invRoll = !!s.invertRoll;
@@ -1655,6 +1799,7 @@
       if (wrSensitivityText) wrSensitivityText.textContent = text;
       if (wmSensitivityText) wmSensitivityText.textContent = text;
       if (asSensitivityText) asSensitivityText.textContent = text;
+      if (sumoSensitivityText) sumoSensitivityText.textContent = text;
       sendWsMessage({ type: 'set_sensitivity', value: num });
     }
 
@@ -1893,6 +2038,245 @@
         density: currentCosmicDensity,
         value: currentCosmicDensity
       });
+    }
+
+    function renderSumoTelemetry(data, b, normX, normY, rollDeg, pitchDeg) {
+      if (sumoStateBadge) sumoStateBadge.textContent = currentGameState;
+      if (sumoScore) sumoScore.textContent = data.game ? (data.game.score || 0).toLocaleString() : 0;
+      if (sumoRateLabel) sumoRateLabel.textContent = `${b.hz || 0} Hz`;
+
+      const stats = (data.game && data.game.stats) ? data.game.stats : {};
+      const kos = typeof stats.knockouts === 'number' ? stats.knockouts : 0;
+      const opps = typeof stats.opponentsRemaining === 'number' ? stats.opponentsRemaining : 0;
+      const wave = typeof stats.wave === 'number' ? stats.wave : 1;
+      const integrity = typeof stats.ringIntegrity === 'number' ? stats.ringIntegrity : 100;
+      const ready = stats.shockwaveReady !== false;
+      const jerk = typeof stats.jerk === 'number' ? stats.jerk : 0;
+
+      if (sumoKnockouts) sumoKnockouts.textContent = kos;
+      if (sumoOpponents) sumoOpponents.textContent = opps;
+      if (sumoWave) sumoWave.textContent = wave;
+      if (sumoRingIntegrity) {
+        sumoRingIntegrity.textContent = `${Math.round(integrity)}%`;
+        sumoRingIntegrity.style.color = integrity > 50 ? '#34d399' : (integrity > 25 ? '#fbbf24' : '#ef4444');
+      }
+
+      if (sumoShockwaveBadge) {
+        if (ready) {
+          sumoShockwaveBadge.innerHTML = '<span style="color:#fbbf24; font-weight:900;">⚡ READY</span>';
+          if (btnSumoShockwave) {
+            btnSumoShockwave.style.opacity = '1.0';
+            btnSumoShockwave.style.filter = 'none';
+          }
+        } else {
+          const cd = typeof stats.shockwaveCooldown === 'number' ? stats.shockwaveCooldown.toFixed(1) : '...';
+          sumoShockwaveBadge.innerHTML = `<span style="color:#94a3b8; font-weight:700;">⏳ ${cd}s</span>`;
+          if (btnSumoShockwave) {
+            btnSumoShockwave.style.opacity = '0.5';
+            btnSumoShockwave.style.filter = 'grayscale(0.6)';
+          }
+        }
+      }
+
+      if (sumoJerkLabel) {
+        sumoJerkLabel.textContent = `JERK: ${Math.round(jerk)}°/s²`;
+        sumoJerkLabel.style.color = jerk > 150 ? '#ef4444' : (jerk > 80 ? '#facc15' : '#38bdf8');
+      }
+
+      if (stats.difficulty && typeof stats.difficulty === 'string') {
+        const d = stats.difficulty.toLowerCase();
+        sumoDifficulty = d;
+        if (sumoDiffNovice) sumoDiffNovice.classList.toggle('active', d === 'novice');
+        if (sumoDiffYokozuna) sumoDiffYokozuna.classList.toggle('active', d === 'yokozuna');
+      }
+
+      if (stats.arenaSize && typeof stats.arenaSize === 'string') {
+        const s = stats.arenaSize.toLowerCase();
+        sumoArenaSize = s;
+        if (sumoSizeCompact) sumoSizeCompact.classList.toggle('active', s === 'compact');
+        if (sumoSizeStandard) sumoSizeStandard.classList.toggle('active', s === 'standard');
+        if (sumoSizeColosseum) sumoSizeColosseum.classList.toggle('active', s === 'colosseum');
+      }
+
+      if (stats.shockwaveActive && !sumoShockwaveAnim.active) {
+        sumoShockwaveAnim = { active: true, radius: 10, alpha: 1.0 };
+      }
+
+      drawSumoRadar(stats, normX, normY);
+    }
+
+    function drawSumoRadar(stats, normX, normY) {
+      const canvas = document.getElementById('wsRadarCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+      const cx = w / 2;
+      const cy = h / 2;
+
+      ctx.clearRect(0, 0, w, h);
+
+      const maxRadiusM = stats.maxRingRadius || (sumoArenaSize === 'compact' ? 10.5 : (sumoArenaSize === 'colosseum' ? 18.0 : 14.0));
+      const currentRadiusM = stats.ringRadius || (maxRadiusM * ((stats.ringIntegrity || 100) / 100));
+      const pixelMaxR = 95;
+      const scale = pixelMaxR / maxRadiusM;
+      const currentPixelR = Math.max(15, currentRadiusM * scale);
+
+      // 1. Danger Abyss Grid
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(cx, cy, pixelMaxR + 10, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // 2. Dojo Platform Floor
+      const floorGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, currentPixelR);
+      floorGrad.addColorStop(0, '#1e1b4b');
+      floorGrad.addColorStop(0.7, '#172554');
+      floorGrad.addColorStop(1, '#0f172a');
+      ctx.fillStyle = floorGrad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, currentPixelR, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Concentric rings
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(cx, cy, currentPixelR * 0.5, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Center crosshair
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+      ctx.beginPath();
+      ctx.moveTo(cx - 8, cy); ctx.lineTo(cx + 8, cy);
+      ctx.moveTo(cx, cy - 8); ctx.lineTo(cx, cy + 8);
+      ctx.stroke();
+
+      // 3. Ring Perimeter
+      const integrity = stats.ringIntegrity || 100;
+      ctx.save();
+      ctx.lineWidth = integrity < 40 ? 3 : 2;
+      ctx.strokeStyle = integrity < 40 ? '#ef4444' : '#38bdf8';
+      ctx.shadowColor = integrity < 40 ? '#ef4444' : '#38bdf8';
+      ctx.shadowBlur = integrity < 40 ? 12 : 6;
+      ctx.setLineDash(integrity < 40 ? [6, 4] : []);
+      ctx.beginPath();
+      ctx.arc(cx, cy, currentPixelR, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      // 4. Opponents Markers
+      const opponents = Array.isArray(stats.opponents) ? stats.opponents : [];
+      opponents.forEach(opp => {
+        if (!opp || opp.alive === false) return;
+        const ox = cx + (opp.x || 0) * scale;
+        const oy = cy + (opp.y || 0) * scale;
+        const isHeavy = (opp.mass || 1.0) >= 1.5 || opp.kind === 'heavy';
+        const oppR = isHeavy ? 7.5 : 5.0;
+
+        ctx.save();
+        ctx.fillStyle = isHeavy ? '#ef4444' : (opp.mass > 0.8 ? '#f59e0b' : '#10b981');
+        ctx.shadowColor = ctx.fillStyle;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(ox, oy, oppR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      // 5. Player Marker
+      let px = cx;
+      let py = cy;
+      if (stats.playerPos && typeof stats.playerPos.x === 'number') {
+        px = cx + stats.playerPos.x * scale;
+        py = cy + stats.playerPos.y * scale;
+      } else {
+        px = cx + (normX || 0) * (currentPixelR * 0.7);
+        py = cy + (normY || 0) * (currentPixelR * 0.7);
+      }
+
+      // Drive vector line
+      const vecX = (normX || 0) * 22;
+      const vecY = (normY || 0) * 22;
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(px, py);
+      ctx.lineTo(px + vecX, py + vecY);
+      ctx.stroke();
+
+      // Hero dot
+      ctx.save();
+      ctx.fillStyle = '#38bdf8';
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.arc(px, py, 6.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // 6. Shockwave Blast Animation Ripple
+      if (sumoShockwaveAnim.active) {
+        ctx.save();
+        ctx.strokeStyle = `rgba(245, 158, 11, ${sumoShockwaveAnim.alpha})`;
+        ctx.lineWidth = 3.5;
+        ctx.shadowColor = '#f59e0b';
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.arc(px, py, sumoShockwaveAnim.radius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+
+        sumoShockwaveAnim.radius += 5.5;
+        sumoShockwaveAnim.alpha -= 0.055;
+        if (sumoShockwaveAnim.alpha <= 0 || sumoShockwaveAnim.radius > 80) {
+          sumoShockwaveAnim.active = false;
+        }
+      }
+    }
+
+    function setSumoDifficulty(diff) {
+      sumoDifficulty = diff.toLowerCase();
+      if (sumoDiffNovice) sumoDiffNovice.classList.toggle('active', sumoDifficulty === 'novice');
+      if (sumoDiffYokozuna) sumoDiffYokozuna.classList.toggle('active', sumoDifficulty === 'yokozuna');
+      sendWsMessage({
+        type: 'set_sumo_difficulty',
+        difficulty: sumoDifficulty,
+        value: sumoDifficulty
+      });
+    }
+
+    function setSumoArenaSize(size) {
+      sumoArenaSize = size.toLowerCase();
+      if (sumoSizeCompact) sumoSizeCompact.classList.toggle('active', sumoArenaSize === 'compact');
+      if (sumoSizeStandard) sumoSizeStandard.classList.toggle('active', sumoArenaSize === 'standard');
+      if (sumoSizeColosseum) sumoSizeColosseum.classList.toggle('active', sumoArenaSize === 'colosseum');
+      sendWsMessage({
+        type: 'set_sumo_arena_size',
+        arenaSize: sumoArenaSize,
+        size: sumoArenaSize,
+        value: sumoArenaSize
+      });
+    }
+
+    function setSumoConfig(difficulty, arenaSize) {
+      sumoDifficulty = difficulty.toLowerCase();
+      sumoArenaSize = arenaSize.toLowerCase();
+      sendWsMessage({
+        type: 'set_sumo_config',
+        difficulty: sumoDifficulty,
+        arenaSize: sumoArenaSize
+      });
+    }
+
+    function triggerShockwave() {
+      sumoShockwaveAnim = { active: true, radius: 10, alpha: 1.0 };
+      sendWsMessage({ type: 'trigger_shockwave' });
     }
 
     function resetLeaderboard() {

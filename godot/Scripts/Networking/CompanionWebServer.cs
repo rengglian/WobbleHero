@@ -37,6 +37,8 @@ public partial class CompanionWebServer : Node
     public event Action<int>? OnSeedChanged;
     public event Action<int, string, string>? OnMazeConfigChanged;
     public event Action<float, string>? OnSurferConfigChanged;
+    public event Action<string, string>? OnSumoConfigChanged;
+    public event Action? OnSumoShockwaveTriggered;
     public event Action? OnResetLeaderboardRequested;
     public event Action? OnStartRecordingRequested;
     public event Action? OnStopRecordingRequested;
@@ -54,6 +56,8 @@ public partial class CompanionWebServer : Node
     private string _cachedRemoteHtml = string.Empty;
     private float _surferWaveSpeed = 28.0f;
     private string _surferCosmicDensity = "medium";
+    private string _sumoDifficulty = "novice";
+    private string _sumoArenaSize = "standard";
 
     public string PlayerName { get; set; } = "Hero 1";
 
@@ -337,6 +341,10 @@ public partial class CompanionWebServer : Node
             bool hasWaveSpeed = false;
             string cosmicDensityVal = "medium";
             bool hasCosmicDensity = false;
+            string sumoDiffVal = "";
+            bool hasSumoDiff = false;
+            string sumoSizeVal = "";
+            bool hasSumoSize = false;
 
             using (var doc = JsonDocument.Parse(messageJson))
             {
@@ -377,7 +385,11 @@ public partial class CompanionWebServer : Node
                     mazeSize = sizeProp.GetString() ?? "medium";
 
                 if (root.TryGetProperty("difficulty", out var diffProp))
+                {
                     mazeDifficulty = diffProp.GetString() ?? "medium";
+                    sumoDiffVal = diffProp.GetString() ?? "";
+                    hasSumoDiff = !string.IsNullOrEmpty(sumoDiffVal);
+                }
 
                 if (root.TryGetProperty("speed", out var spdProp))
                 {
@@ -397,6 +409,36 @@ public partial class CompanionWebServer : Node
                 {
                     cosmicDensityVal = denProp.GetString() ?? "medium";
                     hasCosmicDensity = !string.IsNullOrEmpty(cosmicDensityVal);
+                }
+
+                if (root.TryGetProperty("arenaSize", out var aSizeProp))
+                {
+                    sumoSizeVal = aSizeProp.GetString() ?? "";
+                    hasSumoSize = !string.IsNullOrEmpty(sumoSizeVal);
+                }
+                else if (root.TryGetProperty("size", out var aSizeProp2))
+                {
+                    string sValStr = aSizeProp2.GetString() ?? "";
+                    if (!string.IsNullOrEmpty(sValStr) && (sValStr == "compact" || sValStr == "standard" || sValStr == "colosseum"))
+                    {
+                        sumoSizeVal = sValStr;
+                        hasSumoSize = true;
+                    }
+                }
+
+                if (root.TryGetProperty("value", out var vProp) && vProp.ValueKind == JsonValueKind.String)
+                {
+                    string vStr = vProp.GetString() ?? "";
+                    if (!hasSumoDiff && (vStr == "novice" || vStr == "yokozuna"))
+                    {
+                        sumoDiffVal = vStr;
+                        hasSumoDiff = true;
+                    }
+                    if (!hasSumoSize && (vStr == "compact" || vStr == "standard" || vStr == "colosseum"))
+                    {
+                        sumoSizeVal = vStr;
+                        hasSumoSize = true;
+                    }
                 }
             }
 
@@ -460,6 +502,22 @@ public partial class CompanionWebServer : Node
                         if (hasWaveSpeed) _surferWaveSpeed = waveSpeedVal;
                         if (hasCosmicDensity) _surferCosmicDensity = cosmicDensityVal;
                         OnSurferConfigChanged?.Invoke(_surferWaveSpeed, _surferCosmicDensity);
+                        break;
+                    case "set_sumo_difficulty":
+                        if (hasSumoDiff) _sumoDifficulty = sumoDiffVal;
+                        OnSumoConfigChanged?.Invoke(_sumoDifficulty, _sumoArenaSize);
+                        break;
+                    case "set_sumo_arena_size":
+                        if (hasSumoSize) _sumoArenaSize = sumoSizeVal;
+                        OnSumoConfigChanged?.Invoke(_sumoDifficulty, _sumoArenaSize);
+                        break;
+                    case "set_sumo_config":
+                        if (hasSumoDiff) _sumoDifficulty = sumoDiffVal;
+                        if (hasSumoSize) _sumoArenaSize = sumoSizeVal;
+                        OnSumoConfigChanged?.Invoke(_sumoDifficulty, _sumoArenaSize);
+                        break;
+                    case "trigger_shockwave":
+                        OnSumoShockwaveTriggered?.Invoke();
                         break;
                     case "set_player_name":
                         if (!string.IsNullOrEmpty(playerName))

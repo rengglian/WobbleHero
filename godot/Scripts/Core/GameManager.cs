@@ -106,6 +106,20 @@ public partial class GameManager : Node
                     surfer.SetSurferConfig(speed, density);
                 }
             };
+            WebServer.OnSumoConfigChanged += (difficulty, arenaSize) =>
+            {
+                if (CurrentGame is WobbleSumoGame sumo)
+                {
+                    sumo.SetSumoConfig(difficulty, arenaSize);
+                }
+            };
+            WebServer.OnSumoShockwaveTriggered += () =>
+            {
+                if (CurrentGame is WobbleSumoGame sumo)
+                {
+                    sumo.TriggerShockwave();
+                }
+            };
             WebServer.OnStartRecordingRequested += () =>
             {
                 if (CurrentGame is SensorLabGame lab) lab.StartRecording();

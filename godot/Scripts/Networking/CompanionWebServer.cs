@@ -36,6 +36,7 @@ public partial class CompanionWebServer : Node
     public event Action<string>? OnPlayerNameChanged;
     public event Action<int>? OnSeedChanged;
     public event Action<int, string, string>? OnMazeConfigChanged;
+    public event Action<float, string>? OnSurferConfigChanged;
     public event Action? OnResetLeaderboardRequested;
     public event Action? OnStartRecordingRequested;
     public event Action? OnStopRecordingRequested;
@@ -51,6 +52,8 @@ public partial class CompanionWebServer : Node
     private CancellationTokenSource? _cts;
     private readonly ConcurrentDictionary<WebSocket, SemaphoreSlim> _clientLocks = new();
     private string _cachedRemoteHtml = string.Empty;
+    private float _surferWaveSpeed = 28.0f;
+    private string _surferCosmicDensity = "medium";
 
     public string PlayerName { get; set; } = "Hero 1";
 
@@ -330,6 +333,10 @@ public partial class CompanionWebServer : Node
             bool hasSeed = false;
             string mazeSize = "medium";
             string mazeDifficulty = "medium";
+            float waveSpeedVal = 28.0f;
+            bool hasWaveSpeed = false;
+            string cosmicDensityVal = "medium";
+            bool hasCosmicDensity = false;
 
             using (var doc = JsonDocument.Parse(messageJson))
             {
@@ -371,6 +378,26 @@ public partial class CompanionWebServer : Node
 
                 if (root.TryGetProperty("difficulty", out var diffProp))
                     mazeDifficulty = diffProp.GetString() ?? "medium";
+
+                if (root.TryGetProperty("speed", out var spdProp))
+                {
+                    if (spdProp.ValueKind == JsonValueKind.Number && spdProp.TryGetSingle(out var sValF))
+                    {
+                        waveSpeedVal = sValF;
+                        hasWaveSpeed = true;
+                    }
+                    else if (spdProp.ValueKind == JsonValueKind.String && float.TryParse(spdProp.GetString(), out var sParsedF))
+                    {
+                        waveSpeedVal = sParsedF;
+                        hasWaveSpeed = true;
+                    }
+                }
+
+                if (root.TryGetProperty("density", out var denProp))
+                {
+                    cosmicDensityVal = denProp.GetString() ?? "medium";
+                    hasCosmicDensity = !string.IsNullOrEmpty(cosmicDensityVal);
+                }
             }
 
             Callable.From(() =>
@@ -419,6 +446,20 @@ public partial class CompanionWebServer : Node
                         break;
                     case "set_maze_config":
                         OnMazeConfigChanged?.Invoke(seedVal, mazeSize, mazeDifficulty);
+                        break;
+                    case "set_wave_speed":
+                        if (hasWaveSpeed) _surferWaveSpeed = waveSpeedVal;
+                        else if (sensitivityVal > 0) _surferWaveSpeed = sensitivityVal;
+                        OnSurferConfigChanged?.Invoke(_surferWaveSpeed, _surferCosmicDensity);
+                        break;
+                    case "set_wave_density":
+                        if (hasCosmicDensity) _surferCosmicDensity = cosmicDensityVal;
+                        OnSurferConfigChanged?.Invoke(_surferWaveSpeed, _surferCosmicDensity);
+                        break;
+                    case "set_surfer_config":
+                        if (hasWaveSpeed) _surferWaveSpeed = waveSpeedVal;
+                        if (hasCosmicDensity) _surferCosmicDensity = cosmicDensityVal;
+                        OnSurferConfigChanged?.Invoke(_surferWaveSpeed, _surferCosmicDensity);
                         break;
                     case "set_player_name":
                         if (!string.IsNullOrEmpty(playerName))

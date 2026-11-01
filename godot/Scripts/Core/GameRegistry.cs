@@ -41,6 +41,13 @@ public static class GameRegistry
             "res://Scenes/Games/WobbleMaze.tscn"
         ),
         new(
+            "AsteroidSurfer",
+            "Asteroid Surfer",
+            "Carve cosmic gravity waves, launch off the lip into zero-G airtime, and dodge black holes!",
+            "🏄",
+            "res://Scenes/Games/AsteroidSurfer.tscn"
+        ),
+        new(
             "SensorLab",
             "Sensor Lab & Diagnostics",
             "Real-time 3D balance board visualizer and IMU calibration bench",

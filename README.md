@@ -15,10 +15,11 @@ A modular, generic **balancing board game engine & companion platform** designed
 2. **Modular Multi-Game Architecture (`IGameMode`)**:
    - Clean, decoupled interface enabling instant runtime game switching without restarting the engine.
    - Registry pattern (`GameRegistry`) enabling discoverable mini-games with dynamic scene mounting.
-   - **4 Included Starter Games**:
+   - **5 Included Starter Games**:
      - **⚖️ Balance Trainer**: 2D marble on an enlarged tilting circular dish with bouncy rim bumpers; guide the ball to glowing target zones while avoiding rolling off the outer edge.
      - **🏃 Wobble Runner**: High-speed Endless Ride-style 3-lane slalom runner with deterministic procedural seed control (Mulberry32 PRNG), wave obstacles, Apples (burst speed) and Golden Horseshoes (score multipliers), and persistent Top-10 leaderboard.
      - **🌀 Wobble Maze**: 3D wooden labyrinth tilt puzzle with 100% solvable procedural maze generation (Mulberry32 PRNG + DFS recursive backtracker), configurable sizes (Small 9x9, Medium 13x13, Large 17x17) and difficulties (Easy, Medium, Hard), hazard pit traps with vortex pull, golden key and locked barrier gates, bonus emerald gems, and checkpoint respawning.
+     - **🏄 Asteroid Surfer**: High-speed cosmic gravity wave runner with continuous momentum carving, pitch dive acceleration and aerodynamic stall braking, zero-G lip jump air-time, clean landing evaluation (|roll| & |pitch| < 4°), glowing neon shaders, asteroids, plasma rings, and black hole vortex gravity wells.
      - **🔬 Sensor Lab & Diagnostics**: Real-time 3D balance board visualizer that mirrors physical board orientation in 3D space, displaying 9-axis sensor vectors (accel, gyro, compass magnetometer) and an integrated 100 Hz CSV movement recorder for tremor analysis.
 
 3. **Context-Aware Companion Remote Web App**:
@@ -75,13 +76,17 @@ WobbleHero/
     │   │   ├── BalanceTrainer.tscn   # Mini-game 1: Marble dish balance
     │   │   ├── WobbleRunner.tscn     # Mini-game 2: 3-lane slalom runner
     │   │   ├── WobbleMaze.tscn       # Mini-game 3: Procedural labyrinth marble tilt
-    │   │   └── SensorLab.tscn        # Mini-game 4: 3D board visualizer & diagnostics
+    │   │   ├── AsteroidSurfer.tscn   # Mini-game 4: Cosmic wave momentum carving
+    │   │   └── SensorLab.tscn        # Mini-game 5: 3D board visualizer & diagnostics
     │   └── UI/
     │       ├── CompanionHud.tscn     # Global companion HUD with QR code
     │       ├── BalanceTrainerHud.tscn# Balance trainer score & combo HUD
     │       ├── WobbleRunnerHud.tscn  # Runner HUD & Top-10 leaderboard overlay
     │       ├── WobbleMazeHud.tscn    # Wobble Maze timer, gems & key HUD
+    │       ├── AsteroidSurferHud.tscn# Surfer speed, air-time & landings HUD
     │       └── SensorLabHud.tscn     # Sensor diagnostics & recording HUD
+    ├── Shaders/
+    │   └── cosmic_wave.gdshader      # Pulsating neon UV energy wave shader
     └── Scripts/
         ├── Core/
         │   ├── BoardState.cs         # Immutable board telemetry struct (9-axis)
@@ -100,6 +105,7 @@ WobbleHero/
         │   ├── BalanceTrainerHud.cs  # Dedicated Balance Trainer HUD
         │   ├── WobbleRunnerHud.cs    # Dedicated Wobble Runner HUD
         │   ├── WobbleMazeHud.cs      # Dedicated Wobble Maze HUD
+        │   ├── AsteroidSurferHud.cs  # Dedicated Asteroid Surfer HUD
         │   ├── SensorLabHud.cs       # Dedicated Sensor Lab HUD
         │   └── QrCodeGenerator.cs    # Project Nayuki ISO/IEC 18004 QR generator
         └── Games/
@@ -107,6 +113,7 @@ WobbleHero/
             ├── BalanceTrainerGame.cs # Marble balance logic
             ├── WobbleRunnerGame.cs   # 3-lane slalom runner logic & waves
             ├── WobbleMazeGame.cs     # 3D labyrinth tilt, key, gate & trap physics
+            ├── AsteroidSurferGame.cs # Cosmic wave carving & air-time mechanics
             └── SensorLabGame.cs      # 3D board visualizer & movement recorder
 ```
 
@@ -167,6 +174,7 @@ To capture real movement data while standing on your balancing board:
    - **Balance Trainer**: Live 2D balance puck, roll/pitch readouts, Tare Zero calibration, sensitivity slider, and invert toggles.
    - **Wobble Runner**: Slalom steering lean bar, player name input, deterministic seed input + `🎲 Random Seed`, and live Top-10 Leaderboard.
    - **Wobble Maze**: Live timer, gems collected, key status, falls counter, deterministic seed input + `🎲 Random Seed`, maze size toggles (Small 9x9, Medium 13x13, Large 17x17), and difficulty selector (Easy, Medium, Hard).
+   - **Asteroid Surfer**: Live speed, multiplier, ballistic air-time duration, cosmic dust, 2D interactive wave carve visualizer with bank angle and clean landing indicator, wave speed slider (15-50 km/h), and cosmic density buttons (Low, Medium, High).
    - **Sensor Lab**: 100 Hz Raw IMU movement recorder, CSV download button, and live 9-axis sensor diagnostics (heading, accel, gyro, mag, packet rate).
 
 ### 5. Flash the M5Stack AtomS3 Controller

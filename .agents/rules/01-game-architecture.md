@@ -53,5 +53,5 @@ WobbleHero embeds an asynchronous HTTP & WebSocket server (`CompanionWebServer`)
 
 ## 4. Game-Specific HUDs & Persistent Scoring
 
-1. **Decoupled HUD Scenes**: Each mini-game mounts its own dedicated HUD (`res://Scenes/UI/BalanceTrainerHud.tscn`, `WobbleRunnerHud.tscn`, `WobbleMazeHud.tscn`, `SensorLabHud.tscn`) using the arcade **Luckiest Guy** font for distinct visual flair and specialized overlays (e.g., Top-10 Leaderboard overlays, live telemetry gauges, maze timer & gem counters).
+1. **Decoupled HUD Scenes**: Each mini-game mounts its own dedicated HUD (`res://Scenes/UI/BalanceTrainerHud.tscn`, `WobbleRunnerHud.tscn`, `WobbleMazeHud.tscn`, `AsteroidSurferHud.tscn`, `SensorLabHud.tscn`) using the arcade **Luckiest Guy** font for distinct visual flair and specialized overlays (e.g., Top-10 Leaderboard overlays, live telemetry gauges, air-time counters, maze timer & gem counters).
 2. **Persistent Leaderboards (`LeaderboardService`)**: Games record competitive runs to `user://leaderboard.json`. The service tracks Player Name, Score, Distance, Seed, and Date, exposing rankings to both in-game HUDs and the Companion Web Remote via WebSocket and `/api/leaderboard`.

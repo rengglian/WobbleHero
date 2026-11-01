@@ -244,6 +244,13 @@
       text-align: center;
     }
 
+    .telemetry-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      text-align: center;
+    }
+
     .telem-item {
       background: rgba(0, 0, 0, 0.25);
       padding: 8px 4px;
@@ -920,6 +927,95 @@
   </main>
 
   <!-- ============================================================ -->
+  <!-- VIEW: ASTEROID SURFER -->
+  <!-- ============================================================ -->
+  <main class="game-view" id="view-AsteroidSurfer">
+    <!-- Telemetry Strip -->
+    <section class="card">
+      <div class="card-title">
+        <span>Surfer Telemetry</span>
+        <span id="asStateBadge" style="color:#60a5fa; font-size:0.75rem;">START</span>
+      </div>
+      <div class="telemetry-grid-3">
+        <div class="telem-item">
+          <div class="telem-label">Speed</div>
+          <div class="telem-val" id="asSpeed" style="color:#fb923c;">0 km/h</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Multiplier</div>
+          <div class="telem-val" id="asMultiplier" style="color:#34d399;">1.0x</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Air-Time</div>
+          <div class="telem-val" id="asAirTime" style="color:#38bdf8;">0.0s</div>
+        </div>
+      </div>
+      <div class="telemetry-grid-2" style="margin-top:8px;">
+        <div class="telem-item">
+          <div class="telem-label">Cosmic Dust</div>
+          <div class="telem-val" id="asCosmicDust" style="color:var(--gold);">0</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Altitude / Lip</div>
+          <div class="telem-val" id="asLipHeight" style="color:#f472b6;">0.0m</div>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:0.75rem; font-weight:700; color:var(--text-muted);">
+        <span>Score: <strong id="asScore" style="color:var(--gold); font-size:0.85rem;">0</strong></span>
+        <span id="asWaveStatusBadge" style="color:#38bdf8; font-weight:800; background:rgba(56,189,248,0.12); padding:3px 8px; border-radius:6px; border:1px solid rgba(56,189,248,0.3);">🌊 ON WAVE</span>
+      </div>
+    </section>
+
+    <!-- 2D Surf Carve Visualizer -->
+    <section class="card">
+      <div class="card-title">
+        <span>Surf Carve Visualizer (Wave Profile)</span>
+        <span id="asRateLabel" style="font-size:0.7rem; color:#34d399;">-- Hz</span>
+      </div>
+      <div style="position:relative; width:100%; height:180px; background:radial-gradient(ellipse at 50% 120%, rgba(56, 189, 248, 0.15), rgba(9, 13, 22, 0.8) 75%); border:1px solid rgba(255,255,255,0.08); border-radius:14px; overflow:hidden;">
+        <canvas id="asSurfCanvas" width="340" height="180" style="width:100%; height:100%; display:block;"></canvas>
+      </div>
+      <div class="cal-readouts" style="margin-top:10px;">
+        <div>BANK ANGLE: <span id="asBankDeg" style="color:#38bdf8;">+0.0°</span></div>
+        <div>LIP ELEVATION: <span id="asAltitudeVal" style="color:#f472b6;">0.0m</span></div>
+      </div>
+      <div class="cal-actions" style="margin-top:10px;">
+        <button class="btn-tare" onclick="sendWsMessage({ type: 'tare_board' })">🎯 Tare Zero (Set Level)</button>
+        <button class="btn-secondary" onclick="sendWsMessage({ type: 'reset_cal' })">Reset Zero</button>
+      </div>
+    </section>
+
+    <!-- Interactive Controls Deck -->
+    <section class="card">
+      <div class="card-title">
+        <span>Wave & Carve Controls</span>
+      </div>
+      <div class="slider-row">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Wave Speed:</span>
+        <input type="range" id="asWaveSpeedSlider" min="15" max="50" step="1" value="28" oninput="onWaveSpeedInput(this.value)">
+        <span id="asWaveSpeedText" style="font-size:0.8rem; font-weight:800; min-width:54px; color:#38bdf8;">28 km/h</span>
+      </div>
+      <div class="form-group" style="margin-top:12px;">
+        <label class="form-label" style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); display:block; margin-bottom:4px;">Cosmic Density (Asteroid Field)</label>
+        <div class="invert-deck" style="grid-template-columns: repeat(3, 1fr); margin-top:4px;">
+          <button class="btn-toggle" id="asDensityLow" onclick="setCosmicDensity('low')">Low</button>
+          <button class="btn-toggle active" id="asDensityMedium" onclick="setCosmicDensity('medium')">Medium</button>
+          <button class="btn-toggle" id="asDensityHigh" onclick="setCosmicDensity('high')">High</button>
+        </div>
+      </div>
+      <div class="slider-row" style="margin-top:12px;">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Carve Sensitivity:</span>
+        <input type="range" id="asSensitivitySlider" min="0.5" max="2.5" step="0.1" value="1.0" oninput="onSensitivityInput(this.value)">
+        <span id="asSensitivityText" style="font-size:0.8rem; font-weight:800; min-width:36px;">1.0x</span>
+      </div>
+      <div class="invert-deck" style="margin-top:10px;">
+        <button class="btn-toggle active" id="asBtnInvertRoll" onclick="toggleInvert('roll')">Invert Carve Roll</button>
+        <button class="btn-toggle active" id="asBtnInvertPitch" onclick="toggleInvert('pitch')">Invert Dive Pitch</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================================ -->
   <!-- VIEW 3: SENSOR LAB & DIAGNOSTICS -->
   <!-- ============================================================ -->
   <main class="game-view" id="view-SensorLab">
@@ -1094,6 +1190,32 @@
     let mazeSize = 'medium';
     let mazeDifficulty = 'medium';
 
+    // Asteroid Surfer Elements
+    const viewAsteroidSurfer = document.getElementById('view-AsteroidSurfer');
+    const asStateBadge = document.getElementById('asStateBadge');
+    const asScore = document.getElementById('asScore');
+    const asSpeed = document.getElementById('asSpeed');
+    const asMultiplier = document.getElementById('asMultiplier');
+    const asAirTime = document.getElementById('asAirTime');
+    const asCosmicDust = document.getElementById('asCosmicDust');
+    const asLipHeight = document.getElementById('asLipHeight');
+    const asRateLabel = document.getElementById('asRateLabel');
+    const asWaveStatusBadge = document.getElementById('asWaveStatusBadge');
+    const asBankDeg = document.getElementById('asBankDeg');
+    const asAltitudeVal = document.getElementById('asAltitudeVal');
+    const asWaveSpeedSlider = document.getElementById('asWaveSpeedSlider');
+    const asWaveSpeedText = document.getElementById('asWaveSpeedText');
+    const asDensityLow = document.getElementById('asDensityLow');
+    const asDensityMedium = document.getElementById('asDensityMedium');
+    const asDensityHigh = document.getElementById('asDensityHigh');
+    const asSensitivitySlider = document.getElementById('asSensitivitySlider');
+    const asSensitivityText = document.getElementById('asSensitivityText');
+    const asBtnInvertRoll = document.getElementById('asBtnInvertRoll');
+    const asBtnInvertPitch = document.getElementById('asBtnInvertPitch');
+
+    let currentWaveSpeed = 28;
+    let currentCosmicDensity = 'medium';
+
     // Sensor Lab Elements
     const viewSensorLab = document.getElementById('view-SensorLab');
     const slRecHzBadge = document.getElementById('slRecHzBadge');
@@ -1125,7 +1247,8 @@
       'BalanceTrainer': viewBalanceTrainer,
       'WobbleRunner': viewWobbleRunner,
       'WobbleMaze': viewWobbleMaze,
-      'SensorLab': viewSensorLab
+      'SensorLab': viewSensorLab,
+      'AsteroidSurfer': viewAsteroidSurfer
     };
 
     function connectWs() {
@@ -1315,6 +1438,60 @@
         wmBubblePuck.style.left = `${leftPct}%`;
         wmBubblePuck.style.top = `${topPct}%`;
       }
+      else if (current === 'asteroidsurfer') {
+        // Asteroid Surfer Telemetry
+        if (asStateBadge) asStateBadge.textContent = currentGameState;
+        if (asScore) asScore.textContent = data.game ? (data.game.score || 0).toLocaleString() : 0;
+
+        const stats = (data.game && data.game.stats) ? data.game.stats : {};
+        const spd = typeof stats.speed === 'number' ? stats.speed : 0;
+        const mult = typeof stats.multiplier === 'number' ? stats.multiplier : 1.0;
+        const air = typeof stats.airTime === 'number' ? stats.airTime : 0.0;
+        const dust = typeof stats.plasmaRings === 'number' ? stats.plasmaRings : (stats.cosmicDust || 0);
+        const alt = typeof stats.lipHeight === 'number' ? stats.lipHeight : (stats.altitude || 0.0);
+
+        if (asSpeed) asSpeed.textContent = `${Math.round(spd)} km/h`;
+        if (asMultiplier) asMultiplier.textContent = `${mult.toFixed(1)}x`;
+        if (asAirTime) asAirTime.textContent = `${air.toFixed(1)}s`;
+        if (asCosmicDust) asCosmicDust.textContent = dust.toLocaleString();
+        if (asLipHeight) asLipHeight.textContent = `${alt.toFixed(1)}m`;
+        if (asRateLabel) asRateLabel.textContent = `${b.hz || 0} Hz`;
+
+        if (asWaveStatusBadge) {
+          if (stats.isAirborne || air > 0) {
+            asWaveStatusBadge.textContent = '🚀 AIR-TIME';
+            asWaveStatusBadge.style.color = '#f472b6';
+          } else if (stats.isCarvingLip) {
+            asWaveStatusBadge.textContent = '⚡ LIP CARVE';
+            asWaveStatusBadge.style.color = '#facc15';
+          } else {
+            asWaveStatusBadge.textContent = '🌊 ON WAVE';
+            asWaveStatusBadge.style.color = '#38bdf8';
+          }
+        }
+
+        if (asBankDeg) asBankDeg.textContent = `${signR}${rollDeg.toFixed(1)}°`;
+        if (asAltitudeVal) asAltitudeVal.textContent = `${alt.toFixed(1)}m`;
+
+        // Sync wave speed slider if not actively dragging
+        if (typeof stats.waveSpeed === 'number' && document.activeElement !== asWaveSpeedSlider) {
+          currentWaveSpeed = stats.waveSpeed;
+          if (asWaveSpeedSlider) asWaveSpeedSlider.value = stats.waveSpeed;
+          if (asWaveSpeedText) asWaveSpeedText.textContent = `${Math.round(stats.waveSpeed)} km/h`;
+        }
+
+        // Sync cosmic density buttons
+        if (stats.cosmicDensity && typeof stats.cosmicDensity === 'string') {
+          const d = stats.cosmicDensity.toLowerCase();
+          currentCosmicDensity = d;
+          if (asDensityLow) asDensityLow.classList.toggle('active', d === 'low');
+          if (asDensityMedium) asDensityMedium.classList.toggle('active', d === 'medium');
+          if (asDensityHigh) asDensityHigh.classList.toggle('active', d === 'high');
+        }
+
+        // Render 2D Surf Carve Visualizer
+        drawSurfVisualizer(normX, normY, rollDeg, pitchDeg, stats);
+      }
       else if (current === 'sensorlab') {
         // Sensor Lab
         slSourceBadge.textContent = `${(b.source || 'atoms3').toUpperCase()}`;
@@ -1385,6 +1562,8 @@
           if (wrSensitivityText) wrSensitivityText.textContent = sensText;
           if (wmSensitivitySlider) wmSensitivitySlider.value = s.sensitivity;
           if (wmSensitivityText) wmSensitivityText.textContent = sensText;
+          if (asSensitivitySlider) asSensitivitySlider.value = s.sensitivity;
+          if (asSensitivityText) asSensitivityText.textContent = sensText;
         }
 
         const invRoll = !!s.invertRoll;
@@ -1394,6 +1573,8 @@
         if (wrBtnInvertRoll) wrBtnInvertRoll.classList.toggle('active', invRoll);
         if (wmBtnInvertRoll) wmBtnInvertRoll.classList.toggle('active', invRoll);
         if (wmBtnInvertPitch) wmBtnInvertPitch.classList.toggle('active', invPitch);
+        if (asBtnInvertRoll) asBtnInvertRoll.classList.toggle('active', invRoll);
+        if (asBtnInvertPitch) asBtnInvertPitch.classList.toggle('active', invPitch);
         if (slBtnInvertRoll) slBtnInvertRoll.classList.toggle('active', invRoll);
         if (slBtnInvertPitch) slBtnInvertPitch.classList.toggle('active', invPitch);
 
@@ -1473,6 +1654,7 @@
       if (btSensitivityText) btSensitivityText.textContent = text;
       if (wrSensitivityText) wrSensitivityText.textContent = text;
       if (wmSensitivityText) wmSensitivityText.textContent = text;
+      if (asSensitivityText) asSensitivityText.textContent = text;
       sendWsMessage({ type: 'set_sensitivity', value: num });
     }
 
@@ -1545,6 +1727,171 @@
         seed: seed,
         size: mazeSize,
         difficulty: mazeDifficulty
+      });
+    }
+
+    function drawSurfVisualizer(normX, normY, rollDeg, pitchDeg, stats) {
+      const canvas = document.getElementById('asSurfCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // 1. Subtle horizontal wave height guide lines
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      ctx.lineWidth = 1;
+      for (let y = 30; y < h; y += 35) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+
+      // 2. Cosmic Wave cross-section curve
+      const y0 = 145;
+      const xLip = 285, yLip = 38;
+      const cp1x = 130, cp1y = 150;
+      const cp2x = 210, cp2y = 45;
+
+      // Glowing plasma gradient bulk under wave
+      const waveGrad = ctx.createLinearGradient(0, yLip, 0, h);
+      waveGrad.addColorStop(0, 'rgba(168, 85, 247, 0.35)');
+      waveGrad.addColorStop(0.5, 'rgba(56, 189, 248, 0.2)');
+      waveGrad.addColorStop(1, 'rgba(15, 23, 42, 0.6)');
+
+      ctx.beginPath();
+      ctx.moveTo(0, h);
+      ctx.lineTo(0, y0);
+      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, xLip, yLip);
+      ctx.lineTo(w, yLip - 10);
+      ctx.lineTo(w, h);
+      ctx.closePath();
+      ctx.fillStyle = waveGrad;
+      ctx.fill();
+
+      // Neon cyan wave crest line
+      ctx.beginPath();
+      ctx.moveTo(0, y0);
+      ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, xLip, yLip);
+      ctx.lineTo(w, yLip - 10);
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 3;
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 10;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Zero-G Lip ejection threshold line
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = 'rgba(244, 114, 182, 0.6)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(xLip, yLip - 20);
+      ctx.lineTo(xLip, h);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = '#f472b6';
+      ctx.font = 'bold 9px sans-serif';
+      ctx.fillText('ZERO-G LIP', xLip - 28, yLip - 16);
+
+      // 3. Surfer Board Position & Banking
+      let wavePos = (stats && typeof stats.wavePosition === 'number') 
+        ? stats.wavePosition 
+        : (normX || 0); // -1..1
+      
+      const t = Math.max(0.08, Math.min(0.96, (wavePos + 1) / 2));
+
+      const p0x = 0, p0y = y0;
+      const p1x = cp1x, p1y = cp1y;
+      const p2x = cp2x, p2y = cp2y;
+      const p3x = xLip, p3y = yLip;
+
+      const mt = 1 - t;
+      let px = mt*mt*mt*p0x + 3*mt*mt*t*p1x + 3*mt*t*t*p2x + t*t*t*p3x;
+      let py = mt*mt*mt*p0y + 3*mt*mt*t*p1y + 3*mt*t*t*p2y + t*t*t*p3y;
+
+      const dx = 3*mt*mt*(p1x - p0x) + 6*mt*t*(p2x - p1x) + 3*t*t*(p3x - p2x);
+      const dy = 3*mt*mt*(p1y - p0y) + 6*mt*t*(p2y - p1y) + 3*t*t*(p3y - p2y);
+      const waveSlopeAngle = Math.atan2(dy, dx);
+
+      const isAirborne = stats && (stats.isAirborne || (stats.airTime && stats.airTime > 0));
+      const airTime = (stats && stats.airTime) || 0;
+
+      if (isAirborne) {
+        const jumpH = Math.min(65, airTime * 45);
+        py -= jumpH;
+      }
+
+      const bankRad = (rollDeg * Math.PI) / 180;
+      const totalRotation = waveSlopeAngle + (bankRad * 0.7);
+
+      // Draw Surfer
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(totalRotation);
+
+      // Thruster trail
+      ctx.fillStyle = isAirborne ? 'rgba(244, 114, 182, 0.8)' : 'rgba(56, 189, 248, 0.7)';
+      ctx.shadowColor = isAirborne ? '#f472b6' : '#38bdf8';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(-16, -2);
+      ctx.lineTo(-24 - Math.random() * 5, 0);
+      ctx.lineTo(-16, 2);
+      ctx.closePath();
+      ctx.fill();
+
+      // Board Hull
+      const boardGrad = ctx.createLinearGradient(-15, 0, 15, 0);
+      boardGrad.addColorStop(0, '#0284c7');
+      boardGrad.addColorStop(0.5, '#e0e7ff');
+      boardGrad.addColorStop(1, '#a855f7');
+      ctx.fillStyle = boardGrad;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 16, 4.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Surfer Icon
+      ctx.shadowBlur = 0;
+      ctx.font = '14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText('🏄', 0, -4);
+
+      ctx.restore();
+
+      // Landing feedback
+      if (isAirborne) {
+        const isLevel = Math.abs(rollDeg) < 4.0;
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = isLevel ? '#34d399' : '#fbbf24';
+        ctx.fillText(isLevel ? '⚡ CLEAN LANDING READY ⚡' : '⚠️ LEVEL BOARD FOR CLEAN LANDING', w / 2, 22);
+      }
+    }
+
+    function onWaveSpeedInput(val) {
+      currentWaveSpeed = parseFloat(val);
+      if (asWaveSpeedText) asWaveSpeedText.textContent = `${Math.round(currentWaveSpeed)} km/h`;
+      sendWsMessage({
+        type: 'set_wave_speed',
+        speed: currentWaveSpeed,
+        value: currentWaveSpeed
+      });
+    }
+
+    function setCosmicDensity(density) {
+      currentCosmicDensity = density.toLowerCase();
+      if (asDensityLow) asDensityLow.classList.toggle('active', currentCosmicDensity === 'low');
+      if (asDensityMedium) asDensityMedium.classList.toggle('active', currentCosmicDensity === 'medium');
+      if (asDensityHigh) asDensityHigh.classList.toggle('active', currentCosmicDensity === 'high');
+      sendWsMessage({
+        type: 'set_wave_density',
+        density: currentCosmicDensity,
+        value: currentCosmicDensity
       });
     }
 

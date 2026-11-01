@@ -99,6 +99,13 @@ public partial class GameManager : Node
                     maze.SetMazeConfig(seed, size, diff);
                 }
             };
+            WebServer.OnSurferConfigChanged += (speed, density) =>
+            {
+                if (CurrentGame is AsteroidSurferGame surfer)
+                {
+                    surfer.SetSurferConfig(speed, density);
+                }
+            };
             WebServer.OnStartRecordingRequested += () =>
             {
                 if (CurrentGame is SensorLabGame lab) lab.StartRecording();

@@ -81,6 +81,7 @@ Broadcasted to all connected smartphones at 25-50 Hz:
     { "id": "BalanceTrainer", "title": "Balance Trainer", "icon": "⚖️", "description": "Keep the ball centered on the tilting plate" },
     { "id": "WobbleRunner", "title": "Wobble Runner", "icon": "🏃", "description": "3-lane slalom runner with seed control & leaderboard" },
     { "id": "WobbleMaze", "title": "Wobble Maze", "icon": "🌀", "description": "3D procedural labyrinth marble puzzle with traps, keys & gems" },
+    { "id": "AsteroidSurfer", "title": "Asteroid Surfer", "icon": "🏄", "description": "High-speed cosmic gravity wave carving and zero-G airtime" },
     { "id": "SensorLab", "title": "Sensor Lab", "icon": "🔬", "description": "3D board diagnostics and 100 Hz CSV recorder" }
   ],
   "leaderboard": [
@@ -110,6 +111,8 @@ Broadcasted to all connected smartphones at 25-50 Hz:
 | `toggle_invert` | `{"axis": "roll"}` | Toggles roll or pitch axis inversion |
 | `set_seed` | `{"seed": 42}` | Sets deterministic Mulberry32 seed for Wobble Runner |
 | `set_maze_config` | `{"seed": 1337, "size": "medium", "difficulty": "hard"}` | Configures Wobble Maze seed, grid size (small/medium/large), and difficulty |
+| `set_wave_speed` | `{"speed": 35.0}` | Sets Asteroid Surfer wave velocity ($15 \dots 50\text{ km/h}$) |
+| `set_wave_density` | `{"density": "high"}` | Sets Asteroid Surfer asteroid field density (low/medium/high) |
 | `set_player_name` | `{"playerName": "Alex"}` | Updates player profile name for leaderboard records |
 | `reset_leaderboard` | `{}` | Clears persistent top-10 leaderboard records |
 | `start_recording` | `{}` | Begins 100 Hz movement recording session in SensorLab |
@@ -132,9 +135,10 @@ Broadcasted to all connected smartphones at 25-50 Hz:
 
 To eliminate clutter on mobile devices, `remote.html` uses a **context-aware modular view architecture**:
 - **Universal Shell**: Brand, WebSocket live status, interactive Game Switcher tabs, and Universal Action buttons (`Start`/`Pause`/`Reset`).
-- **View Container (`.game-view`)**: Each game has a dedicated container (`view-BalanceTrainer`, `view-WobbleRunner`, `view-WobbleMaze`, `view-SensorLab`) where only the active game's view is rendered (`display: flex`).
+- **View Container (`.game-view`)**: Each game has a dedicated container (`view-BalanceTrainer`, `view-WobbleRunner`, `view-WobbleMaze`, `view-AsteroidSurfer`, `view-SensorLab`) where only the active game's view is rendered (`display: flex`).
 - **Dynamic Content**:
   - `BalanceTrainer`: Shows 2D bubble puck level, roll/pitch degrees, Tare Zero, sensitivity slider, and invert toggles.
   - `WobbleRunner`: Shows 3-lane slalom steering bar with real-time lean puck, player name input, deterministic seed input + 🎲 Random button, and the Top-10 leaderboard table.
   - `WobbleMaze`: Shows live timer, gems collected, key status, falls counter, deterministic seed input + 🎲 Random button, maze size selector (Small 9x9, Medium 13x13, Large 17x17), difficulty selector (Easy, Medium, Hard), 2D level puck, and Tare Zero controls.
+  - `AsteroidSurfer`: Shows 2D surf carve visualizer along the cosmic wave profile with bank angle, altitude, clean landing indicator, wave speed slider, and cosmic density selector.
   - `SensorLab`: Shows 100 Hz recording controls (with duration and sample counters), instant CSV download link, and live 9-axis sensor diagnostics (heading, accel, gyro, mag, packet rate).

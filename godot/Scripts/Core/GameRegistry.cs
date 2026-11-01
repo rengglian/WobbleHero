@@ -62,6 +62,13 @@ public static class GameRegistry
             "res://Scenes/Games/LunarLander.tscn"
         ),
         new(
+            "CompassLabyrinth",
+            "Compass Labyrinth",
+            "Rotate your physical board 360° to shift temple gravity! Slide heavy monoliths, activate pressure plates, and retrieve ancient relics.",
+            "🧭",
+            "res://Scenes/Games/CompassLabyrinth.tscn"
+        ),
+        new(
             "SensorLab",
             "Sensor Lab & Diagnostics",
             "Real-time 3D balance board visualizer and IMU calibration bench",

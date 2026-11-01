@@ -42,6 +42,9 @@ public partial class CompanionWebServer : Node
     public event Action<string>? OnLanderGravityChanged;
     public event Action? OnEmergencyRcsTriggered;
     public event Action? OnLanderRefuelRequested;
+    public event Action<float>? OnCompassOffsetChanged;
+    public event Action<float>? OnCompassRotateRequested;
+    public event Action<int>? OnCompassSeedChanged;
     public event Action? OnResetLeaderboardRequested;
     public event Action? OnStartRecordingRequested;
     public event Action? OnStopRecordingRequested;
@@ -62,6 +65,8 @@ public partial class CompanionWebServer : Node
     private string _sumoDifficulty = "novice";
     private string _sumoArenaSize = "standard";
     private string _landerGravity = "moon";
+    private float _compassOffsetDeg = 0.0f;
+    private int _compassSeed = 4096;
 
     public string PlayerName { get; set; } = "Hero 1";
 
@@ -351,6 +356,10 @@ public partial class CompanionWebServer : Node
             bool hasSumoSize = false;
             string landerPlanetVal = "";
             bool hasLanderPlanet = false;
+            float compassOffsetVal = 0.0f;
+            bool hasCompassOffset = false;
+            float compassDeltaVal = 0.0f;
+            bool hasCompassDelta = false;
 
             using (var doc = JsonDocument.Parse(messageJson))
             {
@@ -457,6 +466,28 @@ public partial class CompanionWebServer : Node
                         hasLanderPlanet = true;
                     }
                 }
+
+                if (root.TryGetProperty("offset", out var offProp) && offProp.TryGetSingle(out var oF))
+                {
+                    compassOffsetVal = oF;
+                    hasCompassOffset = true;
+                }
+                else if (root.TryGetProperty("value", out var vFProp) && vFProp.TryGetSingle(out var vF))
+                {
+                    compassOffsetVal = vF;
+                    compassDeltaVal = vF;
+                }
+
+                if (root.TryGetProperty("delta", out var dProp) && dProp.TryGetSingle(out var dF))
+                {
+                    compassDeltaVal = dF;
+                    hasCompassDelta = true;
+                }
+                else if (root.TryGetProperty("deltaDeg", out var dDegProp) && dDegProp.TryGetSingle(out var ddF))
+                {
+                    compassDeltaVal = ddF;
+                    hasCompassDelta = true;
+                }
             }
 
             Callable.From(() =>
@@ -545,6 +576,21 @@ public partial class CompanionWebServer : Node
                         break;
                     case "refuel_lander":
                         OnLanderRefuelRequested?.Invoke();
+                        break;
+                    case "set_compass_offset":
+                        if (hasCompassOffset || sensitivityVal != 1.0f)
+                        {
+                            _compassOffsetDeg = hasCompassOffset ? compassOffsetVal : sensitivityVal;
+                        }
+                        OnCompassOffsetChanged?.Invoke(_compassOffsetDeg);
+                        break;
+                    case "rotate_compass":
+                    case "rotate_heading":
+                        OnCompassRotateRequested?.Invoke(hasCompassDelta ? compassDeltaVal : sensitivityVal);
+                        break;
+                    case "set_compass_seed":
+                        if (hasSeed) _compassSeed = seedVal;
+                        OnCompassSeedChanged?.Invoke(_compassSeed);
                         break;
                     case "set_player_name":
                         if (!string.IsNullOrEmpty(playerName))

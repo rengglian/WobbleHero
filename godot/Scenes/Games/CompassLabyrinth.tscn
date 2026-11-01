@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Games/CompassLabyrinthGame.cs" id="1_cl"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/CompassLabyrinthHud.tscn" id="2_hud"]
+
+[node name="CompassLabyrinth" type="Node3D"]
+script = ExtResource("1_cl")
+HudScene = ExtResource("2_hud")

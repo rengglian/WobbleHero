@@ -1,0 +1,269 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/CompassLabyrinthHud.cs" id="1_clh"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/BoardTiltIndicator.tscn" id="2_ti"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/CompanionQrCard.tscn" id="3_qc"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pill"]
+content_margin_left = 12.0
+content_margin_top = 4.0
+content_margin_right = 12.0
+content_margin_bottom = 4.0
+bg_color = Color(0.06, 0.09, 0.16, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.22, 0.74, 0.97, 0.4)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_leaderboard_panel"]
+content_margin_left = 28.0
+content_margin_top = 20.0
+content_margin_right = 28.0
+content_margin_bottom = 20.0
+bg_color = Color(0.05, 0.08, 0.14, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1.0, 0.85, 0.2, 0.5)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[node name="CompassLabyrinthHud" type="CanvasLayer" node_paths=PackedStringArray("ScoreLabel", "HeadingLabel", "CardinalPillLabel", "RelicsLabel", "PlatesLabel", "LivesLabel", "CompassNeedleControl", "LeaderboardOverlay", "LeaderboardListLabel", "GameOverTitleLabel", "QrCard", "TiltIndicator", "BannerLabel")]
+script = ExtResource("1_clh")
+ScoreLabel = NodePath("Root/TopMargin/TopHBox/RightBox/ScoreLabel")
+HeadingLabel = NodePath("Root/TopMargin/TopHBox/TitleBox/CompassBox/HeadingLabel")
+CardinalPillLabel = NodePath("Root/TopMargin/TopHBox/TitleBox/CardinalPanel/CardinalPillLabel")
+RelicsLabel = NodePath("Root/TopMargin/TopHBox/RightBox/RelicsLabel")
+PlatesLabel = NodePath("Root/TopMargin/TopHBox/RightBox/PlatesLabel")
+LivesLabel = NodePath("Root/TopMargin/TopHBox/RightBox/LivesLabel")
+CompassNeedleControl = NodePath("Root/TopMargin/TopHBox/TitleBox/CompassBox/CompassDial/CompassNeedle")
+LeaderboardOverlay = NodePath("Root/LeaderboardOverlay")
+LeaderboardListLabel = NodePath("Root/LeaderboardOverlay/LeaderboardPanel/VBox/LeaderboardListLabel")
+GameOverTitleLabel = NodePath("Root/LeaderboardOverlay/LeaderboardPanel/VBox/GameOverTitleLabel")
+QrCard = NodePath("Root/BottomRightMargin/CompanionQrCard")
+TiltIndicator = NodePath("Root/BottomLeftMargin/BoardTiltIndicator")
+BannerLabel = NodePath("Root/TopBannerBox/BannerLabel")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopMargin" type="MarginContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 100.0
+grow_horizontal = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 32
+mouse_filter = 2
+
+[node name="TopHBox" type="HBoxContainer" parent="Root/TopMargin"]
+layout_mode = 2
+alignment = 1
+
+[node name="TitleBox" type="HBoxContainer" parent="Root/TopMargin/TopHBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="TitleLabel" type="Label" parent="Root/TopMargin/TopHBox/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.07, 0.12, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 32
+text = "COMPASS LABYRINTH"
+
+[node name="CompassBox" type="HBoxContainer" parent="Root/TopMargin/TopHBox/TitleBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CompassDial" type="Control" parent="Root/TopMargin/TopHBox/TitleBox/CompassBox"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="CompassNeedle" type="Polygon2D" parent="Root/TopMargin/TopHBox/TitleBox/CompassBox/CompassDial"]
+unique_name_in_owner = true
+position = Vector2(18, 18)
+color = Color(0.95, 0.25, 0.25, 1)
+polygon = PackedVector2Array(0, -14, 5, 0, 0, 14, -5, 0)
+
+[node name="HeadingLabel" type="Label" parent="Root/TopMargin/TopHBox/TitleBox/CompassBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.74, 0.97, 1)
+theme_override_font_sizes/font_size = 20
+text = "000°"
+
+[node name="CardinalPanel" type="PanelContainer" parent="Root/TopMargin/TopHBox/TitleBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_pill")
+
+[node name="CardinalPillLabel" type="Label" parent="Root/TopMargin/TopHBox/TitleBox/CardinalPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.75, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "🧭 NORTH"
+
+[node name="Spacer" type="Control" parent="Root/TopMargin/TopHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RightBox" type="HBoxContainer" parent="Root/TopMargin/TopHBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="LivesLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "❤️❤️❤️"
+
+[node name="RelicsLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 22
+text = "☀️ 0/3"
+
+[node name="PlatesLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.45, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 22
+text = "🗝️ 0/2"
+
+[node name="ScoreLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.07, 0.12, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 36
+text = "SCORE: 0"
+
+[node name="TopBannerBox" type="CenterContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -400.0
+offset_top = 110.0
+offset_right = 400.0
+offset_bottom = 165.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="BannerLabel" type="Label" parent="Root/TopBannerBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.07, 0.12, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 24
+text = "ROTATE PHYSICAL BOARD TO SHIFT TEMPLE GRAVITY"
+horizontal_alignment = 1
+
+[node name="LeaderboardOverlay" type="CenterContainer" parent="Root"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="LeaderboardPanel" type="PanelContainer" parent="Root/LeaderboardOverlay"]
+custom_minimum_size = Vector2(580, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_leaderboard_panel")
+
+[node name="VBox" type="VBoxContainer" parent="Root/LeaderboardOverlay/LeaderboardPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="GameOverTitleLabel" type="Label" parent="Root/LeaderboardOverlay/LeaderboardPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.07, 0.12, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 30
+text = "🏆 EXPEDITION LEADERBOARD"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="Root/LeaderboardOverlay/LeaderboardPanel/VBox"]
+layout_mode = 2
+
+[node name="LeaderboardListLabel" type="Label" parent="Root/LeaderboardOverlay/LeaderboardPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_constants/line_spacing = 4
+theme_override_font_sizes/font_size = 18
+text = "🥇 Explorer 1     4,500 PTS (3 Relics)"
+horizontal_alignment = 1
+
+[node name="HSeparator2" type="HSeparator" parent="Root/LeaderboardOverlay/LeaderboardPanel/VBox"]
+layout_mode = 2
+
+[node name="RetryPrompt" type="Label" parent="Root/LeaderboardOverlay/LeaderboardPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.74, 0.97, 1)
+theme_override_font_sizes/font_size = 18
+text = "[PRESS RESTART OR LEAN BOARD TO RETRY]"
+horizontal_alignment = 1
+
+[node name="BottomLeftMargin" type="MarginContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -160.0
+offset_right = 280.0
+grow_vertical = 0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_bottom = 24
+mouse_filter = 2
+
+[node name="BoardTiltIndicator" parent="Root/BottomLeftMargin" instance=ExtResource("2_ti")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="BottomRightMargin" type="MarginContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -260.0
+offset_top = -220.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+mouse_filter = 2
+
+[node name="CompanionQrCard" parent="Root/BottomRightMargin" instance=ExtResource("3_qc")]
+unique_name_in_owner = true
+layout_mode = 2

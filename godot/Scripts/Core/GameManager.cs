@@ -141,6 +141,27 @@ public partial class GameManager : Node
                     lander.Refuel();
                 }
             };
+            WebServer.OnCompassOffsetChanged += (offset) =>
+            {
+                if (CurrentGame is CompassLabyrinthGame compass)
+                {
+                    compass.SetCompassOffset(offset);
+                }
+            };
+            WebServer.OnCompassRotateRequested += (deltaDeg) =>
+            {
+                if (CurrentGame is CompassLabyrinthGame compass)
+                {
+                    compass.RotateQuadrant(deltaDeg);
+                }
+            };
+            WebServer.OnCompassSeedChanged += (seed) =>
+            {
+                if (CurrentGame is CompassLabyrinthGame compass)
+                {
+                    compass.SetDungeonSeed(seed);
+                }
+            };
             WebServer.OnStartRecordingRequested += () =>
             {
                 if (CurrentGame is SensorLabGame lab) lab.StartRecording();

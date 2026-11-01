@@ -1,0 +1,59 @@
+  <main class="game-view" id="view-BalanceTrainer">
+    <!-- Telemetry Strip -->
+    <section class="card">
+      <div class="card-title">
+        <span>Trainer Telemetry</span>
+        <span id="btStateBadge" style="color:#60a5fa; font-size:0.75rem;">START</span>
+      </div>
+      <div class="telemetry-grid-4">
+        <div class="telem-item">
+          <div class="telem-label">Score</div>
+          <div class="telem-val" id="btScore" style="color:var(--gold);">0</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Multiplier</div>
+          <div class="telem-val" id="btMultiplier" style="color:#34d399;">1.0x</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Time</div>
+          <div class="telem-val" id="btTime" style="color:#38bdf8;">60s</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Falls</div>
+          <div class="telem-val" id="btFalls" style="color:#f87171;">0</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2D Balance Board Tilt Card -->
+    <section class="card">
+      <div class="card-title">
+        <span>Balance Board Tilt (2D)</span>
+        <span id="btRateLabel" style="font-size:0.7rem; color:#34d399;">-- Hz</span>
+      </div>
+      <div class="level-2d-box">
+        <div class="level-crosshair-x"></div>
+        <div class="level-crosshair-y"></div>
+        <div class="level-rings"></div>
+        <div class="level-center-bullseye"></div>
+        <div class="bubble-puck" id="btBubblePuck"></div>
+      </div>
+      <div class="cal-readouts">
+        <div>ROLL: <span id="btRollDeg" style="color:#38bdf8;">+0.0°</span></div>
+        <div>PITCH: <span id="btPitchDeg" style="color:#818cf8;">+0.0°</span></div>
+      </div>
+      <div class="cal-actions">
+        <button class="btn-tare" onclick="sendWsMessage({ type: 'tare_board' })">🎯 Tare Zero (Set Level)</button>
+        <button class="btn-secondary" onclick="sendWsMessage({ type: 'reset_cal' })">Reset Zero</button>
+      </div>
+      <div class="slider-row">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Sensitivity:</span>
+        <input type="range" id="btSensitivitySlider" min="0.5" max="2.5" step="0.1" value="1.0" oninput="onSensitivityInput(this.value)">
+        <span id="btSensitivityText" style="font-size:0.8rem; font-weight:800; min-width:36px;">1.0x</span>
+      </div>
+      <div class="invert-deck">
+        <button class="btn-toggle active" id="btBtnInvertRoll" onclick="toggleInvert('roll')">Invert Left/Right</button>
+        <button class="btn-toggle active" id="btBtnInvertPitch" onclick="toggleInvert('pitch')">Invert Front/Back</button>
+      </div>
+    </section>
+  </main>

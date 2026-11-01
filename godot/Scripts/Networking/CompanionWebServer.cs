@@ -89,7 +89,23 @@ public partial class CompanionWebServer : Node
 
     private void LoadStaticHtml()
     {
-        // 1. Prefer reading directly from Godot virtual filesystem (res://remote.html)
+        // 1. Prefer reading modular index.html from Godot virtual filesystem (res://www/index.html)
+        if (Godot.FileAccess.FileExists("res://www/index.html"))
+        {
+            try
+            {
+                using var file = Godot.FileAccess.Open("res://www/index.html", Godot.FileAccess.ModeFlags.Read);
+                _cachedRemoteHtml = file.GetAsText();
+                GD.Print("[CompanionWebServer] Loaded companion app from res://www/index.html (Modular SPA).");
+                return;
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"[CompanionWebServer] FileAccess read error on res://www/index.html: {ex.Message}");
+            }
+        }
+
+        // 2. Legacy fallback to res://remote.html
         if (Godot.FileAccess.FileExists("res://remote.html"))
         {
             try
@@ -105,16 +121,17 @@ public partial class CompanionWebServer : Node
             }
         }
 
-        // 2. Fallback to embedded assembly resource (e.g. standalone/Android export)
+        // 3. Fallback to embedded assembly resource (e.g. standalone/Android export)
         try
         {
             var asm = Assembly.GetExecutingAssembly();
-            using var stream = asm.GetManifestResourceStream("WobbleHero.remote.html");
+            using var stream = asm.GetManifestResourceStream("WobbleHero.www.index.html")
+                                ?? asm.GetManifestResourceStream("WobbleHero.remote.html");
             if (stream != null)
             {
                 using var reader = new StreamReader(stream);
                 _cachedRemoteHtml = reader.ReadToEnd();
-                GD.Print("[CompanionWebServer] Loaded remote.html from embedded assembly resource.");
+                GD.Print("[CompanionWebServer] Loaded remote HTML from embedded assembly resource.");
             }
         }
         catch (Exception ex)
@@ -258,14 +275,7 @@ public partial class CompanionWebServer : Node
         // Static HTTP serving
         try
         {
-            if (path == "/" || path == "/remote" || path == "/index.html")
-            {
-                byte[] htmlBytes = Encoding.UTF8.GetBytes(_cachedRemoteHtml);
-                response.ContentType = "text/html; charset=utf-8";
-                response.ContentLength64 = htmlBytes.Length;
-                await response.OutputStream.WriteAsync(htmlBytes, ct);
-            }
-            else if (path == "/health")
+            if (path == "/health")
             {
                 byte[] okBytes = Encoding.UTF8.GetBytes("{\"status\":\"ok\",\"service\":\"WobbleHero\"}");
                 response.ContentType = "application/json";
@@ -301,6 +311,10 @@ public partial class CompanionWebServer : Node
                     await response.OutputStream.WriteAsync(notFoundBytes, ct);
                 }
             }
+            else if (await TryServeStaticFileAsync(response, path, ct))
+            {
+                // Successfully served static file from res://www or embedded resource
+            }
             else
             {
                 response.StatusCode = 404;
@@ -311,6 +325,88 @@ public partial class CompanionWebServer : Node
         {
             try { response.Close(); } catch { }
         }
+    }
+
+    private static string GetMimeType(string path)
+    {
+        string ext = Path.GetExtension(path).ToLowerInvariant();
+        return ext switch
+        {
+            ".html" or ".htm" => "text/html; charset=utf-8",
+            ".css" => "text/css; charset=utf-8",
+            ".js" => "application/javascript; charset=utf-8",
+            ".json" => "application/json; charset=utf-8",
+            ".svg" => "image/svg+xml",
+            ".png" => "image/png",
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".ico" => "image/x-icon",
+            ".woff2" => "font/woff2",
+            ".woff" => "font/woff",
+            ".ttf" => "font/ttf",
+            _ => "application/octet-stream"
+        };
+    }
+
+    private async Task<bool> TryServeStaticFileAsync(HttpListenerResponse response, string requestPath, CancellationToken ct)
+    {
+        string relPath = requestPath.TrimStart('/');
+        if (string.IsNullOrEmpty(relPath) || relPath == "remote" || relPath == "remote.html") relPath = "index.html";
+
+        // 1. Try reading directly from Godot virtual filesystem (res://www/...)
+        string godotPath = $"res://www/{relPath}";
+        if (Godot.FileAccess.FileExists(godotPath))
+        {
+            try
+            {
+                using var f = Godot.FileAccess.Open(godotPath, Godot.FileAccess.ModeFlags.Read);
+                if (f != null)
+                {
+                    byte[] buffer = f.GetBuffer((long)f.GetLength());
+                    response.ContentType = GetMimeType(godotPath);
+                    response.ContentLength64 = buffer.Length;
+                    await response.OutputStream.WriteAsync(buffer, ct);
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"[CompanionWebServer] Static file read error '{godotPath}': {ex.Message}");
+            }
+        }
+
+        // 2. Fallback to embedded assembly resource (e.g. standalone/Android export)
+        try
+        {
+            var asm = Assembly.GetExecutingAssembly();
+            string resName = "WobbleHero.www." + relPath.Replace('/', '.').Replace('\\', '.');
+            using var stream = asm.GetManifestResourceStream(resName);
+            if (stream != null)
+            {
+                using var ms = new MemoryStream();
+                await stream.CopyToAsync(ms, ct);
+                byte[] buffer = ms.ToArray();
+                response.ContentType = GetMimeType(relPath);
+                response.ContentLength64 = buffer.Length;
+                await response.OutputStream.WriteAsync(buffer, ct);
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            GD.PrintErr($"[CompanionWebServer] Embedded resource read error for '{relPath}': {ex.Message}");
+        }
+
+        // 3. Fallback to legacy _cachedRemoteHtml if requesting main entry
+        if ((requestPath == "/" || requestPath == "/remote" || requestPath == "/remote.html" || requestPath == "/index.html") && !string.IsNullOrEmpty(_cachedRemoteHtml))
+        {
+            byte[] htmlBytes = Encoding.UTF8.GetBytes(_cachedRemoteHtml);
+            response.ContentType = "text/html; charset=utf-8";
+            response.ContentLength64 = htmlBytes.Length;
+            await response.OutputStream.WriteAsync(htmlBytes, ct);
+            return true;
+        }
+
+        return false;
     }
 
     private async Task HandleWebSocketClientAsync(WebSocket ws, SemaphoreSlim wsLock, CancellationToken ct)

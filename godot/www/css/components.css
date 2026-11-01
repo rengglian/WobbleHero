@@ -1,0 +1,311 @@
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 14px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-title {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Game Selector Carousel / Grid */
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .game-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 10px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .game-card:active {
+      transform: scale(0.96);
+    }
+
+    .game-card.active {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: #38bdf8;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
+    }
+
+    .game-icon {
+      font-size: 1.6rem;
+    }
+
+    .game-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.1;
+    }
+
+    /* Action Deck Buttons */
+    .action-row {
+      display: grid;
+      grid-template-columns: 3fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-main {
+      width: 100%;
+      padding: 14px 16px;
+      border: none;
+      border-radius: 14px;
+      color: #ffffff;
+      font-size: 1.05rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: transform 0.1s ease, filter 0.2s ease;
+    }
+
+    .btn-main:active {
+      transform: scale(0.97);
+    }
+
+    .btn-start {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 6px 20px var(--emerald-glow);
+    }
+
+    .btn-pause {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      box-shadow: 0 6px 20px var(--amber-glow);
+    }
+
+    .btn-resume {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-reset {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .btn-reset:active {
+      transform: scale(0.95);
+    }
+
+    /* Telemetry Grids */
+    .telemetry-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      text-align: center;
+    }
+
+    .telemetry-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      text-align: center;
+    }
+
+    .telemetry-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      text-align: center;
+    }
+
+    .telem-item {
+      background: rgba(0, 0, 0, 0.25);
+      padding: 8px 4px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    /* Runner Form Controls */
+    .runner-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .text-input {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      outline: none;
+    }
+
+    .text-input:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+    }
+
+    .btn-action-small {
+      background: rgba(59, 130, 246, 0.2);
+      border: 1px solid #38bdf8;
+      color: #93c5fd;
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 9px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-action-small:active {
+      transform: scale(0.96);
+    }
+
+    /* Leaderboard Table */
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin-top: 4px;
+    }
+
+    .leaderboard-table th {
+      text-align: left;
+      padding: 7px 5px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .leaderboard-table td {
+      padding: 7px 5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .rank-cell {
+      font-weight: 900;
+      width: 44px;
+    }
+
+    .rank-1 { color: #facc15; }
+    .rank-2 { color: #e2e8f0; }
+    .rank-3 { color: #f97316; }
+
+    .score-cell {
+      font-weight: 900;
+      color: var(--gold);
+      text-align: right;
+    }
+
+    .dist-cell {
+      color: #93c5fd;
+      text-align: right;
+    }
+
+    .seed-cell {
+      color: var(--text-muted);
+      font-family: monospace;
+      font-size: 0.72rem;
+      text-align: right;
+    }
+
+    /* Recording Session Deck */
+    .btn-record {
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-record.recording {
+      background: linear-gradient(135deg, #dc2626, #991b1b);
+      box-shadow: 0 0 24px rgba(239, 68, 68, 0.7);
+      animation: pulseRecord 1s ease infinite alternate;
+    }
+
+    @keyframes pulseRecord {
+      from { transform: scale(1.0); }
+      to { transform: scale(1.02); }
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 6px 20px var(--emerald-glow);
+    }
+
+    /* Diagnostics Table */
+    .diag-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .diag-table td {
+      padding: 6px 4px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .diag-key {
+      color: var(--text-muted);
+      font-weight: 700;
+      width: 40%;
+    }
+
+    .diag-val {
+      color: #e2e8f0;
+      font-family: monospace;
+    }
+

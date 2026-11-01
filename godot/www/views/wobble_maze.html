@@ -1,0 +1,93 @@
+  <main class="game-view" id="view-WobbleMaze">
+    <!-- Telemetry Strip -->
+    <section class="card">
+      <div class="card-title">
+        <span>Maze Telemetry</span>
+        <span id="wmStateBadge" style="color:#60a5fa; font-size:0.75rem;">START</span>
+      </div>
+      <div class="telemetry-grid-4">
+        <div class="telem-item">
+          <div class="telem-label">Timer</div>
+          <div class="telem-val" id="wmTime" style="color:#38bdf8;">0.0s</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Gems</div>
+          <div class="telem-val" id="wmGems" style="color:var(--gold);">0/3</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Key Status</div>
+          <div class="telem-val" id="wmKey" style="color:#94a3b8; font-size:0.92rem;">NO</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Falls</div>
+          <div class="telem-val" id="wmFalls" style="color:#f87171;">0</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Maze Configuration Controls -->
+    <section class="card">
+      <div class="card-title">
+        <span>Maze Configuration</span>
+        <span id="wmConfigBadge" style="font-size:0.7rem; color:#facc15;">Seed: 1337</span>
+      </div>
+      <div class="runner-controls">
+        <div class="form-group">
+          <label class="form-label" for="wmSeedInput">Maze Seed</label>
+          <div class="input-row">
+            <input type="number" id="wmSeedInput" class="text-input" value="1337" />
+            <button class="btn-action-small" onclick="applyMazeConfig()">Apply</button>
+            <button class="btn-action-small" style="background:rgba(234, 179, 8, 0.15); border-color:#eab308; color:#fef08a;" onclick="randomizeMazeSeed()">🎲 Random Seed</button>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+          <label class="form-label">Maze Size</label>
+          <div class="invert-deck" style="grid-template-columns: repeat(3, 1fr); margin-top:4px;">
+            <button class="btn-toggle" id="wmSizeSmall" onclick="setMazeSize('small')">Small</button>
+            <button class="btn-toggle active" id="wmSizeMedium" onclick="setMazeSize('medium')">Medium</button>
+            <button class="btn-toggle" id="wmSizeLarge" onclick="setMazeSize('large')">Large</button>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+          <label class="form-label">Difficulty</label>
+          <div class="invert-deck" style="grid-template-columns: repeat(3, 1fr); margin-top:4px;">
+            <button class="btn-toggle" id="wmDiffEasy" onclick="setMazeDifficulty('easy')">Easy</button>
+            <button class="btn-toggle active" id="wmDiffMedium" onclick="setMazeDifficulty('medium')">Medium</button>
+            <button class="btn-toggle" id="wmDiffHard" onclick="setMazeDifficulty('hard')">Hard</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2D Balance Board Tilt Card & Tare -->
+    <section class="card">
+      <div class="card-title">
+        <span>Balance Board Tilt (2D)</span>
+        <span id="wmRateLabel" style="font-size:0.7rem; color:#34d399;">-- Hz</span>
+      </div>
+      <div class="level-2d-box">
+        <div class="level-crosshair-x"></div>
+        <div class="level-crosshair-y"></div>
+        <div class="level-rings"></div>
+        <div class="level-center-bullseye"></div>
+        <div class="bubble-puck" id="wmBubblePuck"></div>
+      </div>
+      <div class="cal-readouts">
+        <div>ROLL: <span id="wmRollDeg" style="color:#38bdf8;">+0.0°</span></div>
+        <div>PITCH: <span id="wmPitchDeg" style="color:#818cf8;">+0.0°</span></div>
+      </div>
+      <div class="cal-actions">
+        <button class="btn-tare" onclick="sendWsMessage({ type: 'tare_board' })">🎯 Tare Zero (Set Level)</button>
+        <button class="btn-secondary" onclick="sendWsMessage({ type: 'reset_cal' })">Reset Zero</button>
+      </div>
+      <div class="slider-row">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Sensitivity:</span>
+        <input type="range" id="wmSensitivitySlider" min="0.5" max="2.5" step="0.1" value="1.0" oninput="onSensitivityInput(this.value)">
+        <span id="wmSensitivityText" style="font-size:0.8rem; font-weight:800; min-width:36px;">1.0x</span>
+      </div>
+      <div class="invert-deck" style="margin-top:8px;">
+        <button class="btn-toggle active" id="wmBtnInvertRoll" onclick="toggleInvert('roll')">Invert Left/Right</button>
+        <button class="btn-toggle active" id="wmBtnInvertPitch" onclick="toggleInvert('pitch')">Invert Front/Back</button>
+      </div>
+    </section>
+  </main>

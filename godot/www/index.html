@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>WobbleHero Remote</title>
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/games.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <span>WobbleHero</span>
+    </div>
+    <div class="badges">
+      <div id="wsBadge" class="badge">
+        <span class="dot dot-offline" id="wsDot"></span>
+        <span id="wsText">Connecting...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Choose Game Bar (Universal) -->
+  <section class="card" style="padding:10px;">
+    <div class="card-title" style="margin-bottom:8px;">
+      <span>Select Mini Game</span>
+      <span id="activeGameBadge" style="color:#38bdf8; font-weight:800;">-</span>
+    </div>
+    <div class="game-grid" id="gameGrid">
+      <!-- Injected dynamically via WebSocket availableGames -->
+    </div>
+  </section>
+
+  <!-- Universal Action Deck (Start / Pause / Reset) -->
+  <div class="action-row">
+    <button id="mainBtn" class="btn-main btn-start" onclick="onMainBtnClick()">
+      <span id="mainBtnIcon">▶️</span>
+      <span id="mainBtnText">Start Game</span>
+    </button>
+    <button class="btn-reset" onclick="sendWsMessage({ type: 'reset_game' })" title="Reset Current Game">
+      🔄
+    </button>
+  </div>
+
+  <!-- Dynamic Views Container (Individual Game Views loaded from /views/*.html) -->
+  <div id="views-container">
+    <!-- Component views are loaded here -->
+  </div>
+
+  <!-- Game Cockpit Modules -->
+  <script src="/js/games/surfer.js"></script>
+  <script src="/js/games/sumo.js"></script>
+  <script src="/js/games/lander.js"></script>
+  <script src="/js/games/compass.js"></script>
+  <script src="/js/games/pinball.js"></script>
+  <script src="/js/games/slalom.js"></script>
+  <script src="/js/games/logroll.js"></script>
+
+  <!-- Companion Core Controller -->
+  <script src="/js/app.js"></script>
+</body>
+</html>

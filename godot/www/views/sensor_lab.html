@@ -1,0 +1,94 @@
+  <main class="game-view" id="view-SensorLab">
+    <!-- Movement Data Recorder Card -->
+    <section class="card">
+      <div class="card-title">
+        <span>Movement Session Recorder</span>
+        <span id="slRecHzBadge" style="font-size:0.7rem; color:#34d399;">100 Hz Raw IMU</span>
+      </div>
+      <div style="margin-bottom:10px; font-size:0.8rem; color:var(--text-muted); line-height:1.4;">
+        Record raw accelerometer, gyroscope, magnetometer, and fused angles to analyze movement or test custom filters.
+      </div>
+      <button id="btnRecordToggle" class="btn-main btn-record" onclick="toggleRecordingSession()">
+        <span id="btnRecordIcon">⏺️</span>
+        <span id="btnRecordText">Start Recording Session</span>
+      </button>
+      <div id="recordingStatsRow" style="display:none; margin-top:10px; font-size:0.85rem; display:flex; justify-content:space-between; color:var(--text-muted); font-variant-numeric:tabular-nums;">
+        <div>Duration: <span id="recDurationText" style="color:#f87171; font-weight:800;">0.0s</span></div>
+        <div>Samples: <span id="recSampleText" style="color:#60a5fa; font-weight:800;">0</span></div>
+      </div>
+      <div id="downloadRow" style="display:none; margin-top:10px;">
+        <a id="btnDownloadCsv" href="/api/recording/latest.csv" download="wobble_sensor_session.csv" class="btn-main btn-download" style="text-decoration:none;">
+          <span>📥</span>
+          <span>Download CSV Session</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 2D Level & Zeroing Bench -->
+    <section class="card">
+      <div class="card-title">
+        <span>Sensor Zero Bench</span>
+        <span id="slSourceBadge" style="font-size:0.7rem; color:var(--text-muted);">AtomS3</span>
+      </div>
+      <div class="level-2d-box">
+        <div class="level-crosshair-x"></div>
+        <div class="level-crosshair-y"></div>
+        <div class="level-rings"></div>
+        <div class="level-center-bullseye"></div>
+        <div class="bubble-puck" id="slBubblePuck"></div>
+      </div>
+      <div class="cal-readouts">
+        <div>ROLL: <span id="slRollDeg" style="color:#38bdf8;">+0.0°</span></div>
+        <div>PITCH: <span id="slPitchDeg" style="color:#818cf8;">+0.0°</span></div>
+      </div>
+      <div class="cal-actions">
+        <button class="btn-tare" onclick="sendWsMessage({ type: 'tare_board' })">🎯 Tare Zero</button>
+        <button class="btn-secondary" onclick="sendWsMessage({ type: 'reset_cal' })">Reset Zero</button>
+      </div>
+      <div style="font-size:0.68rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-top:10px; margin-bottom:4px;">Mounting Orientation:</div>
+      <div class="invert-deck" style="margin-top:2px;">
+        <button class="btn-toggle active" id="slBtnMountUnder" onclick="setMountingProfile('underneath')">🛹 Underneath (Upside Down)</button>
+        <button class="btn-toggle" id="slBtnMountTop" onclick="setMountingProfile('top')">📱 Top (Standard)</button>
+      </div>
+      <div class="invert-deck" style="margin-top:6px;">
+        <button class="btn-toggle active" id="slBtnInvertRoll" onclick="toggleInvert('roll')">Invert Left/Right</button>
+        <button class="btn-toggle active" id="slBtnInvertPitch" onclick="toggleInvert('pitch')">Invert Front/Back</button>
+      </div>
+    </section>
+
+    <!-- Deep 9-Axis Diagnostics Table -->
+    <section class="card">
+      <div class="card-title">
+        <span>9-Axis IMU & Hardware Telemetry</span>
+        <span id="slDeviceIpLabel" style="font-size:0.7rem; color:var(--text-muted);">IP: --</span>
+      </div>
+      <table class="diag-table">
+        <tbody>
+          <tr>
+            <td class="diag-key">Compass Heading</td>
+            <td class="diag-val" id="slHeadingVal" style="color:#facc15;">--°</td>
+          </tr>
+          <tr>
+            <td class="diag-key">Magnetometer (µT)</td>
+            <td class="diag-val" id="slMagVal">X: 0.0, Y: 0.0, Z: 0.0</td>
+          </tr>
+          <tr>
+            <td class="diag-key">Accelerometer (g)</td>
+            <td class="diag-val" id="slAccelVal">X: 0.00, Y: 0.00, Z: 0.00</td>
+          </tr>
+          <tr>
+            <td class="diag-key">Gyroscope (°/s)</td>
+            <td class="diag-val" id="slGyroVal">X: 0.0, Y: 0.0, Z: 0.0</td>
+          </tr>
+          <tr>
+            <td class="diag-key">UDP Stream Rate</td>
+            <td class="diag-val" id="slHzVal" style="color:#34d399;">-- Hz</td>
+          </tr>
+          <tr>
+            <td class="diag-key">Hardware Source</td>
+            <td class="diag-val" id="slSourceVal">AtomS3 (BMI270)</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>

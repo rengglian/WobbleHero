@@ -1,0 +1,106 @@
+  <main class="game-view" id="view-WobbleSumo">
+    <!-- Header & Telemetry Card -->
+    <section class="card">
+      <div class="card-title">
+        <span>🦹 Sumo Ring King</span>
+        <span id="sumoStateBadge" style="color:#60a5fa; font-size:0.75rem;">START</span>
+      </div>
+      <div style="font-size:0.78rem; color:var(--text-muted); line-height:1.4; margin-bottom:10px;">
+        Physics dojo brawler! Tilt your board to ram rivals off the edge. Snap your weight shift rapidly to unleash kinetic shockwave body slams!
+      </div>
+      <div class="telemetry-grid-3">
+        <div class="telem-item">
+          <div class="telem-label">Knockouts</div>
+          <div class="telem-val" id="sumoKnockouts" style="color:var(--gold);">0</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Opponents</div>
+          <div class="telem-val" id="sumoOpponents" style="color:#f87171;">0</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Wave</div>
+          <div class="telem-val" id="sumoWave" style="color:#a78bfa;">1</div>
+        </div>
+      </div>
+      <div class="telemetry-grid-2" style="margin-top:8px;">
+        <div class="telem-item">
+          <div class="telem-label">Ring Integrity</div>
+          <div class="telem-val" id="sumoRingIntegrity" style="color:#34d399;">100%</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Shockwave</div>
+          <div class="telem-val" id="sumoShockwaveBadge" style="color:#fbbf24; font-size:0.95rem;">⚡ READY</div>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:0.75rem; font-weight:700; color:var(--text-muted);">
+        <span>Score: <strong id="sumoScore" style="color:var(--gold); font-size:0.85rem;">0</strong></span>
+        <span id="sumoJerkLabel" style="color:#38bdf8; font-weight:800;">JERK: 0°/s²</span>
+      </div>
+    </section>
+
+    <!-- 2D Dojo Arena Radar -->
+    <section class="card">
+      <div class="card-title">
+        <span>Dojo Arena Radar (Top-Down)</span>
+        <span id="sumoRateLabel" style="font-size:0.7rem; color:#34d399;">-- Hz</span>
+      </div>
+      <div style="position:relative; width:100%; height:230px; background:radial-gradient(circle at 50% 50%, #1e1b4b 0%, #090d16 80%); border:1px solid rgba(255,255,255,0.08); border-radius:14px; overflow:hidden;">
+        <canvas id="wsRadarCanvas" width="340" height="230" style="width:100%; height:100%; display:block;"></canvas>
+      </div>
+      <div style="display:flex; justify-content:space-around; align-items:center; margin-top:8px; font-size:0.68rem; font-weight:700; color:var(--text-muted);">
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#38bdf8; margin-right:4px;"></span>Hero</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; margin-right:4px;"></span>Scout</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#f59e0b; margin-right:4px;"></span>Brawler</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#ef4444; margin-right:4px;"></span>Yokozuna</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; border:1px dashed #e11d48; margin-right:4px;"></span>Ring Edge</span>
+      </div>
+    </section>
+
+    <!-- Shockwave Action & Controls -->
+    <section class="card">
+      <div class="card-title">
+        <span>Brawler Actions & Tuning</span>
+      </div>
+      <!-- Manual Shockwave Burst Button -->
+      <button id="btnSumoShockwave" class="btn-main" style="background:linear-gradient(135deg, #f59e0b, #ef4444); box-shadow:0 6px 20px rgba(245,158,11,0.4); margin-bottom:12px;" onclick="triggerShockwave()">
+        <span style="font-size:1.3rem;">💥</span>
+        <span>SLAP SHOCKWAVE BURST</span>
+      </button>
+
+      <!-- Difficulty Selector -->
+      <div class="form-group">
+        <label class="form-label" style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); display:block; margin-bottom:4px;">Brawler Difficulty</label>
+        <div class="invert-deck" style="grid-template-columns: repeat(2, 1fr); margin-top:4px;">
+          <button class="btn-toggle active" id="sumoDiffNovice" onclick="setSumoDifficulty('novice')">Novice (Standard AI)</button>
+          <button class="btn-toggle" id="sumoDiffYokozuna" onclick="setSumoDifficulty('yokozuna')">👑 Yokozuna (Rampage)</button>
+        </div>
+      </div>
+
+      <!-- Arena Size Selector -->
+      <div class="form-group" style="margin-top:12px;">
+        <label class="form-label" style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); display:block; margin-bottom:4px;">Arena Size</label>
+        <div class="invert-deck" style="grid-template-columns: repeat(3, 1fr); margin-top:4px;">
+          <button class="btn-toggle" id="sumoSizeCompact" onclick="setSumoArenaSize('compact')">Compact 10m</button>
+          <button class="btn-toggle active" id="sumoSizeStandard" onclick="setSumoArenaSize('standard')">Standard 14m</button>
+          <button class="btn-toggle" id="sumoSizeColosseum" onclick="setSumoArenaSize('colosseum')">Colosseum 18m</button>
+        </div>
+      </div>
+
+      <!-- Tare & Sensitivity -->
+      <div class="cal-actions" style="margin-top:12px;">
+        <button class="btn-tare" onclick="sendWsMessage({ type: 'tare_board' })">🎯 Tare Zero (Set Level)</button>
+        <button class="btn-secondary" onclick="sendWsMessage({ type: 'reset_cal' })">Reset Zero</button>
+      </div>
+
+      <div class="slider-row" style="margin-top:12px;">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Drive Sensitivity:</span>
+        <input type="range" id="sumoSensitivitySlider" min="0.5" max="2.5" step="0.1" value="1.0" oninput="onSensitivityInput(this.value)">
+        <span id="sumoSensitivityText" style="font-size:0.8rem; font-weight:800; min-width:36px;">1.0x</span>
+      </div>
+
+      <div class="invert-deck" style="margin-top:10px;">
+        <button class="btn-toggle active" id="sumoBtnInvertRoll" onclick="toggleInvert('roll')">Invert Steer Roll</button>
+        <button class="btn-toggle active" id="sumoBtnInvertPitch" onclick="toggleInvert('pitch')">Invert Drive Pitch</button>
+      </div>
+    </section>
+  </main>

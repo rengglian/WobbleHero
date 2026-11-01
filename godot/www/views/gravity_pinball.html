@@ -1,0 +1,99 @@
+  <main class="game-view" id="view-GravityPinball">
+    <!-- Header & Telemetry Card -->
+    <section class="card">
+      <div class="card-title">
+        <span>🧱 Gravity Pinball</span>
+        <span id="gpStateBadge" style="color:#60a5fa; font-size:0.75rem;">START</span>
+      </div>
+      <div style="font-size:0.78rem; color:var(--text-muted); line-height:1.4; margin-bottom:10px;">
+        Your balancing board is the entire pinball table! Tilt 2D gravity to rebound balls into glowing bumpers, trigger drop-targets, and defend the bottom drain gap!
+      </div>
+      <div class="telemetry-grid-4">
+        <div class="telem-item">
+          <div class="telem-label">Active Balls</div>
+          <div class="telem-val" id="gpActiveBalls" style="color:#38bdf8;">1</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Reserve Balls</div>
+          <div class="telem-val" id="gpReserveBalls" style="color:#a78bfa;">3</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Multiplier</div>
+          <div class="telem-val" id="gpMultiplier" style="color:var(--gold);">1.0x</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Bumpers Hit</div>
+          <div class="telem-val" id="gpBumpersHit" style="color:#34d399;">0</div>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:0.75rem; font-weight:700; color:var(--text-muted);">
+        <span>Score: <strong id="gpScore" style="color:var(--gold); font-size:0.85rem;">0</strong></span>
+        <span id="gpTiltBadge" style="color:#10b981; font-weight:800; background:rgba(16,185,129,0.12); padding:3px 8px; border-radius:6px; border:1px solid rgba(16,185,129,0.3);">TILTS: 0/3 (SAFE)</span>
+      </div>
+    </section>
+
+    <!-- 2D Pinball Radar Playfield Canvas -->
+    <section class="card">
+      <div class="card-title">
+        <span>Neon Playfield Radar</span>
+        <span id="gpRateLabel" style="font-size:0.7rem; color:#34d399;">-- Hz</span>
+      </div>
+      <div style="position:relative; width:100%; height:240px; background:radial-gradient(circle at 50% 40%, #1e1b4b 0%, #090d16 85%); border:1px solid rgba(255,255,255,0.08); border-radius:14px; overflow:hidden;">
+        <canvas id="gpRadarCanvas" width="340" height="240" style="width:100%; height:100%; display:block;"></canvas>
+      </div>
+      <div style="display:flex; justify-content:space-around; align-items:center; margin-top:8px; font-size:0.68rem; font-weight:700; color:var(--text-muted);">
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#e2e8f0; margin-right:4px;"></span>Chrome Ball</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#00f0ff; margin-right:4px;"></span>Top Bumper</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#f43f5e; margin-right:4px;"></span>Side Bumper</span>
+        <span><span style="display:inline-block; width:8px; height:4px; background:#10b981; margin-right:4px;"></span>Drop Target</span>
+      </div>
+    </section>
+
+    <!-- Playfield Actions & Physics Tuning -->
+    <section class="card">
+      <div class="card-title">
+        <span>Playfield Actions & Physics</span>
+      </div>
+
+      <!-- Action Row: Launch Ball + Nudge -->
+      <div style="display:grid; grid-template-columns: 2fr 1fr; gap:10px; margin-bottom:12px;">
+        <button id="btnLaunchPinball" class="btn-main" style="background:linear-gradient(135deg, #10b981, #059669); font-size:0.85rem;" onclick="launchPinball()">
+          <span>🚀 LAUNCH BALL / MULTIBALL</span>
+        </button>
+        <button id="btnNudgeTable" class="btn-main" style="background:linear-gradient(135deg, #f59e0b, #d97706); font-size:0.85rem;" onclick="nudgeTable()">
+          <span>💥 NUDGE</span>
+        </button>
+      </div>
+
+      <!-- Table Incline Slider -->
+      <div class="slider-row">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Table Incline:</span>
+        <input type="range" id="gpInclineSlider" min="5" max="25" step="1" value="12" oninput="onTableInclineInput(this.value)">
+        <span id="gpInclineText" style="font-size:0.8rem; font-weight:800; min-width:44px; color:#38bdf8;">12°</span>
+      </div>
+
+      <!-- Bumper Restitution Slider -->
+      <div class="slider-row" style="margin-top:12px;">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Bumper Rebound:</span>
+        <input type="range" id="gpRestitutionSlider" min="0.5" max="1.2" step="0.05" value="0.85" oninput="onPinballRestitutionInput(this.value)">
+        <span id="gpRestitutionText" style="font-size:0.8rem; font-weight:800; min-width:44px; color:#facc15;">0.85x</span>
+      </div>
+
+      <!-- Tare & Tilt Sensitivity -->
+      <div class="cal-actions" style="margin-top:12px;">
+        <button class="btn-tare" onclick="sendWsMessage({ type: 'tare_board' })">🎯 Tare Zero (Set Level)</button>
+        <button class="btn-secondary" onclick="sendWsMessage({ type: 'reset_cal' })">Reset Zero</button>
+      </div>
+
+      <div class="slider-row" style="margin-top:12px;">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Tilt Sensitivity:</span>
+        <input type="range" id="gpSensitivitySlider" min="0.5" max="2.5" step="0.1" value="1.0" oninput="onSensitivityInput(this.value)">
+        <span id="gpSensitivityText" style="font-size:0.8rem; font-weight:800; min-width:36px;">1.0x</span>
+      </div>
+
+      <div class="invert-deck" style="margin-top:10px;">
+        <button class="btn-toggle active" id="gpBtnInvertRoll" onclick="toggleInvert('roll')">Invert Roll</button>
+        <button class="btn-toggle active" id="gpBtnInvertPitch" onclick="toggleInvert('pitch')">Invert Pitch</button>
+      </div>
+    </section>
+  </main>

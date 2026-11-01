@@ -8,6 +8,7 @@
     <NoWarn>$(NoWarn);NU1900</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="www\**" />
     <EmbeddedResource Include="remote.html" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,81 @@
+  <main class="game-view" id="view-RiverLogRoll">
+    <!-- Header & Telemetry Card -->
+    <section class="card">
+      <div class="card-title">
+        <span>🪵 River Log Roll</span>
+        <span id="rlDiffBadge" style="color:#38bdf8; font-weight:800; font-size:0.75rem;">CLASS III RAPIDS</span>
+      </div>
+      <div style="font-size:0.78rem; color:var(--text-muted); line-height:1.4; margin-bottom:10px;">
+        White-water rapids birling challenge! Roll your board to steer across turbulent currents; pitch to match the rotating log's traction and stay centered in the sweet spot!
+      </div>
+      <div class="telemetry-grid-4">
+        <div class="telem-item">
+          <div class="telem-label">Score</div>
+          <div class="telem-val" id="rlScore" style="color:var(--gold);">0</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">River Speed</div>
+          <div class="telem-val" id="rlRiverSpeed" style="color:#38bdf8;">24 km/h</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Log Spin</div>
+          <div class="telem-val" id="rlLogRpm" style="color:#fbbf24;">45 RPM</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Multiplier</div>
+          <div class="telem-val" id="rlMultiplier" style="color:#34d399;">1.0x</div>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:0.75rem; font-weight:700; color:var(--text-muted);">
+        <span>🐟 Salmon: <strong id="rlSalmon" style="color:var(--gold); font-size:0.85rem;">0</strong></span>
+        <span>Balance: <strong id="rlBalance" style="color:#34d399;">SWEET SPOT ⚖️</strong></span>
+      </div>
+    </section>
+
+    <!-- 2D River Radar & Log Cross-Section Canvas -->
+    <section class="card">
+      <div class="card-title">
+        <span>Log Equilibrium & River Radar</span>
+        <span id="rlRateLabel" style="font-size:0.7rem; color:#34d399;">-- Hz</span>
+      </div>
+      <div style="position:relative; width:100%; height:200px; background:radial-gradient(circle at 75% 50%, #0369a1 0%, #082f49 45%, #090d16 85%); border:1px solid rgba(255,255,255,0.08); border-radius:14px; overflow:hidden;">
+        <canvas id="rlRiverCanvas" width="340" height="200" style="width:100%; height:100%; display:block;"></canvas>
+      </div>
+      <div style="display:flex; justify-content:space-around; align-items:center; margin-top:8px; font-size:0.68rem; font-weight:700; color:var(--text-muted);">
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#b45309; margin-right:4px;"></span>Log End</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#34d399; margin-right:4px;"></span>Sweet Spot</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#64748b; margin-right:4px;"></span>Boulder</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#00f0ff; margin-right:4px;"></span>Whirlpool</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#facc15; margin-right:4px;"></span>Salmon</span>
+      </div>
+    </section>
+
+    <!-- Difficulty & Rapids Presets -->
+    <section class="card">
+      <div class="card-title">
+        <span>Rapids Difficulty</span>
+      </div>
+      <div class="action-row" style="margin-top:4px;">
+        <button class="btn-toggle" id="rlDiffCalm" onclick="setRiverDifficulty('calm_creek')">Calm Creek</button>
+        <button class="btn-toggle active" id="rlDiffClass3" onclick="setRiverDifficulty('rapids_class_3')">Class III Rapids</button>
+        <button class="btn-toggle" id="rlDiffClass5" onclick="setRiverDifficulty('white_water_class_5')">Class V Torrent</button>
+      </div>
+
+      <!-- Tare & Sensitivity -->
+      <div class="cal-actions" style="margin-top:12px;">
+        <button class="btn-tare" onclick="sendWsMessage({ type: 'tare_board' })">🎯 Tare Zero (Set Level)</button>
+        <button class="btn-secondary" onclick="sendWsMessage({ type: 'reset_cal' })">Reset Zero</button>
+      </div>
+
+      <div class="slider-row" style="margin-top:12px;">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Rudder Sensitivity:</span>
+        <input type="range" id="rlSensitivitySlider" min="0.5" max="2.5" step="0.1" value="1.0" oninput="onSensitivityInput(this.value)">
+        <span id="rlSensitivityText" style="font-size:0.8rem; font-weight:800; min-width:36px;">1.0x</span>
+      </div>
+
+      <div class="invert-deck" style="margin-top:10px;">
+        <button class="btn-toggle active" id="rlBtnInvertRoll" onclick="toggleInvert('roll')">Invert Steer Roll</button>
+        <button class="btn-toggle active" id="rlBtnInvertPitch" onclick="toggleInvert('pitch')">Invert Pitch Balance</button>
+      </div>
+    </section>
+  </main>

@@ -197,6 +197,13 @@ public partial class GameManager : Node
                     slalom.SetSlalomConfig(course, weather);
                 }
             };
+            WebServer.OnRiverDifficultyChanged += (diff) =>
+            {
+                if (CurrentGame is RiverLogRollGame logRoll)
+                {
+                    logRoll.SetDifficulty(diff);
+                }
+            };
             WebServer.OnStartRecordingRequested += () =>
             {
                 if (CurrentGame is SensorLabGame lab) lab.StartRecording();

@@ -83,6 +83,13 @@ public static class GameRegistry
             "res://Scenes/Games/DownhillSlalom.tscn"
         ),
         new(
+            "RiverLogRoll",
+            "River Log Roll",
+            "Balance atop a spinning timber log in white-water rapids! Counter river torque to stay in the sweet spot, dodge boulders, and catch salmon.",
+            "🪵",
+            "res://Scenes/Games/RiverLogRoll.tscn"
+        ),
+        new(
             "SensorLab",
             "Sensor Lab & Diagnostics",
             "Real-time 3D balance board visualizer and IMU calibration bench",

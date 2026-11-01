@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Games/RiverLogRollGame.cs" id="1_rl"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/RiverLogRollHud.tscn" id="2_hud"]
+
+[node name="RiverLogRoll" type="Node3D"]
+script = ExtResource("1_rl")
+HudScene = ExtResource("2_hud")

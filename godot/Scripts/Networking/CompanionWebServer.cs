@@ -50,6 +50,7 @@ public partial class CompanionWebServer : Node
     public event Action<float>? OnTableInclineChanged;
     public event Action<float>? OnPinballRestitutionChanged;
     public event Action<string, string>? OnSlalomConfigChanged;
+    public event Action<string>? OnRiverDifficultyChanged;
     public event Action? OnResetLeaderboardRequested;
     public event Action? OnStartRecordingRequested;
     public event Action? OnStopRecordingRequested;
@@ -76,6 +77,7 @@ public partial class CompanionWebServer : Node
     private float _pinballRestitution = 0.85f;
     private string _slalomCourse = "giant_slalom";
     private string _slalomWeather = "powder";
+    private string _riverDifficulty = "rapids_class_3";
 
     public string PlayerName { get; set; } = "Hero 1";
 
@@ -375,6 +377,7 @@ public partial class CompanionWebServer : Node
             bool hasPinballRest = false;
             string slalomCourseVal = string.Empty;
             string slalomWeatherVal = string.Empty;
+            string riverDiffVal = string.Empty;
 
             using (var doc = JsonDocument.Parse(messageJson))
             {
@@ -533,6 +536,15 @@ public partial class CompanionWebServer : Node
                 {
                     slalomWeatherVal = wStr;
                 }
+
+                if (root.TryGetProperty("diff", out var rDiffProp) && rDiffProp.GetString() is { } rdStr)
+                {
+                    riverDiffVal = rdStr;
+                }
+                else if (root.TryGetProperty("difficulty", out var rDiffProp2) && rDiffProp2.GetString() is { } rdStr2)
+                {
+                    riverDiffVal = rdStr2;
+                }
             }
 
             Callable.From(() =>
@@ -672,6 +684,12 @@ public partial class CompanionWebServer : Node
                         if (!string.IsNullOrEmpty(slalomCourseVal)) _slalomCourse = slalomCourseVal;
                         if (!string.IsNullOrEmpty(slalomWeatherVal)) _slalomWeather = slalomWeatherVal;
                         OnSlalomConfigChanged?.Invoke(_slalomCourse, _slalomWeather);
+                        break;
+                    case "set_river_diff":
+                    case "set_river_difficulty":
+                    case "set_difficulty":
+                        if (!string.IsNullOrEmpty(riverDiffVal)) _riverDifficulty = riverDiffVal;
+                        OnRiverDifficultyChanged?.Invoke(_riverDifficulty);
                         break;
                     case "set_player_name":
                         if (!string.IsNullOrEmpty(playerName))

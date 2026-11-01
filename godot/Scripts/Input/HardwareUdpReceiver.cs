@@ -20,13 +20,13 @@ public partial class HardwareUdpReceiver : Node
     [Export] public int ListenPort { get; set; } = 8080;
     [Export] public int AlternatePort { get; set; } = 8081;
     [Export] public float Sensitivity { get; set; } = 1.0f;
-    [Export] public bool InvertRoll { get; set; } = false;
-    [Export] public bool InvertPitch { get; set; } = false;
+    [Export] public bool InvertRoll { get; set; } = true;
+    [Export] public bool InvertPitch { get; set; } = true;
 
     public float Roll { get; private set; }
     public float Pitch { get; private set; }
-    public float FusedRollDeg => _fusedRollDeg;
-    public float FusedPitchDeg => _fusedPitchDeg;
+    public float FusedRollDeg => InvertRoll ? -(_fusedRollDeg - CalOffsetRoll) : (_fusedRollDeg - CalOffsetRoll);
+    public float FusedPitchDeg => InvertPitch ? -(_fusedPitchDeg - CalOffsetPitch) : (_fusedPitchDeg - CalOffsetPitch);
     public float CalOffsetRoll { get; set; } = 0.0f;
     public float CalOffsetPitch { get; set; } = 0.0f;
 
@@ -291,8 +291,8 @@ public partial class HardwareUdpReceiver : Node
         {
             Roll = Roll,
             Pitch = Pitch,
-            FusedRollDeg = _fusedRollDeg,
-            FusedPitchDeg = _fusedPitchDeg,
+            FusedRollDeg = FusedRollDeg,
+            FusedPitchDeg = FusedPitchDeg,
             CalOffsetRoll = CalOffsetRoll,
             CalOffsetPitch = CalOffsetPitch,
             IsActive = true,

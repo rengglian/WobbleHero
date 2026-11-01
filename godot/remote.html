@@ -710,8 +710,8 @@
         <span id="btSensitivityText" style="font-size:0.8rem; font-weight:800; min-width:36px;">1.0x</span>
       </div>
       <div class="invert-deck">
-        <button class="btn-toggle" id="btBtnInvertRoll" onclick="toggleInvert('roll')">Invert Left/Right</button>
-        <button class="btn-toggle" id="btBtnInvertPitch" onclick="toggleInvert('pitch')">Invert Front/Back</button>
+        <button class="btn-toggle active" id="btBtnInvertRoll" onclick="toggleInvert('roll')">Invert Left/Right</button>
+        <button class="btn-toggle active" id="btBtnInvertPitch" onclick="toggleInvert('pitch')">Invert Front/Back</button>
       </div>
     </section>
   </main>
@@ -771,7 +771,7 @@
         <span id="wrSensitivityText" style="font-size:0.8rem; font-weight:800; min-width:36px;">1.0x</span>
       </div>
       <div class="invert-deck" style="margin-top:8px;">
-        <button class="btn-toggle" id="wrBtnInvertRoll" onclick="toggleInvert('roll')" style="grid-column: span 2;">Invert Steering Direction</button>
+        <button class="btn-toggle active" id="wrBtnInvertRoll" onclick="toggleInvert('roll')" style="grid-column: span 2;">Invert Steering Direction</button>
       </div>
     </section>
 
@@ -871,6 +871,15 @@
       <div class="cal-actions">
         <button class="btn-tare" onclick="sendWsMessage({ type: 'tare_board' })">🎯 Tare Zero</button>
         <button class="btn-secondary" onclick="sendWsMessage({ type: 'reset_cal' })">Reset Zero</button>
+      </div>
+      <div style="font-size:0.68rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-top:10px; margin-bottom:4px;">Mounting Orientation:</div>
+      <div class="invert-deck" style="margin-top:2px;">
+        <button class="btn-toggle active" id="slBtnMountUnder" onclick="setMountingProfile('underneath')">🛹 Underneath (Upside Down)</button>
+        <button class="btn-toggle" id="slBtnMountTop" onclick="setMountingProfile('top')">📱 Top (Standard)</button>
+      </div>
+      <div class="invert-deck" style="margin-top:6px;">
+        <button class="btn-toggle active" id="slBtnInvertRoll" onclick="toggleInvert('roll')">Invert Left/Right</button>
+        <button class="btn-toggle active" id="slBtnInvertPitch" onclick="toggleInvert('pitch')">Invert Front/Back</button>
       </div>
     </section>
 
@@ -982,6 +991,10 @@
     const slGyroVal = document.getElementById('slGyroVal');
     const slHzVal = document.getElementById('slHzVal');
     const slSourceVal = document.getElementById('slSourceVal');
+    const slBtnMountUnder = document.getElementById('slBtnMountUnder');
+    const slBtnMountTop = document.getElementById('slBtnMountTop');
+    const slBtnInvertRoll = document.getElementById('slBtnInvertRoll');
+    const slBtnInvertPitch = document.getElementById('slBtnInvertPitch');
 
     // Map of Views
     const views = {
@@ -1199,6 +1212,15 @@
         if (btBtnInvertRoll) btBtnInvertRoll.classList.toggle('active', invRoll);
         if (btBtnInvertPitch) btBtnInvertPitch.classList.toggle('active', invPitch);
         if (wrBtnInvertRoll) wrBtnInvertRoll.classList.toggle('active', invRoll);
+        if (slBtnInvertRoll) slBtnInvertRoll.classList.toggle('active', invRoll);
+        if (slBtnInvertPitch) slBtnInvertPitch.classList.toggle('active', invPitch);
+
+        if (slBtnMountUnder && slBtnMountTop) {
+          const isUnder = invRoll && invPitch;
+          const isTop = !invRoll && !invPitch;
+          slBtnMountUnder.classList.toggle('active', isUnder);
+          slBtnMountTop.classList.toggle('active', isTop);
+        }
 
         if (s.playerName && document.activeElement !== wrPlayerNameInput) {
           wrPlayerNameInput.value = s.playerName;
@@ -1273,6 +1295,10 @@
 
     function toggleInvert(axis) {
       sendWsMessage({ type: 'toggle_invert', axis: axis });
+    }
+
+    function setMountingProfile(profile) {
+      sendWsMessage({ type: 'set_mounting_profile', profile: profile });
     }
 
     function toggleRecordingSession() {

@@ -48,8 +48,8 @@ public partial class BalanceBoardInput : Node
     public event Action<BoardState>? OnPacketReceived;
 
     private float _localSensitivity = 1.0f;
-    private bool _localInvertRoll;
-    private bool _localInvertPitch;
+    private bool _localInvertRoll = true;
+    private bool _localInvertPitch = true;
 
     private float _simRoll;
     private float _simPitch;
@@ -65,6 +65,9 @@ public partial class BalanceBoardInput : Node
 
         if (HardwareReceiver != null)
         {
+            HardwareReceiver.InvertRoll = _localInvertRoll;
+            HardwareReceiver.InvertPitch = _localInvertPitch;
+            HardwareReceiver.Sensitivity = _localSensitivity;
             HardwareReceiver.OnRestartRequested += () => OnRestartRequested?.Invoke();
             HardwareReceiver.OnPacketReceived += (snapshot) => OnPacketReceived?.Invoke(snapshot);
         }

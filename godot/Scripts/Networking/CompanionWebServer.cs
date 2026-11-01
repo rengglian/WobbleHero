@@ -32,6 +32,7 @@ public partial class CompanionWebServer : Node
     public event Action? OnResetCalRequested;
     public event Action<float>? OnSensitivityChanged;
     public event Action<string>? OnToggleInvertRequested;
+    public event Action<string>? OnMountingProfileChanged;
     public event Action<string>? OnPlayerNameChanged;
     public event Action<int>? OnSeedChanged;
     public event Action? OnResetLeaderboardRequested;
@@ -323,6 +324,7 @@ public partial class CompanionWebServer : Node
             float sensitivityVal = 1.0f;
             string axis = "roll";
             string playerName = "";
+            string mountingProfile = "";
             int seedVal = 1337;
             bool hasSeed = false;
 
@@ -343,6 +345,9 @@ public partial class CompanionWebServer : Node
 
                 if (root.TryGetProperty("playerName", out var pName))
                     playerName = pName.GetString() ?? "";
+
+                if (root.TryGetProperty("profile", out var profProp))
+                    mountingProfile = profProp.GetString() ?? "";
 
                 if (root.TryGetProperty("seed", out var seedProp))
                 {
@@ -390,6 +395,12 @@ public partial class CompanionWebServer : Node
                         break;
                     case "toggle_invert":
                         OnToggleInvertRequested?.Invoke(axis);
+                        break;
+                    case "set_mounting_profile":
+                        if (!string.IsNullOrEmpty(mountingProfile))
+                        {
+                            OnMountingProfileChanged?.Invoke(mountingProfile);
+                        }
                         break;
                     case "set_seed":
                         if (hasSeed)
@@ -491,7 +502,8 @@ public partial class CompanionWebServer : Node
                 sensitivity,
                 invertRoll,
                 invertPitch,
-                playerName = PlayerName
+                playerName = PlayerName,
+                mountingProfile = (invertRoll && invertPitch) ? "underneath" : (!invertRoll && !invertPitch ? "top" : "custom")
             }
         };
 

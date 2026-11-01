@@ -57,13 +57,34 @@ public partial class GameManager : Node
             WebServer.OnResetGameRequested += () => CurrentGame?.ResetGame();
             WebServer.OnTareRequested += () => BoardInput?.TareZero();
             WebServer.OnResetCalRequested += () => BoardInput?.ResetCalibration();
-            WebServer.OnSensitivityChanged += (val) => { if (BoardInput != null) BoardInput.Sensitivity = val; };
+            WebServer.OnSensitivityChanged += (val) =>
+            {
+                if (BoardInput != null) BoardInput.Sensitivity = val;
+                SaveSettings();
+            };
             WebServer.OnToggleInvertRequested += (axis) =>
             {
                 if (BoardInput == null) return;
                 if (axis == "pitch") BoardInput.InvertPitch = !BoardInput.InvertPitch;
                 else BoardInput.InvertRoll = !BoardInput.InvertRoll;
+                SaveSettings();
             };
+            WebServer.OnMountingProfileChanged += (profile) =>
+            {
+                if (BoardInput == null) return;
+                if (profile == "underneath")
+                {
+                    BoardInput.InvertRoll = true;
+                    BoardInput.InvertPitch = true;
+                }
+                else if (profile == "top")
+                {
+                    BoardInput.InvertRoll = false;
+                    BoardInput.InvertPitch = false;
+                }
+                SaveSettings();
+            };
+            WebServer.OnPlayerNameChanged += (name) => SaveSettings();
             WebServer.OnSeedChanged += (seed) =>
             {
                 if (CurrentGame is WobbleRunnerGame runner)
@@ -85,6 +106,9 @@ public partial class GameManager : Node
                 return string.Empty;
             };
         }
+
+        // Load persistent settings (Defaults to AtomS3 mounted upside down underneath board)
+        LoadSettings();
 
         // Wire controller restart button
         if (BoardInput != null)
@@ -195,6 +219,70 @@ public partial class GameManager : Node
                     BoardInput.InvertPitch
                 );
             }
+        }
+    }
+
+    private const string SettingsFile = "user://settings.json";
+
+    public void LoadSettings()
+    {
+        if (Godot.FileAccess.FileExists(SettingsFile))
+        {
+            try
+            {
+                using var file = Godot.FileAccess.Open(SettingsFile, Godot.FileAccess.ModeFlags.Read);
+                string json = file.GetAsText();
+                using var doc = System.Text.Json.JsonDocument.Parse(json);
+                var root = doc.RootElement;
+                if (BoardInput != null)
+                {
+                    if (root.TryGetProperty("invertRoll", out var ir)) BoardInput.InvertRoll = ir.GetBoolean();
+                    if (root.TryGetProperty("invertPitch", out var ip)) BoardInput.InvertPitch = ip.GetBoolean();
+                    if (root.TryGetProperty("sensitivity", out var sens)) BoardInput.Sensitivity = (float)sens.GetDouble();
+                }
+                if (WebServer != null && root.TryGetProperty("playerName", out var pn))
+                {
+                    string name = pn.GetString() ?? "Hero 1";
+                    WebServer.PlayerName = name;
+                    LeaderboardService.Instance.ActivePlayerName = name;
+                }
+                GD.Print($"[GameManager] Loaded user settings: InvertRoll={BoardInput?.InvertRoll}, InvertPitch={BoardInput?.InvertPitch}");
+                return;
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"[GameManager] Error loading settings: {ex.Message}");
+            }
+        }
+
+        // Default: AtomS3 is mounted upside down underneath the board -> InvertRoll=true, InvertPitch=true
+        if (BoardInput != null)
+        {
+            BoardInput.InvertRoll = true;
+            BoardInput.InvertPitch = true;
+            BoardInput.Sensitivity = 1.0f;
+        }
+        SaveSettings();
+    }
+
+    public void SaveSettings()
+    {
+        try
+        {
+            var data = new
+            {
+                invertRoll = BoardInput?.InvertRoll ?? true,
+                invertPitch = BoardInput?.InvertPitch ?? true,
+                sensitivity = BoardInput?.Sensitivity ?? 1.0f,
+                playerName = WebServer?.PlayerName ?? "Hero 1"
+            };
+            string json = System.Text.Json.JsonSerializer.Serialize(data, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+            using var file = Godot.FileAccess.Open(SettingsFile, Godot.FileAccess.ModeFlags.Write);
+            file.StoreString(json);
+        }
+        catch (Exception ex)
+        {
+            GD.PrintErr($"[GameManager] Error saving settings: {ex.Message}");
         }
     }
 }

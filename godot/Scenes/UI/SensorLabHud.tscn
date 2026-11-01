@@ -1,32 +1,57 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UI/SensorLabHud.cs" id="1_slh"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/BoardTiltIndicator.tscn" id="2_ti"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/CompanionQrCard.tscn" id="3_qc"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rec_card"]
-content_margin_left = 20.0
-content_margin_top = 10.0
-content_margin_right = 20.0
-content_margin_bottom = 10.0
-bg_color = Color(0.06, 0.09, 0.16, 0.88)
+content_margin_left = 24.0
+content_margin_top = 8.0
+content_margin_right = 24.0
+content_margin_bottom = 8.0
+bg_color = Color(0.06, 0.09, 0.16, 0.9)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.22, 0.74, 0.97, 0.35)
+border_color = Color(0.22, 0.74, 0.97, 0.4)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[node name="SensorLabHud" type="CanvasLayer" node_paths=PackedStringArray("RollDegLabel", "PitchDegLabel", "HeadingDegLabel", "RecordStatusLabel", "RecordPanel", "QrCard", "TiltIndicator", "BannerLabel")]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_telemetry_bench"]
+content_margin_left = 18.0
+content_margin_top = 16.0
+content_margin_right = 18.0
+content_margin_bottom = 16.0
+bg_color = Color(0.04, 0.07, 0.13, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.22, 0.74, 0.97, 0.35)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[node name="SensorLabHud" type="CanvasLayer" node_paths=PackedStringArray("RecordStatusLabel", "RecordPanel", "FusedAnglesLabel", "HeadingLabel", "TareOffsetsLabel", "NormInputsLabel", "AccelAxesLabel", "AccelMagLabel", "GyroAxesLabel", "MagAxesLabel", "MagStrengthLabel", "HardwareLinklabel", "HardwarePacketLabel", "ButtonStateLabel", "QrCard", "TiltIndicator", "BannerLabel")]
 script = ExtResource("1_slh")
-RollDegLabel = NodePath("Root/TopMargin/TopHBox/RightBox/RollDegLabel")
-PitchDegLabel = NodePath("Root/TopMargin/TopHBox/RightBox/PitchDegLabel")
-HeadingDegLabel = NodePath("Root/TopMargin/TopHBox/RightBox/HeadingDegLabel")
 RecordStatusLabel = NodePath("Root/TopCenterMargin/RecordPanel/RecordStatusLabel")
 RecordPanel = NodePath("Root/TopCenterMargin/RecordPanel")
+FusedAnglesLabel = NodePath("Root/LeftMargin/TelemetryPanel/VBox/SectionOrientation/FusedAnglesLabel")
+HeadingLabel = NodePath("Root/LeftMargin/TelemetryPanel/VBox/SectionOrientation/HeadingLabel")
+TareOffsetsLabel = NodePath("Root/LeftMargin/TelemetryPanel/VBox/SectionOrientation/TareOffsetsLabel")
+NormInputsLabel = NodePath("Root/LeftMargin/TelemetryPanel/VBox/SectionOrientation/NormInputsLabel")
+AccelAxesLabel = NodePath("Root/LeftMargin/TelemetryPanel/VBox/SectionAccel/AccelAxesLabel")
+AccelMagLabel = NodePath("Root/LeftMargin/TelemetryPanel/VBox/SectionAccel/AccelMagLabel")
+GyroAxesLabel = NodePath("Root/LeftMargin/TelemetryPanel/VBox/SectionGyro/GyroAxesLabel")
+MagAxesLabel = NodePath("Root/LeftMargin/TelemetryPanel/VBox/SectionMag/MagAxesLabel")
+MagStrengthLabel = NodePath("Root/LeftMargin/TelemetryPanel/VBox/SectionMag/MagStrengthLabel")
+HardwareLinklabel = NodePath("Root/LeftMargin/TelemetryPanel/VBox/SectionHardware/HardwareLinklabel")
+HardwarePacketLabel = NodePath("Root/LeftMargin/TelemetryPanel/VBox/SectionHardware/HardwarePacketLabel")
+ButtonStateLabel = NodePath("Root/LeftMargin/TelemetryPanel/VBox/SectionHardware/ButtonStateLabel")
 QrCard = NodePath("Root/BottomRightMargin/CompanionQrCard")
 TiltIndicator = NodePath("Root/BottomLeftMargin/BoardTiltIndicator")
 BannerLabel = NodePath("Root/CenterBox/BannerLabel")
@@ -44,10 +69,10 @@ mouse_filter = 2
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 100.0
+offset_bottom = 90.0
 grow_horizontal = 2
 theme_override_constants/margin_left = 32
-theme_override_constants/margin_top = 24
+theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 32
 mouse_filter = 2
 
@@ -55,56 +80,31 @@ mouse_filter = 2
 layout_mode = 2
 alignment = 1
 
-[node name="TitleLabel" type="Label" parent="Root/TopMargin/TopHBox"]
+[node name="TitleBox" type="HBoxContainer" parent="Root/TopMargin/TopHBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="Root/TopMargin/TopHBox/TitleBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.95, 0.4, 1)
 theme_override_colors/font_outline_color = Color(0.04, 0.07, 0.12, 1)
 theme_override_constants/outline_size = 8
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 30
 text = "SENSOR LAB & BENCH"
 
 [node name="Spacer" type="Control" parent="Root/TopMargin/TopHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="RightBox" type="HBoxContainer" parent="Root/TopMargin/TopHBox"]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="RollDegLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.22, 0.74, 0.97, 1)
-theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 26
-text = "ROLL: +0.0°"
-
-[node name="PitchDegLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
-theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 26
-text = "PITCH: +0.0°"
-
-[node name="HeadingDegLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.45, 0.2, 1)
-theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 26
-text = "COMPASS: 0°"
-
 [node name="TopCenterMargin" type="MarginContainer" parent="Root"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -280.0
-offset_top = 80.0
-offset_right = 280.0
-offset_bottom = 140.0
+offset_left = -300.0
+offset_top = 18.0
+offset_right = 300.0
+offset_bottom = 80.0
 grow_horizontal = 2
 mouse_filter = 2
 
@@ -121,6 +121,173 @@ theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 18
 text = "[PRESS SPACE / PHONE TO RECORD SESSION]"
 horizontal_alignment = 1
+
+[node name="LeftMargin" type="MarginContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_top = 80.0
+offset_right = 470.0
+offset_bottom = -170.0
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_bottom = 12
+mouse_filter = 2
+
+[node name="TelemetryPanel" type="PanelContainer" parent="Root/LeftMargin"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_telemetry_bench")
+
+[node name="VBox" type="VBoxContainer" parent="Root/LeftMargin/TelemetryPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="SectionOrientation" type="VBoxContainer" parent="Root/LeftMargin/TelemetryPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Header1" type="Label" parent="Root/LeftMargin/TelemetryPanel/VBox/SectionOrientation"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.74, 0.97, 1)
+theme_override_font_sizes/font_size = 15
+text = "📐 FUSED ORIENTATION"
+
+[node name="FusedAnglesLabel" type="Label" parent="Root/LeftMargin/TelemetryPanel/VBox/SectionOrientation"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 19
+text = "ROLL: +0.0°  |  PITCH: +0.0°"
+
+[node name="HeadingLabel" type="Label" parent="Root/LeftMargin/TelemetryPanel/VBox/SectionOrientation"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 16
+text = "COMPASS HEADING: 0° (N)"
+
+[node name="TareOffsetsLabel" type="Label" parent="Root/LeftMargin/TelemetryPanel/VBox/SectionOrientation"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.75, 0.85, 1)
+theme_override_font_sizes/font_size = 13
+text = "TARE ZERO: R: +0.0° | P: +0.0°"
+
+[node name="NormInputsLabel" type="Label" parent="Root/LeftMargin/TelemetryPanel/VBox/SectionOrientation"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.75, 0.85, 1)
+theme_override_font_sizes/font_size = 13
+text = "NORM OUTPUT: ROLL: +0.00 | PITCH: +0.00"
+
+[node name="HSeparator1" type="HSeparator" parent="Root/LeftMargin/TelemetryPanel/VBox"]
+layout_mode = 2
+
+[node name="SectionAccel" type="VBoxContainer" parent="Root/LeftMargin/TelemetryPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Header2" type="Label" parent="Root/LeftMargin/TelemetryPanel/VBox/SectionAccel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.4, 1)
+theme_override_font_sizes/font_size = 15
+text = "🚀 ACCELEROMETER (3-AXIS)"
+
+[node name="AccelAxesLabel" type="Label" parent="Root/LeftMargin/TelemetryPanel/VBox/SectionAccel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "X: +0.00g   Y: +0.00g   Z: +1.00g"
+
+[node name="AccelMagLabel" type="Label" parent="Root/LeftMargin/TelemetryPanel/VBox/SectionAccel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.4, 1)
+theme_override_font_sizes/font_size = 13
+text = "TOTAL VECTOR (|A|): 1.00 g (1g = REST)"
+
+[node name="HSeparator2" type="HSeparator" parent="Root/LeftMargin/TelemetryPanel/VBox"]
+layout_mode = 2
+
+[node name="SectionGyro" type="VBoxContainer" parent="Root/LeftMargin/TelemetryPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Header3" type="Label" parent="Root/LeftMargin/TelemetryPanel/VBox/SectionGyro"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 15
+text = "🌀 GYROSCOPE (ANGULAR RATE)"
+
+[node name="GyroAxesLabel" type="Label" parent="Root/LeftMargin/TelemetryPanel/VBox/SectionGyro"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.95, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "Gx: +000.0°/s (P)  Gy: +000.0°/s (R)  Gz: +000.0°/s (Y)"
+
+[node name="HSeparator3" type="HSeparator" parent="Root/LeftMargin/TelemetryPanel/VBox"]
+layout_mode = 2
+
+[node name="SectionMag" type="VBoxContainer" parent="Root/LeftMargin/TelemetryPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Header4" type="Label" parent="Root/LeftMargin/TelemetryPanel/VBox/SectionMag"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.5, 0.2, 1)
+theme_override_font_sizes/font_size = 15
+text = "🧭 MAGNETOMETER (3-AXIS)"
+
+[node name="MagAxesLabel" type="Label" parent="Root/LeftMargin/TelemetryPanel/VBox/SectionMag"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.6, 1)
+theme_override_font_sizes/font_size = 14
+text = "Mx: +000.0 µT   My: +000.0 µT   Mz: +000.0 µT"
+
+[node name="MagStrengthLabel" type="Label" parent="Root/LeftMargin/TelemetryPanel/VBox/SectionMag"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.4, 1)
+theme_override_font_sizes/font_size = 13
+text = "FIELD STRENGTH (|M|): 0.0 µT"
+
+[node name="HSeparator4" type="HSeparator" parent="Root/LeftMargin/TelemetryPanel/VBox"]
+layout_mode = 2
+
+[node name="SectionHardware" type="VBoxContainer" parent="Root/LeftMargin/TelemetryPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Header5" type="Label" parent="Root/LeftMargin/TelemetryPanel/VBox/SectionHardware"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "⚡ HARDWARE TRANSPORT LINK"
+
+[node name="HardwareLinklabel" type="Label" parent="Root/LeftMargin/TelemetryPanel/VBox/SectionHardware"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.4, 1)
+theme_override_font_sizes/font_size = 13
+text = "SOURCE: ATOM-S3 (100 HZ) | IP: LOCAL"
+
+[node name="HardwarePacketLabel" type="Label" parent="Root/LeftMargin/TelemetryPanel/VBox/SectionHardware"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "PACKET SEQ: #000  |  TS: 0.0 ms"
+
+[node name="ButtonStateLabel" type="Label" parent="Root/LeftMargin/TelemetryPanel/VBox/SectionHardware"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "BUTTON: RELEASED"
 
 [node name="CenterBox" type="CenterContainer" parent="Root"]
 layout_mode = 1

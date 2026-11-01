@@ -1,0 +1,39 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/GameManager.cs" id="1_gm"]
+[ext_resource type="Script" path="res://Scripts/Input/BalanceBoardInput.cs" id="2_bi"]
+[ext_resource type="Script" path="res://Scripts/Input/HardwareUdpReceiver.cs" id="3_ur"]
+[ext_resource type="Script" path="res://Scripts/Networking/CompanionWebServer.cs" id="4_ws"]
+[ext_resource type="Script" path="res://Scripts/UI/CompanionHud.cs" id="5_hud"]
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 1
+background_color = Color(0.04, 0.06, 0.1, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.5, 0.6, 0.8, 1)
+ambient_light_energy = 0.8
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_gm")
+GameContainerPath = NodePath("GameContainer")
+BoardInputPath = NodePath("BalanceBoardInput")
+WebServerPath = NodePath("CompanionWebServer")
+HudPath = NodePath("CompanionHud")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="GameContainer" type="Node3D" parent="."]
+
+[node name="BalanceBoardInput" type="Node" parent="." node_paths=PackedStringArray("HardwareReceiver")]
+script = ExtResource("2_bi")
+HardwareReceiver = NodePath("HardwareUdpReceiver")
+
+[node name="HardwareUdpReceiver" type="Node" parent="BalanceBoardInput"]
+script = ExtResource("3_ur")
+
+[node name="CompanionWebServer" type="Node" parent="."]
+script = ExtResource("4_ws")
+
+[node name="CompanionHud" type="CanvasLayer" parent="."]
+script = ExtResource("5_hud")

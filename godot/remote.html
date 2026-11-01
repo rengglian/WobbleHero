@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WobbleHero – Companion Remote</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0f19">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(20, 27, 45, 0.78);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text: #f3f4f6;
+      --text-muted: #94a3b8;
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.35);
+      --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.35);
+      --rose: #ef4444;
+      --indigo: #6366f1;
+      --primary: #3b82f6;
+      --gold: #fbbf24;
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)) 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-x: hidden;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 4px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.2rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .brand span {
+      background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .badges {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .dot-online {
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+    }
+
+    .dot-offline {
+      background: var(--rose);
+      box-shadow: 0 0 8px var(--rose);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 16px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Game Selector Carousel / Grid */
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
+      gap: 10px;
+    }
+
+    .game-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 2px solid transparent;
+      border-radius: 14px;
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .game-card:active {
+      transform: scale(0.96);
+    }
+
+    .game-card.active {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: #38bdf8;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
+    }
+
+    .game-icon {
+      font-size: 2rem;
+    }
+
+    .game-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* Telemetry Grid */
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .telem-item {
+      background: rgba(0, 0, 0, 0.25);
+      padding: 10px 6px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .telem-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .telem-val {
+      font-size: 1.2rem;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .telem-val.score { color: var(--gold); }
+    .telem-val.state { color: #60a5fa; font-size: 0.95rem; }
+
+    /* 2D Bubble Level Indicator */
+    .level-2d-box {
+      width: 100%;
+      height: 180px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .level-crosshair-x {
+      position: absolute;
+      width: 100%;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.15);
+      pointer-events: none;
+    }
+
+    .level-crosshair-y {
+      position: absolute;
+      height: 100%;
+      width: 1px;
+      background: rgba(255, 255, 255, 0.15);
+      pointer-events: none;
+    }
+
+    .level-rings {
+      position: absolute;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      border: 2px dashed rgba(255, 255, 255, 0.18);
+      pointer-events: none;
+    }
+
+    .level-center-bullseye {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid rgba(16, 185, 129, 0.4);
+      background: rgba(16, 185, 129, 0.06);
+      pointer-events: none;
+    }
+
+    .bubble-puck {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #93c5fd, #2563eb);
+      box-shadow: 0 0 16px rgba(59, 130, 246, 0.9), inset 0 0 6px #fff;
+      position: absolute;
+      transform: translate(-50%, -50%);
+      left: 50%;
+      top: 50%;
+      transition: left 0.04s linear, top 0.04s linear;
+    }
+
+    .cal-readouts {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Buttons */
+    .btn-main {
+      appearance: none;
+      border: none;
+      outline: none;
+      width: 100%;
+      padding: 16px 20px;
+      border-radius: 14px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 0.1s ease;
+    }
+
+    .btn-main:active { transform: scale(0.97); }
+
+    .btn-start {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 6px 20px var(--emerald-glow);
+    }
+
+    .btn-pause {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      box-shadow: 0 6px 20px var(--amber-glow);
+    }
+
+    .btn-resume {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .cal-actions {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .btn-tare {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid var(--emerald);
+      color: #34d399;
+      font-weight: 800;
+      font-size: 0.95rem;
+      padding: 12px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 12px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    /* Slider Row */
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    input[type=range] {
+      flex: 1;
+      accent-color: #38bdf8;
+    }
+
+    .invert-deck {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn-toggle {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btn-toggle.active {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: #38bdf8;
+      color: #93c5fd;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <span>WobbleHero</span>
+    </div>
+    <div class="badges">
+      <div id="wsBadge" class="badge">
+        <span class="dot dot-offline" id="wsDot"></span>
+        <span id="wsText">Connecting...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Choose Game Card -->
+  <section class="card">
+    <div class="card-title">
+      <span>Select Game</span>
+      <span id="activeGameBadge" style="color:#38bdf8; font-weight:800;">-</span>
+    </div>
+    <div class="game-grid" id="gameGrid">
+      <!-- Injected dynamically via WebSocket availableGames -->
+    </div>
+  </section>
+
+  <!-- Telemetry Card -->
+  <section class="card">
+    <div class="card-title">
+      <span>Live Game Telemetry</span>
+      <span id="sourceBadge" style="font-size:0.7rem; color:var(--text-muted);">AtomS3 UDP</span>
+    </div>
+    <div class="telemetry-grid">
+      <div class="telem-item">
+        <div class="telem-label">Score</div>
+        <div class="telem-val score" id="telemScore">0</div>
+      </div>
+      <div class="telem-item">
+        <div class="telem-label">State</div>
+        <div class="telem-val state" id="telemState">START</div>
+      </div>
+      <div class="telem-item">
+        <div class="telem-label">Rate</div>
+        <div class="telem-val" id="telemHz" style="color:#34d399;">-- Hz</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Action Deck -->
+  <button id="mainBtn" class="btn-main btn-start" onclick="onMainBtnClick()">
+    <span id="mainBtnIcon">▶️</span>
+    <span id="mainBtnText">Start Game</span>
+  </button>
+
+  <!-- 2D Balance Board Tilt Card -->
+  <section class="card">
+    <div class="card-title">
+      <span>Board Tilt Level (2D)</span>
+      <span id="deviceIpLabel" style="font-size:0.7rem; color:var(--text-muted);">IP: --</span>
+    </div>
+    <div class="level-2d-box">
+      <div class="level-crosshair-x"></div>
+      <div class="level-crosshair-y"></div>
+      <div class="level-rings"></div>
+      <div class="level-center-bullseye"></div>
+      <div class="bubble-puck" id="bubblePuck"></div>
+    </div>
+    <div class="cal-readouts">
+      <div>ROLL: <span id="rollDegText" style="color:#38bdf8;">+0.0°</span></div>
+      <div>PITCH: <span id="pitchDegText" style="color:#818cf8;">+0.0°</span></div>
+    </div>
+    <div class="cal-actions">
+      <button class="btn-tare" onclick="sendWsMessage({ type: 'tare_board' })">🎯 Tare Zero (Set Level)</button>
+      <button class="btn-secondary" onclick="sendWsMessage({ type: 'reset_cal' })">Reset Zero</button>
+    </div>
+    <div class="slider-row">
+      <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Sensitivity:</span>
+      <input type="range" id="sensitivitySlider" min="0.5" max="2.5" step="0.1" value="1.0" oninput="onSensitivityInput(this.value)">
+      <span id="sensitivityText" style="font-size:0.8rem; font-weight:800; min-width:36px;">1.0x</span>
+    </div>
+    <div class="invert-deck">
+      <button class="btn-toggle" id="btnInvertRoll" onclick="toggleInvert('roll')">Invert Left/Right</button>
+      <button class="btn-toggle" id="btnInvertPitch" onclick="toggleInvert('pitch')">Invert Front/Back</button>
+    </div>
+  </section>
+
+  <script>
+    let ws = null;
+    let currentGameState = 'START';
+    let activeGameId = '';
+    let lastPacketTime = 0;
+
+    const wsDot = document.getElementById('wsDot');
+    const wsText = document.getElementById('wsText');
+    const gameGrid = document.getElementById('gameGrid');
+    const activeGameBadge = document.getElementById('activeGameBadge');
+    const telemScore = document.getElementById('telemScore');
+    const telemState = document.getElementById('telemState');
+    const telemHz = document.getElementById('telemHz');
+    const sourceBadge = document.getElementById('sourceBadge');
+    const deviceIpLabel = document.getElementById('deviceIpLabel');
+    const bubblePuck = document.getElementById('bubblePuck');
+    const rollDegText = document.getElementById('rollDegText');
+    const pitchDegText = document.getElementById('pitchDegText');
+    const mainBtn = document.getElementById('mainBtn');
+    const mainBtnIcon = document.getElementById('mainBtnIcon');
+    const mainBtnText = document.getElementById('mainBtnText');
+    const sensitivitySlider = document.getElementById('sensitivitySlider');
+    const sensitivityText = document.getElementById('sensitivityText');
+    const btnInvertRoll = document.getElementById('btnInvertRoll');
+    const btnInvertPitch = document.getElementById('btnInvertPitch');
+
+    function connectWs() {
+      const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${proto}//${window.location.host}/ws`;
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        wsDot.className = 'dot dot-online';
+        wsText.textContent = 'Connected';
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'telemetry') {
+            onTelemetry(data);
+          }
+        } catch (e) {
+          console.error('WS Parse Error', e);
+        }
+      };
+
+      ws.onclose = () => {
+        wsDot.className = 'dot dot-offline';
+        wsText.textContent = 'Disconnected';
+        setTimeout(connectWs, 1500);
+      };
+
+      ws.onerror = () => {
+        ws.close();
+      };
+    }
+
+    function sendWsMessage(payload) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(payload));
+      }
+    }
+
+    function onTelemetry(data) {
+      lastPacketTime = Date.now();
+
+      // 1. Board state
+      if (data.board) {
+        const b = data.board;
+        const rollDeg = typeof b.fusedRollDeg === 'number' ? b.fusedRollDeg : 0;
+        const pitchDeg = typeof b.fusedPitchDeg === 'number' ? b.fusedPitchDeg : 0;
+        const signR = rollDeg >= 0 ? '+' : '';
+        const signP = pitchDeg >= 0 ? '+' : '';
+
+        rollDegText.textContent = `${signR}${rollDeg.toFixed(1)}°`;
+        pitchDegText.textContent = `${signP}${pitchDeg.toFixed(1)}°`;
+
+        // 2D Bubble puck position: map roll to X (10%..90%), pitch to Y (10%..90%)
+        const normX = Math.max(-1, Math.min(1, b.roll || 0));
+        const normY = Math.max(-1, Math.min(1, b.pitch || 0));
+        const leftPct = 50 + (normX * 40);
+        const topPct = 50 + (normY * 40);
+        bubblePuck.style.left = `${leftPct}%`;
+        bubblePuck.style.top = `${topPct}%`;
+
+        telemHz.textContent = `${b.hz || 0} Hz`;
+        sourceBadge.textContent = `${(b.source || 'atoms3').toUpperCase()} (${b.isActive ? 'Active' : 'Idle'})`;
+        if (b.deviceIp) {
+          deviceIpLabel.textContent = `IP: ${b.deviceIp}`;
+        }
+      }
+
+      // 2. Game telemetry
+      if (data.game) {
+        const g = data.game;
+        activeGameId = g.activeGameId || '';
+        activeGameBadge.textContent = g.activeGameTitle || activeGameId;
+        currentGameState = g.state || 'START';
+        telemState.textContent = currentGameState;
+        telemScore.textContent = g.score || 0;
+
+        updateMainBtnState(currentGameState);
+      }
+
+      // 3. Available games list
+      if (Array.isArray(data.availableGames)) {
+        renderGames(data.availableGames, activeGameId);
+      }
+
+      // 4. Settings
+      if (data.settings) {
+        if (typeof data.settings.sensitivity === 'number') {
+          sensitivitySlider.value = data.settings.sensitivity;
+          sensitivityText.textContent = `${data.settings.sensitivity.toFixed(1)}x`;
+        }
+        btnInvertRoll.classList.toggle('active', !!data.settings.invertRoll);
+        btnInvertPitch.classList.toggle('active', !!data.settings.invertPitch);
+      }
+    }
+
+    function renderGames(games, activeId) {
+      if (gameGrid.children.length === games.length) {
+        // Just update active styling
+        Array.from(gameGrid.children).forEach((child, idx) => {
+          child.classList.toggle('active', games[idx].id === activeId);
+        });
+        return;
+      }
+
+      gameGrid.innerHTML = '';
+      games.forEach(g => {
+        const card = document.createElement('div');
+        card.className = `game-card ${g.id === activeId ? 'active' : ''}`;
+        card.innerHTML = `
+          <div class="game-icon">${g.icon}</div>
+          <div class="game-title">${g.title}</div>
+        `;
+        card.onclick = () => {
+          sendWsMessage({ type: 'switch_game', gameId: g.id });
+        };
+        gameGrid.appendChild(card);
+      });
+    }
+
+    function updateMainBtnState(state) {
+      if (state === 'RUNNING') {
+        mainBtn.className = 'btn-main btn-pause';
+        mainBtnIcon.textContent = '⏸️';
+        mainBtnText.textContent = 'Pause Game';
+      } else if (state === 'PAUSED') {
+        mainBtn.className = 'btn-main btn-resume';
+        mainBtnIcon.textContent = '▶️';
+        mainBtnText.textContent = 'Resume Game';
+      } else {
+        mainBtn.className = 'btn-main btn-start';
+        mainBtnIcon.textContent = '▶️';
+        mainBtnText.textContent = 'Start Game';
+      }
+    }
+
+    function onMainBtnClick() {
+      if (currentGameState === 'RUNNING') {
+        sendWsMessage({ type: 'pause_game' });
+      } else if (currentGameState === 'PAUSED') {
+        sendWsMessage({ type: 'resume_game' });
+      } else {
+        sendWsMessage({ type: 'start_game' });
+      }
+    }
+
+    function onSensitivityInput(val) {
+      const num = parseFloat(val);
+      sensitivityText.textContent = `${num.toFixed(1)}x`;
+      sendWsMessage({ type: 'set_sensitivity', value: num });
+    }
+
+    function toggleInvert(axis) {
+      sendWsMessage({ type: 'toggle_invert', axis: axis });
+    }
+
+    // Connect WebSocket on load
+    window.addEventListener('DOMContentLoaded', connectWs);
+  </script>
+</body>
+</html>

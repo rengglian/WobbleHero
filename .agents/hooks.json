@@ -1,0 +1,9 @@
+{
+  "name": "WobbleHero",
+  "description": "Validation and formatting hooks for WobbleHero Godot 4 C# balancing board platform",
+  "hooks": {
+    "pre-commit": [
+      "dotnet format --verify-no-changes"
+    ]
+  }
+}

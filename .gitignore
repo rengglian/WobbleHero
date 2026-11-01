@@ -1,0 +1,23 @@
+# Python cache & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# System and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.sw?
+
+# Godot 4 & .NET artifacts
+godot/.godot/
+godot/bin/
+godot/obj/
+godot/builds/
+!godot/*.sln
+*.csproj.nuget.*

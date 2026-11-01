@@ -429,6 +429,11 @@ public partial class CompanionWebServer : Node
                 isButtonPressed = boardState.IsButtonPressed,
                 hz = boardState.Hz,
                 seq = boardState.Seq,
+                hasMag = boardState.HasMag,
+                compassHeadingDeg = boardState.CompassHeadingDeg,
+                rawMag = new { x = boardState.RawMag.X, y = boardState.RawMag.Y, z = boardState.RawMag.Z },
+                rawAccel = new { x = boardState.RawAccel.X, y = boardState.RawAccel.Y, z = boardState.RawAccel.Z },
+                rawGyro = new { x = boardState.RawGyro.X, y = boardState.RawGyro.Y, z = boardState.RawGyro.Z },
                 deviceIp = boardState.DeviceIp,
                 source = boardState.Source
             },

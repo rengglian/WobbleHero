@@ -104,6 +104,9 @@ public partial class BalanceBoardInput : Node
                 Seq = HardwareReceiver.Seq,
                 RawAccel = HardwareReceiver.RawAccel,
                 RawGyro = HardwareReceiver.RawGyro,
+                RawMag = HardwareReceiver.RawMag,
+                HasMag = HardwareReceiver.HasMag,
+                CompassHeadingDeg = HardwareReceiver.CompassHeadingDeg,
                 TimestampUs = HardwareReceiver.TimestampUs,
                 DeviceIp = HardwareReceiver.DeviceIp,
                 Source = "atoms3"
@@ -156,6 +159,12 @@ public partial class BalanceBoardInput : Node
             IsButtonPressed = Godot.Input.IsKeyPressed(Key.Space) || Godot.Input.IsKeyPressed(Key.R),
             Hz = 60,
             Seq = 0,
+            RawAccel = Vector3.Zero,
+            RawGyro = Vector3.Zero,
+            RawMag = Vector3.Zero,
+            HasMag = false,
+            CompassHeadingDeg = 0f,
+            TimestampUs = 0,
             DeviceIp = "local",
             Source = hasKeyboard ? "keyboard" : (hasTouch ? "touch" : "idle")
         };

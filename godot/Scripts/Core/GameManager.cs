@@ -64,6 +64,13 @@ public partial class GameManager : Node
                 if (axis == "pitch") BoardInput.InvertPitch = !BoardInput.InvertPitch;
                 else BoardInput.InvertRoll = !BoardInput.InvertRoll;
             };
+            WebServer.OnSeedChanged += (seed) =>
+            {
+                if (CurrentGame is WobbleRunnerGame runner)
+                {
+                    runner.SetSeed(seed);
+                }
+            };
             WebServer.OnStartRecordingRequested += () =>
             {
                 if (CurrentGame is SensorLabGame lab) lab.StartRecording();

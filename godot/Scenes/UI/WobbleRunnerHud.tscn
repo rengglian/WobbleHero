@@ -1,15 +1,53 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UI/WobbleRunnerHud.cs" id="1_wrh"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/BoardTiltIndicator.tscn" id="2_ti"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/CompanionQrCard.tscn" id="3_qc"]
 
-[node name="WobbleRunnerHud" type="CanvasLayer" node_paths=PackedStringArray("ScoreLabel", "DistanceLabel", "SpeedLabel", "StateLabel", "QrCard", "TiltIndicator", "BannerLabel")]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pill"]
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
+bg_color = Color(0.06, 0.09, 0.16, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.22, 0.74, 0.97, 0.4)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_leaderboard_panel"]
+content_margin_left = 28.0
+content_margin_top = 20.0
+content_margin_right = 28.0
+content_margin_bottom = 20.0
+bg_color = Color(0.05, 0.08, 0.14, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.85, 0.2, 0.5)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[node name="WobbleRunnerHud" type="CanvasLayer" node_paths=PackedStringArray("ScoreLabel", "DistanceLabel", "SpeedLabel", "StateLabel", "SeedLabel", "MultiplierLabel", "CollectiblesLabel", "LeaderboardOverlay", "LeaderboardListLabel", "GameOverTitleLabel", "QrCard", "TiltIndicator", "BannerLabel")]
 script = ExtResource("1_wrh")
 ScoreLabel = NodePath("Root/TopMargin/TopHBox/RightBox/ScoreLabel")
 DistanceLabel = NodePath("Root/TopMargin/TopHBox/RightBox/DistanceLabel")
 SpeedLabel = NodePath("Root/TopMargin/TopHBox/RightBox/SpeedLabel")
 StateLabel = NodePath("Root/TopMargin/TopHBox/TitleBox/StateLabel")
+SeedLabel = NodePath("Root/TopMargin/TopHBox/TitleBox/SeedPanel/SeedLabel")
+MultiplierLabel = NodePath("Root/TopMargin/TopHBox/RightBox/MultiplierPanel/MultiplierLabel")
+CollectiblesLabel = NodePath("Root/TopMargin/TopHBox/RightBox/CollectiblesLabel")
+LeaderboardOverlay = NodePath("Root/LeaderboardOverlay")
+LeaderboardListLabel = NodePath("Root/LeaderboardOverlay/LeaderboardPanel/VBox/LeaderboardListLabel")
+GameOverTitleLabel = NodePath("Root/LeaderboardOverlay/LeaderboardPanel/VBox/GameOverTitleLabel")
 QrCard = NodePath("Root/BottomRightMargin/CompanionQrCard")
 TiltIndicator = NodePath("Root/BottomLeftMargin/BoardTiltIndicator")
 BannerLabel = NodePath("Root/CenterBox/BannerLabel")
@@ -50,6 +88,17 @@ theme_override_constants/outline_size = 8
 theme_override_font_sizes/font_size = 32
 text = "WOBBLE RUNNER"
 
+[node name="SeedPanel" type="PanelContainer" parent="Root/TopMargin/TopHBox/TitleBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_pill")
+
+[node name="SeedLabel" type="Label" parent="Root/TopMargin/TopHBox/TitleBox/SeedPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.74, 0.97, 1)
+theme_override_font_sizes/font_size = 18
+text = "SEED #1337"
+
 [node name="StateLabel" type="Label" parent="Root/TopMargin/TopHBox/TitleBox"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -63,23 +112,42 @@ size_flags_horizontal = 3
 
 [node name="RightBox" type="HBoxContainer" parent="Root/TopMargin/TopHBox"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 14
+
+[node name="CollectiblesLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 20
+text = "🍎 0  🐴 0"
 
 [node name="DistanceLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.22, 0.74, 0.97, 1)
 theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 24
-text = "DISTANCE: 0m"
+theme_override_font_sizes/font_size = 22
+text = "DIST: 0m"
 
 [node name="SpeedLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.95, 0.4, 1)
 theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 24
-text = "SPEED: 0 KM/H"
+theme_override_font_sizes/font_size = 22
+text = "0 KM/H"
+
+[node name="MultiplierPanel" type="PanelContainer" parent="Root/TopMargin/TopHBox/RightBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_pill")
+
+[node name="MultiplierLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox/MultiplierPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 20
+text = "x1.0"
 
 [node name="ScoreLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
 unique_name_in_owner = true
@@ -87,7 +155,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_colors/font_outline_color = Color(0.04, 0.07, 0.12, 1)
 theme_override_constants/outline_size = 10
-theme_override_font_sizes/font_size = 38
+theme_override_font_sizes/font_size = 36
 text = "SCORE: 0"
 
 [node name="CenterBox" type="CenterContainer" parent="Root"]
@@ -113,6 +181,58 @@ theme_override_colors/font_outline_color = Color(0.04, 0.07, 0.12, 1)
 theme_override_constants/outline_size = 12
 theme_override_font_sizes/font_size = 46
 text = "LEAN LEFT & RIGHT TO WEAVE"
+horizontal_alignment = 1
+
+[node name="LeaderboardOverlay" type="CenterContainer" parent="Root"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="LeaderboardPanel" type="PanelContainer" parent="Root/LeaderboardOverlay"]
+custom_minimum_size = Vector2(580, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_leaderboard_panel")
+
+[node name="VBox" type="VBoxContainer" parent="Root/LeaderboardOverlay/LeaderboardPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="GameOverTitleLabel" type="Label" parent="Root/LeaderboardOverlay/LeaderboardPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.07, 0.12, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 30
+text = "🏆 RUNNER LEADERBOARD"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="Root/LeaderboardOverlay/LeaderboardPanel/VBox"]
+layout_mode = 2
+
+[node name="LeaderboardListLabel" type="Label" parent="Root/LeaderboardOverlay/LeaderboardPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_constants/line_spacing = 4
+theme_override_font_sizes/font_size = 18
+text = "🥇 Rider 1     2,500 PTS (850m #1337)"
+horizontal_alignment = 1
+
+[node name="HSeparator2" type="HSeparator" parent="Root/LeaderboardOverlay/LeaderboardPanel/VBox"]
+layout_mode = 2
+
+[node name="RetryPrompt" type="Label" parent="Root/LeaderboardOverlay/LeaderboardPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.74, 0.97, 1)
+theme_override_font_sizes/font_size = 18
+text = "[LEAN BOARD OR PRESS RESTART TO RETRY]"
 horizontal_alignment = 1
 
 [node name="BottomLeftMargin" type="MarginContainer" parent="Root"]

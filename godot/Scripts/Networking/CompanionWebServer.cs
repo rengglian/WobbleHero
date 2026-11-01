@@ -33,6 +33,8 @@ public partial class CompanionWebServer : Node
     public event Action<float>? OnSensitivityChanged;
     public event Action<string>? OnToggleInvertRequested;
     public event Action<string>? OnPlayerNameChanged;
+    public event Action<int>? OnSeedChanged;
+    public event Action? OnResetLeaderboardRequested;
     public event Action? OnStartRecordingRequested;
     public event Action? OnStopRecordingRequested;
     public Func<string>? OnGetRecordingCsv;
@@ -240,6 +242,15 @@ public partial class CompanionWebServer : Node
                 response.ContentLength64 = okBytes.Length;
                 await response.OutputStream.WriteAsync(okBytes, ct);
             }
+            else if (path == "/api/leaderboard")
+            {
+                var topEntries = LeaderboardService.Instance.GetTopEntries();
+                string json = JsonSerializer.Serialize(topEntries, JsonOpts);
+                byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
+                response.ContentType = "application/json; charset=utf-8";
+                response.ContentLength64 = jsonBytes.Length;
+                await response.OutputStream.WriteAsync(jsonBytes, ct);
+            }
             else if (path == "/api/recording/latest.csv" || path == "/api/recordings/latest.csv")
             {
                 string csv = OnGetRecordingCsv?.Invoke() ?? string.Empty;
@@ -311,6 +322,8 @@ public partial class CompanionWebServer : Node
             float sensitivityVal = 1.0f;
             string axis = "roll";
             string playerName = "";
+            int seedVal = 1337;
+            bool hasSeed = false;
 
             using (var doc = JsonDocument.Parse(messageJson))
             {
@@ -329,6 +342,20 @@ public partial class CompanionWebServer : Node
 
                 if (root.TryGetProperty("playerName", out var pName))
                     playerName = pName.GetString() ?? "";
+
+                if (root.TryGetProperty("seed", out var seedProp))
+                {
+                    if (seedProp.ValueKind == JsonValueKind.Number && seedProp.TryGetInt32(out var sInt))
+                    {
+                        seedVal = sInt;
+                        hasSeed = true;
+                    }
+                    else if (seedProp.ValueKind == JsonValueKind.String && int.TryParse(seedProp.GetString(), out var sParsed))
+                    {
+                        seedVal = sParsed;
+                        hasSeed = true;
+                    }
+                }
             }
 
             Callable.From(() =>
@@ -363,12 +390,23 @@ public partial class CompanionWebServer : Node
                     case "toggle_invert":
                         OnToggleInvertRequested?.Invoke(axis);
                         break;
+                    case "set_seed":
+                        if (hasSeed)
+                        {
+                            OnSeedChanged?.Invoke(seedVal);
+                        }
+                        break;
                     case "set_player_name":
                         if (!string.IsNullOrEmpty(playerName))
                         {
                             PlayerName = playerName;
+                            LeaderboardService.Instance.ActivePlayerName = playerName;
                             OnPlayerNameChanged?.Invoke(PlayerName);
                         }
+                        break;
+                    case "reset_leaderboard":
+                        LeaderboardService.Instance.Clear();
+                        OnResetLeaderboardRequested?.Invoke();
                         break;
                     case "start_recording":
                         OnStartRecordingRequested?.Invoke();
@@ -446,6 +484,7 @@ public partial class CompanionWebServer : Node
                 stats = gameStats
             },
             availableGames = gamesList,
+            leaderboard = LeaderboardService.Instance.GetTopEntries(),
             settings = new
             {
                 sensitivity,

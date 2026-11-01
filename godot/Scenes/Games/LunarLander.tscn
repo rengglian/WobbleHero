@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://cx6llg001"]
+
+[ext_resource type="Script" path="res://Scripts/Games/LunarLanderGame.cs" id="1_ll"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/LunarLanderHud.tscn" id="2_hud"]
+
+[node name="LunarLander" type="Node3D"]
+script = ExtResource("1_ll")
+HudScene = ExtResource("2_hud")

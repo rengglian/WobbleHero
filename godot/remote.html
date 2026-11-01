@@ -258,6 +258,27 @@
       border: 1px solid rgba(255, 255, 255, 0.04);
     }
 
+    /* Lunar Lander Fuel Meter */
+    .fuel-container {
+      width: 100%;
+      height: 14px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+      margin-top: 6px;
+      position: relative;
+    }
+
+    .fuel-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #0284c7, #38bdf8);
+      border-radius: 9999px;
+      transition: width 0.15s ease, background-color 0.2s ease;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+    }
+
     .telem-label {
       font-size: 0.62rem;
       font-weight: 700;
@@ -1126,6 +1147,120 @@
   </main>
 
   <!-- ============================================================ -->
+  <!-- VIEW: LUNAR LANDER (PLANETARY HOPPER) -->
+  <!-- ============================================================ -->
+  <main class="game-view" id="view-LunarLander">
+    <!-- Header & Flight Telemetry Card -->
+    <section class="card">
+      <div class="card-title">
+        <span>🛸 Lander Telemetry</span>
+        <span id="llStateBadge" style="color:#60a5fa; font-size:0.75rem;">START</span>
+      </div>
+      <div style="font-size:0.78rem; color:var(--text-muted); line-height:1.4; margin-bottom:8px;">
+        Vector-thrust excursion module. Tilt your board to gimbal the thruster, control descent velocity, and softly touch down on extraction pads!
+      </div>
+
+      <!-- Fuel Gauge Meter -->
+      <div style="margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--text-muted);">
+          <span>Main Tank Propellant</span>
+          <span id="llFuelPct" style="color:#38bdf8; font-weight:900;">100%</span>
+        </div>
+        <div class="fuel-container">
+          <div class="fuel-fill" id="llFuelFill"></div>
+        </div>
+      </div>
+
+      <!-- Descent Metrics -->
+      <div class="telemetry-grid-4">
+        <div class="telem-item">
+          <div class="telem-label">Vertical Speed</div>
+          <div class="telem-val" id="llVertSpeed" style="color:#34d399;">0.0 m/s</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Horizontal Drift</div>
+          <div class="telem-val" id="llHorizSpeed" style="color:#38bdf8;">0.0 m/s</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Altitude</div>
+          <div class="telem-val" id="llAltitude" style="color:#fbbf24;">25.0m</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Tilt Roll</div>
+          <div class="telem-val" id="llTiltRoll" style="color:#a78bfa;">+0.0°</div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:0.75rem; font-weight:700; color:var(--text-muted);">
+        <span>Score: <strong id="llScore" style="color:var(--gold); font-size:0.85rem;">0</strong></span>
+        <span id="llEnvelopeBadge" style="color:#34d399; font-weight:800; background:rgba(16,185,129,0.12); padding:3px 8px; border-radius:6px; border:1px solid rgba(16,185,129,0.3);">TOUCHDOWN ALIGNED ✅</span>
+      </div>
+    </section>
+
+    <!-- 2D Descent Radar Canvas -->
+    <section class="card">
+      <div class="card-title">
+        <span>Descent Radar (Cavern Sector)</span>
+        <span id="llRateLabel" style="font-size:0.7rem; color:#34d399;">-- Hz</span>
+      </div>
+      <div style="position:relative; width:100%; height:220px; background:radial-gradient(circle at 50% 30%, #0c1527 0%, #060911 85%); border:1px solid rgba(255,255,255,0.08); border-radius:14px; overflow:hidden;">
+        <canvas id="llDescentCanvas" width="340" height="220" style="width:100%; height:100%; display:block;"></canvas>
+      </div>
+      <div style="display:flex; justify-content:space-around; align-items:center; margin-top:8px; font-size:0.68rem; font-weight:700; color:var(--text-muted);">
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#38bdf8; margin-right:4px;"></span>Lander</span>
+        <span><span style="display:inline-block; width:12px; height:4px; background:#10b981; margin-right:4px;"></span>Safe Pads</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#00f0ff; margin-right:4px;"></span>³He Fuel</span>
+        <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; border:1px dashed #10b981; margin-right:4px;"></span>Corridor</span>
+      </div>
+    </section>
+
+    <!-- Flight Deck Actions & Gravity Presets -->
+    <section class="card">
+      <div class="card-title">
+        <span>Flight Actions & Gravity Presets</span>
+      </div>
+
+      <!-- Action Row: Emergency RCS + Refuel -->
+      <div style="display:grid; grid-template-columns: 2fr 1fr; gap:10px; margin-bottom:12px;">
+        <button id="btnEmergencyRcs" class="btn-main" style="background:linear-gradient(135deg, #0284c7, #2563eb); box-shadow:0 6px 20px rgba(2,132,199,0.35); font-size:0.85rem;" onclick="triggerEmergencyRcs()">
+          <span>🛡️ STABILIZE RCS</span>
+        </button>
+        <button id="btnRefuel" class="btn-main" style="background:linear-gradient(135deg, #10b981, #059669); box-shadow:0 6px 20px rgba(16,185,129,0.35); font-size:0.85rem;" onclick="refuelLander()">
+          <span>⛽ REFUEL</span>
+        </button>
+      </div>
+
+      <!-- Planetary Gravity Selector -->
+      <div class="form-group">
+        <label class="form-label" style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); display:block; margin-bottom:4px;">Planetary Gravity Preset</label>
+        <div class="invert-deck" style="grid-template-columns: repeat(4, 1fr); margin-top:4px;">
+          <button class="btn-toggle active" id="llGravMoon" onclick="setLanderGravity('moon')">Moon (1.62)</button>
+          <button class="btn-toggle" id="llGravMars" onclick="setLanderGravity('mars')">Mars (3.72)</button>
+          <button class="btn-toggle" id="llGravEuropa" onclick="setLanderGravity('europa')">Europa (1.31)</button>
+          <button class="btn-toggle" id="llGravEarth" onclick="setLanderGravity('earth')">Earth (9.81)</button>
+        </div>
+      </div>
+
+      <!-- Tare & Thruster Sensitivity -->
+      <div class="cal-actions" style="margin-top:12px;">
+        <button class="btn-tare" onclick="sendWsMessage({ type: 'tare_board' })">🎯 Tare Zero (Set Level)</button>
+        <button class="btn-secondary" onclick="sendWsMessage({ type: 'reset_cal' })">Reset Zero</button>
+      </div>
+
+      <div class="slider-row" style="margin-top:12px;">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Gimbal Sensitivity:</span>
+        <input type="range" id="llSensitivitySlider" min="0.5" max="2.5" step="0.1" value="1.0" oninput="onSensitivityInput(this.value)">
+        <span id="llSensitivityText" style="font-size:0.8rem; font-weight:800; min-width:36px;">1.0x</span>
+      </div>
+
+      <div class="invert-deck" style="margin-top:10px;">
+        <button class="btn-toggle active" id="llBtnInvertRoll" onclick="toggleInvert('roll')">Invert Gimbal Roll</button>
+        <button class="btn-toggle active" id="llBtnInvertPitch" onclick="toggleInvert('pitch')">Invert RCS Pitch</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================================ -->
   <!-- VIEW 3: SENSOR LAB & DIAGNOSTICS -->
   <!-- ============================================================ -->
   <main class="game-view" id="view-SensorLab">
@@ -1352,6 +1487,30 @@
     let sumoArenaSize = 'standard';
     let sumoShockwaveAnim = { active: false, x: 0, y: 0, radius: 0, alpha: 0 };
 
+    // Lunar Lander Elements
+    const viewLunarLander = document.getElementById('view-LunarLander');
+    const llStateBadge = document.getElementById('llStateBadge');
+    const llScore = document.getElementById('llScore');
+    const llFuelPct = document.getElementById('llFuelPct');
+    const llFuelFill = document.getElementById('llFuelFill');
+    const llVertSpeed = document.getElementById('llVertSpeed');
+    const llHorizSpeed = document.getElementById('llHorizSpeed');
+    const llAltitude = document.getElementById('llAltitude');
+    const llTiltRoll = document.getElementById('llTiltRoll');
+    const llEnvelopeBadge = document.getElementById('llEnvelopeBadge');
+    const llRateLabel = document.getElementById('llRateLabel');
+    const llGravMoon = document.getElementById('llGravMoon');
+    const llGravMars = document.getElementById('llGravMars');
+    const llGravEuropa = document.getElementById('llGravEuropa');
+    const llGravEarth = document.getElementById('llGravEarth');
+    const llSensitivitySlider = document.getElementById('llSensitivitySlider');
+    const llSensitivityText = document.getElementById('llSensitivityText');
+    const llBtnInvertRoll = document.getElementById('llBtnInvertRoll');
+    const llBtnInvertPitch = document.getElementById('llBtnInvertPitch');
+
+    let landerGravity = 'moon';
+    let rcsBurstAnim = { active: false, timer: 0 };
+
     // Sensor Lab Elements
     const viewSensorLab = document.getElementById('view-SensorLab');
     const slRecHzBadge = document.getElementById('slRecHzBadge');
@@ -1385,7 +1544,8 @@
       'WobbleMaze': viewWobbleMaze,
       'SensorLab': viewSensorLab,
       'AsteroidSurfer': viewAsteroidSurfer,
-      'WobbleSumo': viewWobbleSumo
+      'WobbleSumo': viewWobbleSumo,
+      'LunarLander': viewLunarLander
     };
 
     function connectWs() {
@@ -1632,6 +1792,9 @@
       else if (current === 'wobblesumo') {
         renderSumoTelemetry(data, b, normX, normY, rollDeg, pitchDeg);
       }
+      else if (current === 'lunarlander') {
+        renderLanderTelemetry(data, b, normX, normY, rollDeg, pitchDeg);
+      }
       else if (current === 'sensorlab') {
         // Sensor Lab
         slSourceBadge.textContent = `${(b.source || 'atoms3').toUpperCase()}`;
@@ -1706,8 +1869,12 @@
           if (asSensitivityText) asSensitivityText.textContent = sensText;
           if (sumoSensitivitySlider) sumoSensitivitySlider.value = s.sensitivity;
           if (sumoSensitivityText) sumoSensitivityText.textContent = sensText;
+          if (llSensitivitySlider) llSensitivitySlider.value = s.sensitivity;
+          if (llSensitivityText) llSensitivityText.textContent = sensText;
           if (sumoBtnInvertRoll) sumoBtnInvertRoll.classList.toggle('active', invRoll);
           if (sumoBtnInvertPitch) sumoBtnInvertPitch.classList.toggle('active', invPitch);
+          if (llBtnInvertRoll) llBtnInvertRoll.classList.toggle('active', invRoll);
+          if (llBtnInvertPitch) llBtnInvertPitch.classList.toggle('active', invPitch);
         }
 
         const invRoll = !!s.invertRoll;
@@ -1800,6 +1967,7 @@
       if (wmSensitivityText) wmSensitivityText.textContent = text;
       if (asSensitivityText) asSensitivityText.textContent = text;
       if (sumoSensitivityText) sumoSensitivityText.textContent = text;
+      if (llSensitivityText) llSensitivityText.textContent = text;
       sendWsMessage({ type: 'set_sensitivity', value: num });
     }
 
@@ -2277,6 +2445,360 @@
     function triggerShockwave() {
       sumoShockwaveAnim = { active: true, radius: 10, alpha: 1.0 };
       sendWsMessage({ type: 'trigger_shockwave' });
+    }
+
+    function renderLanderTelemetry(data, b, normX, normY, rollDeg, pitchDeg) {
+      if (llStateBadge) llStateBadge.textContent = currentGameState;
+      if (llScore) llScore.textContent = data.game ? (data.game.score || 0).toLocaleString() : 0;
+      if (llRateLabel) llRateLabel.textContent = `${b.hz || 0} Hz`;
+
+      const stats = (data.game && data.game.stats) ? data.game.stats : {};
+      const fuel = typeof stats.fuel === 'number' ? stats.fuel : 100.0;
+      const vy = typeof stats.verticalSpeed === 'number' ? stats.verticalSpeed : 0.0;
+      const vx = typeof stats.horizontalSpeed === 'number' ? stats.horizontalSpeed : 0.0;
+      const alt = typeof stats.altitude === 'number' ? stats.altitude : 0.0;
+      const roll = typeof stats.tiltRoll === 'number' ? stats.tiltRoll : rollDeg;
+
+      // Fuel Meter UI
+      if (llFuelPct) llFuelPct.textContent = `${Math.round(fuel)}%`;
+      if (llFuelFill) {
+        llFuelFill.style.width = `${Math.max(0, Math.min(100, fuel))}%`;
+        if (fuel > 35) {
+          llFuelFill.style.background = 'linear-gradient(90deg, #0284c7, #38bdf8)';
+        } else if (fuel > 15) {
+          llFuelFill.style.background = 'linear-gradient(90deg, #d97706, #fbbf24)';
+        } else {
+          llFuelFill.style.background = 'linear-gradient(90deg, #dc2626, #ef4444)';
+        }
+      }
+
+      // Vertical Speed (Descent Envelope)
+      if (llVertSpeed) {
+        const absVy = Math.abs(vy);
+        llVertSpeed.textContent = `${vy >= 0 ? '+' : ''}${vy.toFixed(1)} m/s`;
+        if (absVy <= 1.8) {
+          llVertSpeed.style.color = '#34d399'; // Safe
+        } else if (absVy <= 3.2) {
+          llVertSpeed.style.color = '#fbbf24'; // Warning
+        } else {
+          llVertSpeed.style.color = '#ef4444'; // Crash risk
+        }
+      }
+
+      // Horizontal Speed
+      if (llHorizSpeed) {
+        const absVx = Math.abs(vx);
+        llHorizSpeed.textContent = `${vx >= 0 ? '+' : ''}${vx.toFixed(1)} m/s`;
+        llHorizSpeed.style.color = absVx <= 1.0 ? '#38bdf8' : (absVx <= 2.0 ? '#fbbf24' : '#ef4444');
+      }
+
+      // Altitude
+      if (llAltitude) {
+        llAltitude.textContent = `${alt.toFixed(1)}m`;
+      }
+
+      // Tilt Roll
+      if (llTiltRoll) {
+        const absRoll = Math.abs(roll);
+        llTiltRoll.textContent = `${roll >= 0 ? '+' : ''}${roll.toFixed(1)}°`;
+        llTiltRoll.style.color = absRoll <= 3.5 ? '#34d399' : (absRoll <= 8.0 ? '#fbbf24' : '#ef4444');
+      }
+
+      // Touchdown Envelope Indicator
+      if (llEnvelopeBadge) {
+        const absVy = Math.abs(vy);
+        const absVx = Math.abs(vx);
+        const absRoll = Math.abs(roll);
+        const isSafeSpeed = absVy <= 1.8 && absVx <= 1.5;
+        const isSafeTilt = absRoll <= 5.0;
+        const overPad = stats.overPad !== false;
+
+        if (currentGameState === 'LANDED' || stats.touchdownStatus === 'SOFT TOUCHDOWN') {
+          llEnvelopeBadge.innerHTML = '🎉 SOFT TOUCHDOWN ✅';
+          llEnvelopeBadge.style.color = '#34d399';
+          llEnvelopeBadge.style.borderColor = 'rgba(52,211,153,0.4)';
+        } else if (stats.touchdownStatus === 'HARD TOUCHDOWN') {
+          llEnvelopeBadge.innerHTML = '⚠️ HARD TOUCHDOWN';
+          llEnvelopeBadge.style.color = '#fbbf24';
+          llEnvelopeBadge.style.borderColor = 'rgba(251,191,36,0.4)';
+        } else if (currentGameState === 'GAMEOVER' || stats.touchdownStatus === 'CRASHED') {
+          llEnvelopeBadge.innerHTML = '💥 CRASH IMPACT';
+          llEnvelopeBadge.style.color = '#ef4444';
+          llEnvelopeBadge.style.borderColor = 'rgba(239,68,68,0.4)';
+        } else if (isSafeSpeed && isSafeTilt && overPad) {
+          llEnvelopeBadge.innerHTML = 'TOUCHDOWN ALIGNED ✅';
+          llEnvelopeBadge.style.color = '#34d399';
+          llEnvelopeBadge.style.borderColor = 'rgba(52,211,153,0.3)';
+        } else if (!isSafeSpeed) {
+          llEnvelopeBadge.innerHTML = 'EXCESS VELOCITY ⚠️';
+          llEnvelopeBadge.style.color = '#fbbf24';
+          llEnvelopeBadge.style.borderColor = 'rgba(251,191,36,0.3)';
+        } else if (!isSafeTilt) {
+          llEnvelopeBadge.innerHTML = 'TILT CRITICAL ⛔';
+          llEnvelopeBadge.style.color = '#ef4444';
+          llEnvelopeBadge.style.borderColor = 'rgba(239,68,68,0.3)';
+        } else {
+          llEnvelopeBadge.innerHTML = 'OFF-PAD TRAJECTORY ⚠️';
+          llEnvelopeBadge.style.color = '#fbbf24';
+          llEnvelopeBadge.style.borderColor = 'rgba(251,191,36,0.3)';
+        }
+      }
+
+      // Sync active planet buttons
+      if (stats.gravityPreset && typeof stats.gravityPreset === 'string') {
+        const p = stats.gravityPreset.toLowerCase();
+        landerGravity = p;
+        if (llGravMoon) llGravMoon.classList.toggle('active', p === 'moon');
+        if (llGravMars) llGravMars.classList.toggle('active', p === 'mars');
+        if (llGravEuropa) llGravEuropa.classList.toggle('active', p === 'europa');
+        if (llGravEarth) llGravEarth.classList.toggle('active', p === 'earth');
+      }
+
+      drawLanderRadar(stats, normX, normY, rollDeg, pitchDeg);
+    }
+
+    function drawLanderRadar(stats, normX, normY, rollDeg, pitchDeg) {
+      const canvas = document.getElementById('llDescentCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Coordinate Scaling (Playfield x in [-45, 45], y in [0, 38])
+      const toScreenX = (x) => ((x + 45) / 90) * w;
+      const toScreenY = (y) => h - 22 - (y / 38) * (h - 40);
+
+      // 1. Cavern Grid
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+      ctx.lineWidth = 1;
+      for (let y = 10; y <= 30; y += 10) {
+        const sy = toScreenY(y);
+        ctx.beginPath();
+        ctx.moveTo(0, sy); ctx.lineTo(w, sy);
+        ctx.stroke();
+      }
+
+      // 2. Terrain Profile
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.moveTo(0, h);
+      for (let x = -45; x <= 45; x += 3) {
+        let ty = 4.0 + 3.0 * Math.sin(x * 0.08) + 2.2 * Math.cos(x * 0.18) + 1.2 * Math.sin(x * 0.45);
+        if (x >= -32 && x <= -22) ty = 5.0; // Pad Alpha
+        else if (x >= -5 && x <= 5) ty = 8.5; // Pad Beta
+        else if (x >= 24 && x <= 29.5) ty = 14.0; // Pad Gamma
+        const sx = toScreenX(x);
+        const sy = toScreenY(ty);
+        if (x === -45) ctx.lineTo(sx, sy);
+        else ctx.lineTo(sx, sy);
+      }
+      ctx.lineTo(w, h);
+      ctx.closePath();
+      ctx.fill();
+
+      // Terrain outline
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let x = -45; x <= 45; x += 3) {
+        let ty = 4.0 + 3.0 * Math.sin(x * 0.08) + 2.2 * Math.cos(x * 0.18) + 1.2 * Math.sin(x * 0.45);
+        if (x >= -32 && x <= -22) ty = 5.0;
+        else if (x >= -5 && x <= 5) ty = 8.5;
+        else if (x >= 24 && x <= 29.5) ty = 14.0;
+        const sx = toScreenX(x);
+        const sy = toScreenY(ty);
+        if (x === -45) ctx.moveTo(sx, sy);
+        else ctx.lineTo(sx, sy);
+      }
+      ctx.stroke();
+
+      // 3. Landing Extraction Pads
+      const pads = [
+        { name: 'ALPHA (1x)', x1: -32, x2: -22, y: 5.0, col: '#38bdf8' },
+        { name: 'BETA (2x)', x1: -5, x2: 5, y: 8.5, col: '#facc15' },
+        { name: 'GAMMA (3x)', x1: 24, x2: 29.5, y: 14.0, col: '#f472b6' }
+      ];
+
+      pads.forEach(pad => {
+        const sx1 = toScreenX(pad.x1);
+        const sx2 = toScreenX(pad.x2);
+        const sy = toScreenY(pad.y);
+
+        // Guide corridor
+        ctx.save();
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(sx1, sy); ctx.lineTo(sx1, 15);
+        ctx.moveTo(sx2, sy); ctx.lineTo(sx2, 15);
+        ctx.stroke();
+        ctx.restore();
+
+        // Pad Deck
+        ctx.save();
+        ctx.strokeStyle = pad.col;
+        ctx.lineWidth = 3.5;
+        ctx.shadowColor = pad.col;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.moveTo(sx1, sy); ctx.lineTo(sx2, sy);
+        ctx.stroke();
+        ctx.restore();
+
+        // Pad Label
+        ctx.fillStyle = pad.col;
+        ctx.font = 'bold 8px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(pad.name, (sx1 + sx2) / 2, sy + 11);
+      });
+
+      // 4. Helium-3 Canisters
+      const canisters = Array.isArray(stats.canisters) ? stats.canisters : [
+        { x: -18, y: 18, collected: false },
+        { x: 12, y: 22, collected: false },
+        { x: -36, y: 24, collected: false },
+        { x: 34, y: 28, collected: false }
+      ];
+
+      canisters.forEach(c => {
+        if (c.collected) return;
+        const cx = toScreenX(c.x);
+        const cy = toScreenY(c.y);
+        ctx.save();
+        ctx.fillStyle = '#00f0ff';
+        ctx.shadowColor = '#00f0ff';
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 4);
+        ctx.lineTo(cx + 3, cy);
+        ctx.lineTo(cx, cy + 4);
+        ctx.lineTo(cx - 3, cy);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      });
+
+      // 5. Lander Module
+      let landerX = 0;
+      let landerY = 25;
+      if (stats.landerPos && typeof stats.landerPos.x === 'number') {
+        landerX = stats.landerPos.x;
+        landerY = stats.landerPos.y;
+      } else if (typeof stats.x === 'number') {
+        landerX = stats.x;
+        landerY = stats.y || 25;
+      } else {
+        landerX = normX * 30;
+      }
+
+      const lx = toScreenX(landerX);
+      const ly = toScreenY(landerY);
+      const rollAngleRad = (rollDeg * Math.PI) / 180;
+
+      ctx.save();
+      ctx.translate(lx, ly);
+      ctx.rotate(rollAngleRad);
+
+      // Main Thruster Plume Flame
+      const isThrusting = stats.isThrusting !== false && stats.fuel > 0;
+      if (isThrusting) {
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.85)';
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.moveTo(-3, 6);
+        ctx.lineTo(0, 14 + Math.random() * 5);
+        ctx.lineTo(3, 6);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // RCS Plume puffs
+      if (rcsBurstAnim.active) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.beginPath();
+        ctx.arc(-8, 0, 3, 0, Math.PI * 2);
+        ctx.arc(8, 0, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Landing Legs
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(-5, 3); ctx.lineTo(-8, 8); ctx.lineTo(-10, 8);
+      ctx.moveTo(5, 3); ctx.lineTo(8, 8); ctx.lineTo(10, 8);
+      ctx.stroke();
+
+      // Hull
+      const hullGrad = ctx.createLinearGradient(-6, -5, 6, 5);
+      hullGrad.addColorStop(0, '#facc15');
+      hullGrad.addColorStop(1, '#ca8a04');
+      ctx.fillStyle = hullGrad;
+      ctx.beginPath();
+      ctx.moveTo(-5, -6); ctx.lineTo(5, -6);
+      ctx.lineTo(7, -2); ctx.lineTo(7, 3);
+      ctx.lineTo(5, 5); ctx.lineTo(-5, 5);
+      ctx.lineTo(-7, 3); ctx.lineTo(-7, -2);
+      ctx.closePath();
+      ctx.fill();
+
+      // Cockpit
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(0, -1, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+
+      // 6. Velocity Vector Arrow
+      const vx = typeof stats.horizontalSpeed === 'number' ? stats.horizontalSpeed : 0.0;
+      const vy = typeof stats.verticalSpeed === 'number' ? stats.verticalSpeed : 0.0;
+      const speedMag = Math.sqrt(vx * vx + vy * vy);
+      if (speedMag > 0.15) {
+        const arrowLen = Math.min(30, speedMag * 6.0);
+        const dirX = (vx / speedMag) * arrowLen;
+        const dirY = (-vy / speedMag) * arrowLen;
+
+        ctx.save();
+        ctx.strokeStyle = speedMag <= 1.8 ? '#34d399' : (speedMag <= 3.2 ? '#fbbf24' : '#ef4444');
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(lx, ly);
+        ctx.lineTo(lx + dirX, ly + dirY);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      if (rcsBurstAnim.active) {
+        rcsBurstAnim.timer -= 0.03;
+        if (rcsBurstAnim.timer <= 0) rcsBurstAnim.active = false;
+      }
+    }
+
+    function setLanderGravity(planet) {
+      landerGravity = planet.toLowerCase();
+      if (llGravMoon) llGravMoon.classList.toggle('active', landerGravity === 'moon');
+      if (llGravMars) llGravMars.classList.toggle('active', landerGravity === 'mars');
+      if (llGravEuropa) llGravEuropa.classList.toggle('active', landerGravity === 'europa');
+      if (llGravEarth) llGravEarth.classList.toggle('active', landerGravity === 'earth');
+
+      sendWsMessage({
+        type: 'set_lander_gravity',
+        planet: landerGravity,
+        value: landerGravity
+      });
+    }
+
+    function triggerEmergencyRcs() {
+      rcsBurstAnim = { active: true, timer: 0.35 };
+      sendWsMessage({ type: 'trigger_emergency_rcs' });
+    }
+
+    function refuelLander() {
+      sendWsMessage({ type: 'refuel_lander' });
     }
 
     function resetLeaderboard() {

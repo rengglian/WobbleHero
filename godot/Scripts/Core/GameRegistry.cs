@@ -55,6 +55,13 @@ public static class GameRegistry
             "res://Scenes/Games/WobbleSumo.tscn"
         ),
         new(
+            "LunarLander",
+            "Lunar Lander",
+            "Precision vector-thrust excursion module navigation! Softly touch down on subterranean crater pads!",
+            "🛸",
+            "res://Scenes/Games/LunarLander.tscn"
+        ),
+        new(
             "SensorLab",
             "Sensor Lab & Diagnostics",
             "Real-time 3D balance board visualizer and IMU calibration bench",

@@ -39,6 +39,9 @@ public partial class CompanionWebServer : Node
     public event Action<float, string>? OnSurferConfigChanged;
     public event Action<string, string>? OnSumoConfigChanged;
     public event Action? OnSumoShockwaveTriggered;
+    public event Action<string>? OnLanderGravityChanged;
+    public event Action? OnEmergencyRcsTriggered;
+    public event Action? OnLanderRefuelRequested;
     public event Action? OnResetLeaderboardRequested;
     public event Action? OnStartRecordingRequested;
     public event Action? OnStopRecordingRequested;
@@ -58,6 +61,7 @@ public partial class CompanionWebServer : Node
     private string _surferCosmicDensity = "medium";
     private string _sumoDifficulty = "novice";
     private string _sumoArenaSize = "standard";
+    private string _landerGravity = "moon";
 
     public string PlayerName { get; set; } = "Hero 1";
 
@@ -345,6 +349,8 @@ public partial class CompanionWebServer : Node
             bool hasSumoDiff = false;
             string sumoSizeVal = "";
             bool hasSumoSize = false;
+            string landerPlanetVal = "";
+            bool hasLanderPlanet = false;
 
             using (var doc = JsonDocument.Parse(messageJson))
             {
@@ -426,6 +432,12 @@ public partial class CompanionWebServer : Node
                     }
                 }
 
+                if (root.TryGetProperty("planet", out var pProp))
+                {
+                    landerPlanetVal = pProp.GetString() ?? "";
+                    hasLanderPlanet = !string.IsNullOrEmpty(landerPlanetVal);
+                }
+
                 if (root.TryGetProperty("value", out var vProp) && vProp.ValueKind == JsonValueKind.String)
                 {
                     string vStr = vProp.GetString() ?? "";
@@ -438,6 +450,11 @@ public partial class CompanionWebServer : Node
                     {
                         sumoSizeVal = vStr;
                         hasSumoSize = true;
+                    }
+                    if (!hasLanderPlanet && (vStr == "moon" || vStr == "mars" || vStr == "europa" || vStr == "earth"))
+                    {
+                        landerPlanetVal = vStr;
+                        hasLanderPlanet = true;
                     }
                 }
             }
@@ -518,6 +535,16 @@ public partial class CompanionWebServer : Node
                         break;
                     case "trigger_shockwave":
                         OnSumoShockwaveTriggered?.Invoke();
+                        break;
+                    case "set_lander_gravity":
+                        if (hasLanderPlanet) _landerGravity = landerPlanetVal;
+                        OnLanderGravityChanged?.Invoke(_landerGravity);
+                        break;
+                    case "trigger_emergency_rcs":
+                        OnEmergencyRcsTriggered?.Invoke();
+                        break;
+                    case "refuel_lander":
+                        OnLanderRefuelRequested?.Invoke();
                         break;
                     case "set_player_name":
                         if (!string.IsNullOrEmpty(playerName))

@@ -120,6 +120,27 @@ public partial class GameManager : Node
                     sumo.TriggerShockwave();
                 }
             };
+            WebServer.OnLanderGravityChanged += (planet) =>
+            {
+                if (CurrentGame is LunarLanderGame lander)
+                {
+                    lander.SetGravityPreset(planet);
+                }
+            };
+            WebServer.OnEmergencyRcsTriggered += () =>
+            {
+                if (CurrentGame is LunarLanderGame lander)
+                {
+                    lander.TriggerEmergencyRcs();
+                }
+            };
+            WebServer.OnLanderRefuelRequested += () =>
+            {
+                if (CurrentGame is LunarLanderGame lander)
+                {
+                    lander.Refuel();
+                }
+            };
             WebServer.OnStartRecordingRequested += () =>
             {
                 if (CurrentGame is SensorLabGame lab) lab.StartRecording();

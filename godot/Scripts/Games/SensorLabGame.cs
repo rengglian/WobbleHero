@@ -7,26 +7,30 @@ namespace WobbleHero.Games;
 
 /// <summary>
 /// Mini-Game 3: Sensor Lab & Calibration Bench.
-/// Real-time 3D board visualizer and IMU diagnostic bench. Renders a physical 3D
-/// balance board mirroring the actual hardware board's roll and pitch angles.
+/// Real-time 3D board visualizer and IMU diagnostic bench. Renders a physical round
+/// balance board mirroring the actual hardware board's Roll, Pitch, and Magnetometer Yaw.
 /// </summary>
 public partial class SensorLabGame : BaseGameMode
 {
     public override string GameId => "SensorLab";
     public override string GameTitle => "Sensor Lab & Diagnostics";
-    public override string GameDescription => "Real-time 3D balance board visualizer and IMU calibration bench.";
+    public override string GameDescription => "Real-time 3D round balance board visualizer with full 9-DoF Roll, Pitch, and Compass Yaw.";
     public override string GameIcon => "🔬";
 
+    // 2-Stage Rotational Hierarchy:
+    // _yawPivot rotates around world Y axis (driven by Magnetometer Compass)
+    // _boardPivot tilts roll & pitch in the board's own local reference frame
+    private Node3D? _yawPivot;
     private Node3D? _boardPivot;
-    private Label3D? _telemetryLabel;
-    private Label3D? _statusLabel;
-    private Label3D? _recordLabel;
     private MeshInstance3D? _bubbleIndicator;
 
     public MovementRecorder Recorder { get; } = new();
 
     private float _displayRoll;
     private float _displayPitch;
+    private float _displayYaw;
+    private float _headingOffset;
+    private bool _hasInitialHeading;
     private bool _lastSpaceKeyState;
     private BoardState _latestBoardState = BoardState.Default;
 
@@ -38,95 +42,210 @@ public partial class SensorLabGame : BaseGameMode
 
     private void BuildSceneNodes()
     {
-        // 1. Fulcrum Base (Stand)
+        // 1. Fulcrum Stand on Ground
         var fulcrum = new MeshInstance3D
         {
-            Mesh = new CylinderMesh { TopRadius = 0.5f, BottomRadius = 1.2f, Height = 1.0f },
-            Position = new Vector3(0, -0.5f, 0)
+            Mesh = new CylinderMesh { TopRadius = 0.6f, BottomRadius = 1.3f, Height = 0.9f },
+            Position = new Vector3(0, -0.65f, 0)
         };
         var baseMat = new StandardMaterial3D
         {
-            AlbedoColor = new Color(0.2f, 0.25f, 0.35f),
-            Roughness = 0.5f
+            AlbedoColor = new Color(0.18f, 0.22f, 0.32f),
+            Roughness = 0.6f
         };
         fulcrum.MaterialOverride = baseMat;
         AddChild(fulcrum);
 
-        // 2. Board Pivot (Tilts with roll and pitch)
-        _boardPivot = new Node3D { Name = "BoardPivot" };
-        AddChild(_boardPivot);
+        // 2. Yaw Pivot (Rotates around Y with Magnetometer)
+        _yawPivot = new Node3D { Name = "YawPivot" };
+        AddChild(_yawPivot);
 
-        // Wooden board deck
+        // 3. Board Pivot (Tilts Roll & Pitch relative to the board)
+        _boardPivot = new Node3D { Name = "BoardPivot" };
+        _yawPivot.AddChild(_boardPivot);
+
+        // --- ROUND BALANCE BOARD DECK ---
+        const float boardRadius = 2.6f;
+        const float boardHeight = 0.22f;
+
+        // Circular wooden board body
         var boardMesh = new MeshInstance3D
         {
-            Mesh = new BoxMesh { Size = new Vector3(6.5f, 0.25f, 2.5f) },
+            Mesh = new CylinderMesh
+            {
+                TopRadius = boardRadius,
+                BottomRadius = boardRadius * 0.97f,
+                Height = boardHeight,
+                RadialSegments = 48
+            },
             Position = Vector3.Zero
         };
         var boardMat = new StandardMaterial3D
         {
-            AlbedoColor = new Color(0.85f, 0.55f, 0.25f),
-            Roughness = 0.3f
+            AlbedoColor = new Color(0.82f, 0.58f, 0.32f), // Warm birch / maple wood
+            Roughness = 0.35f,
+            Metallic = 0.05f
         };
         boardMesh.MaterialOverride = boardMat;
         _boardPivot.AddChild(boardMesh);
 
-        // Grip tape stripes
-        for (int i = -1; i <= 1; i += 2)
+        // Outer beveled rim accent
+        var rimMesh = new MeshInstance3D
         {
-            var grip = new MeshInstance3D
+            Mesh = new TorusMesh
             {
-                Mesh = new BoxMesh { Size = new Vector3(2.0f, 0.26f, 2.2f) },
-                Position = new Vector3(i * 2.0f, 0, 0)
-            };
-            var gripMat = new StandardMaterial3D { AlbedoColor = new Color(0.1f, 0.12f, 0.15f) };
-            grip.MaterialOverride = gripMat;
-            _boardPivot.AddChild(grip);
-        }
-
-        // AtomS3 controller model on top of board
-        var atomMesh = new MeshInstance3D
+                InnerRadius = boardRadius - 0.14f,
+                OuterRadius = boardRadius + 0.04f,
+                Rings = 32,
+                RingSegments = 16
+            },
+            Position = new Vector3(0, boardHeight * 0.4f, 0)
+        };
+        var rimMat = new StandardMaterial3D
         {
-            Mesh = new BoxMesh { Size = new Vector3(0.5f, 0.3f, 0.5f) },
-            Position = new Vector3(0, 0.25f, 0)
+            AlbedoColor = new Color(0.35f, 0.22f, 0.12f),
+            Roughness = 0.4f
+        };
+        rimMesh.MaterialOverride = rimMat;
+        _boardPivot.AddChild(rimMesh);
+
+        // Concentric non-slip rubber grip ring
+        var gripOuter = new MeshInstance3D
+        {
+            Mesh = new CylinderMesh
+            {
+                TopRadius = 2.25f,
+                BottomRadius = 2.25f,
+                Height = 0.02f,
+                RadialSegments = 48
+            },
+            Position = new Vector3(0, boardHeight * 0.5f + 0.01f, 0)
+        };
+        var gripMat = new StandardMaterial3D
+        {
+            AlbedoColor = new Color(0.12f, 0.15f, 0.20f), // Dark graphite grip
+            Roughness = 0.85f
+        };
+        gripOuter.MaterialOverride = gripMat;
+        _boardPivot.AddChild(gripOuter);
+
+        // Inner circular wooden inlay
+        var woodInlay = new MeshInstance3D
+        {
+            Mesh = new CylinderMesh
+            {
+                TopRadius = 1.6f,
+                BottomRadius = 1.6f,
+                Height = 0.024f,
+                RadialSegments = 36
+            },
+            Position = new Vector3(0, boardHeight * 0.5f + 0.012f, 0)
+        };
+        woodInlay.MaterialOverride = boardMat;
+        _boardPivot.AddChild(woodInlay);
+
+        // Center circular grip bullseye
+        var gripCenter = new MeshInstance3D
+        {
+            Mesh = new CylinderMesh
+            {
+                TopRadius = 0.65f,
+                BottomRadius = 0.65f,
+                Height = 0.026f,
+                RadialSegments = 32
+            },
+            Position = new Vector3(0, boardHeight * 0.5f + 0.014f, 0)
+        };
+        gripCenter.MaterialOverride = gripMat;
+        _boardPivot.AddChild(gripCenter);
+
+        // Forward / North Directional Arrow (Points towards -Z)
+        var arrowMesh = new MeshInstance3D
+        {
+            Mesh = new PrismMesh
+            {
+                Size = new Vector3(0.45f, 0.65f, 0.04f)
+            },
+            Position = new Vector3(0, boardHeight * 0.5f + 0.025f, -1.95f),
+            RotationDegrees = new Vector3(90, 0, 0)
+        };
+        var arrowMat = new StandardMaterial3D
+        {
+            AlbedoColor = new Color(0.2f, 0.85f, 1.0f),
+            EmissionEnabled = true,
+            Emission = new Color(0.2f, 0.85f, 1.0f) * 0.7f
+        };
+        arrowMesh.MaterialOverride = arrowMat;
+        _boardPivot.AddChild(arrowMesh);
+
+        // Fulcrum Dome (Underneath Board Center)
+        var dome = new MeshInstance3D
+        {
+            Mesh = new SphereMesh
+            {
+                Radius = 0.65f,
+                Height = 1.3f
+            },
+            Position = new Vector3(0, -0.42f, 0)
+        };
+        var domeMat = new StandardMaterial3D
+        {
+            AlbedoColor = new Color(0.15f, 0.18f, 0.25f),
+            Roughness = 0.4f,
+            Metallic = 0.3f
+        };
+        dome.MaterialOverride = domeMat;
+        _boardPivot.AddChild(dome);
+
+        // AtomS3 Controller Representation (Mounted upside down UNDERNEATH the board)
+        var atomNode = new Node3D
+        {
+            Name = "AtomS3Underneath",
+            Position = new Vector3(0, -boardHeight * 0.5f - 0.06f, 0),
+            RotationDegrees = new Vector3(180, 0, 0) // Upside-down mounting
+        };
+        _boardPivot.AddChild(atomNode);
+
+        var atomBody = new MeshInstance3D
+        {
+            Mesh = new BoxMesh { Size = new Vector3(0.55f, 0.22f, 0.55f) }
         };
         var atomMat = new StandardMaterial3D
         {
             AlbedoColor = new Color(0.1f, 0.75f, 0.95f),
             EmissionEnabled = true,
-            Emission = new Color(0.1f, 0.75f, 0.95f) * 0.5f
+            Emission = new Color(0.1f, 0.75f, 0.95f) * 0.4f
         };
-        atomMesh.MaterialOverride = atomMat;
-        _boardPivot.AddChild(atomMesh);
+        atomBody.MaterialOverride = atomMat;
+        atomNode.AddChild(atomBody);
 
-        // 3. Level bubble on board surface
+        // 4. Level Bubble on Board Top Surface
         _bubbleIndicator = new MeshInstance3D
         {
-            Mesh = new SphereMesh { Radius = 0.2f, Height = 0.4f },
-            Position = new Vector3(0, 0.2f, 0)
+            Mesh = new SphereMesh { Radius = 0.18f, Height = 0.36f },
+            Position = new Vector3(0, boardHeight * 0.5f + 0.15f, 0)
         };
         var bubbleMat = new StandardMaterial3D
         {
-            AlbedoColor = new Color(0.1f, 0.9f, 0.4f),
+            AlbedoColor = new Color(0.1f, 0.95f, 0.4f),
             EmissionEnabled = true,
-            Emission = new Color(0.1f, 0.9f, 0.4f) * 0.8f
+            Emission = new Color(0.1f, 0.95f, 0.4f) * 0.9f
         };
         _bubbleIndicator.MaterialOverride = bubbleMat;
         _boardPivot.AddChild(_bubbleIndicator);
 
-        // 4. 2D HUD handles readouts and recording banners via SensorLabHud
-
-        // Camera & Lighting
+        // 5. Camera & Dynamic Lighting
         var camera = new Camera3D
         {
-            Position = new Vector3(0, 4.0f, 7.0f),
-            RotationDegrees = new Vector3(-20, 0, 0)
+            Position = new Vector3(0, 4.2f, 6.6f),
+            RotationDegrees = new Vector3(-26, 0, 0)
         };
         AddChild(camera);
 
         var light = new DirectionalLight3D
         {
-            RotationDegrees = new Vector3(-50, 30, 0),
-            LightEnergy = 1.2f,
+            RotationDegrees = new Vector3(-45, 35, 0),
+            LightEnergy = 1.3f,
             ShadowEnabled = true
         };
         AddChild(light);
@@ -139,6 +258,10 @@ public partial class SensorLabGame : BaseGameMode
         {
             Manager.BoardInput.OnPacketReceived += HandlePacketReceived;
         }
+        if (Manager?.WebServer != null)
+        {
+            Manager.WebServer.OnTareRequested += ResetHeadingOffset;
+        }
     }
 
     public override void _ExitTree()
@@ -147,7 +270,17 @@ public partial class SensorLabGame : BaseGameMode
         {
             Manager.BoardInput.OnPacketReceived -= HandlePacketReceived;
         }
+        if (Manager?.WebServer != null)
+        {
+            Manager.WebServer.OnTareRequested -= ResetHeadingOffset;
+        }
         base._ExitTree();
+    }
+
+    public void ResetHeadingOffset()
+    {
+        _headingOffset = _displayYaw;
+        GD.Print($"[SensorLabGame] Centered compass heading zero: offset={_headingOffset:F1}°");
     }
 
     private void HandlePacketReceived(BoardState snapshot)
@@ -164,7 +297,40 @@ public partial class SensorLabGame : BaseGameMode
         _displayRoll = boardState.FusedRollDeg;
         _displayPitch = boardState.FusedPitchDeg;
 
-        // Toggle recording with Space or R key
+        // Magnetometer Compass Yaw Tracking
+        if (boardState.HasMag)
+        {
+            float targetHeading = boardState.CompassHeadingDeg;
+
+            // If mounted upside down underneath board, clockwise rotation in Earth coordinates
+            // is read with opposite sign by the inverted sensor.
+            bool isUpsideDown = Manager?.BoardInput?.InvertRoll ?? true;
+            if (isUpsideDown)
+            {
+                targetHeading = Mathf.PosMod(-targetHeading, 360.0f);
+            }
+
+            if (!_hasInitialHeading)
+            {
+                _headingOffset = targetHeading;
+                _displayYaw = targetHeading;
+                _hasInitialHeading = true;
+            }
+
+            // Smooth shortest-path angle interpolation across 0°/360° boundary
+            float diff = Mathf.PosMod(targetHeading - _displayYaw + 180.0f, 360.0f) - 180.0f;
+            _displayYaw += diff * (float)Math.Clamp(delta * 8.0, 0.0, 1.0);
+            _displayYaw = Mathf.PosMod(_displayYaw, 360.0f);
+        }
+        else
+        {
+            // Keyboard fallback: Q (turn left) and E (turn right)
+            if (Godot.Input.IsKeyPressed(Key.Q)) _displayYaw -= (float)(90.0 * delta);
+            if (Godot.Input.IsKeyPressed(Key.E)) _displayYaw += (float)(90.0 * delta);
+            _displayYaw = Mathf.PosMod(_displayYaw, 360.0f);
+        }
+
+        // Space / R key: Toggle recording
         bool spacePressed = Godot.Input.IsKeyPressed(Key.Space) || Godot.Input.IsKeyPressed(Key.R);
         if (spacePressed && !_lastSpaceKeyState)
         {
@@ -172,13 +338,26 @@ public partial class SensorLabGame : BaseGameMode
         }
         _lastSpaceKeyState = spacePressed;
 
-        // Fallback: capture motion sample in physics loop only if not receiving hardware UDP packets
+        // T key: Tare / Zero Heading
+        if (Godot.Input.IsKeyPressed(Key.T))
+        {
+            ResetHeadingOffset();
+        }
+
+        // Fallback: capture motion sample in physics loop if not receiving hardware UDP packets
         if (Recorder.IsRecording && !boardState.IsActive)
         {
             Recorder.RecordSample(boardState);
         }
 
-        // Apply 3D rotation to board pivot
+        // 1. Yaw rotation around vertical Y axis driven by Magnetometer Compass
+        if (_yawPivot != null)
+        {
+            float rotY = -Mathf.DegToRad(_displayYaw - _headingOffset);
+            _yawPivot.Rotation = new Vector3(0, rotY, 0);
+        }
+
+        // 2. Roll & Pitch tilt in the round board's local coordinate frame
         if (_boardPivot != null)
         {
             float rotZ = -Mathf.DegToRad(_displayRoll);
@@ -186,52 +365,19 @@ public partial class SensorLabGame : BaseGameMode
             _boardPivot.Rotation = new Vector3(rotX, 0, rotZ);
         }
 
-        // Shift bubble position on board surface
+        // 3. Shift level bubble across round board surface
         if (_bubbleIndicator != null)
         {
-            float bubbleX = Math.Clamp(boardState.Roll * 2.8f, -2.8f, 2.8f);
-            float bubbleZ = Math.Clamp(boardState.Pitch * 0.9f, -0.9f, 0.9f);
-            _bubbleIndicator.Position = new Vector3(bubbleX, 0.2f, bubbleZ);
-        }
-
-        // Update readouts
-        if (_telemetryLabel != null)
-        {
-            string signRoll = _displayRoll >= 0 ? "+" : "";
-            string signPitch = _displayPitch >= 0 ? "+" : "";
-            string magText = boardState.HasMag ? $" | COMPASS: {boardState.CompassHeadingDeg:F0}°" : "";
-            _telemetryLabel.Text = $"ROLL: {signRoll}{_displayRoll:F1}° | PITCH: {signPitch}{_displayPitch:F1}°{magText}";
-        }
-
-        if (_statusLabel != null)
-        {
-            string src = boardState.Source.ToUpperInvariant();
-            string active = boardState.IsActive ? $"ACTIVE ({boardState.Hz} Hz)" : "DISCONNECTED";
-            _statusLabel.Text = $"SOURCE: {src} | {active} | IP: {boardState.DeviceIp}";
-            _statusLabel.Modulate = boardState.IsActive ? new Color(0.2f, 0.9f, 0.4f) : new Color(0.9f, 0.4f, 0.3f);
-        }
-
-        // Update recording label
-        if (_recordLabel != null)
-        {
-            if (Recorder.IsRecording)
+            const float maxBubbleRadius = 2.1f;
+            var tiltVector = new Vector2(boardState.Roll, boardState.Pitch);
+            if (tiltVector.Length() > 1.0f)
             {
-                int sec = (int)Recorder.DurationSec;
-                int ms = (int)((Recorder.DurationSec - sec) * 10);
-                _recordLabel.Text = $"🔴 RECORDING [{sec:D2}.{ms}s] • {Recorder.SampleCount} SAMPLES • 100 Hz";
-                _recordLabel.Modulate = new Color(1.0f, 0.25f, 0.25f);
+                tiltVector = tiltVector.Normalized();
             }
-            else if (!string.IsNullOrEmpty(Recorder.LastSavedPath))
-            {
-                string filename = System.IO.Path.GetFileName(Recorder.LastSavedPath);
-                _recordLabel.Text = $"💾 Saved: {filename} ({Recorder.SampleCount} samples)\n[Press SPACE / Phone to Record Again]";
-                _recordLabel.Modulate = new Color(0.2f, 0.95f, 0.4f);
-            }
-            else
-            {
-                _recordLabel.Text = "[Press SPACE / Phone to Record Session]";
-                _recordLabel.Modulate = new Color(0.7f, 0.85f, 1.0f);
-            }
+
+            float bubbleX = tiltVector.X * maxBubbleRadius;
+            float bubbleZ = tiltVector.Y * maxBubbleRadius;
+            _bubbleIndicator.Position = new Vector3(bubbleX, 0.15f, bubbleZ);
         }
     }
 
@@ -264,6 +410,7 @@ public partial class SensorLabGame : BaseGameMode
         var stats = base.GetLiveStats();
         stats["rollDeg"] = _displayRoll;
         stats["pitchDeg"] = _displayPitch;
+        stats["yawDeg"] = Mathf.PosMod(_displayYaw - _headingOffset, 360.0f);
         stats["hasMag"] = _latestBoardState.HasMag;
         stats["headingDeg"] = _latestBoardState.CompassHeadingDeg;
         stats["isRecording"] = Recorder.IsRecording;

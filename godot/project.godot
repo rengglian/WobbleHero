@@ -26,6 +26,11 @@ window/stretch/aspect="expand"
 
 project/assembly_name="WobbleHero"
 
+[gui]
+
+theme/custom="res://Assets/Themes/main_theme.tres"
+theme/custom_font="res://Assets/Fonts/LuckiestGuy-Regular.ttf"
+
 [input_devices]
 
 pointing/emulate_touch_from_mouse=true

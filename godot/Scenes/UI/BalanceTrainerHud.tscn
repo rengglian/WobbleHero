@@ -1,0 +1,171 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/BalanceTrainerHud.cs" id="1_bth"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/BoardTiltIndicator.tscn" id="2_ti"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/CompanionQrCard.tscn" id="3_qc"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pill"]
+content_margin_left = 12.0
+content_margin_top = 4.0
+content_margin_right = 12.0
+content_margin_bottom = 4.0
+bg_color = Color(0.06, 0.09, 0.16, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.85, 0.2, 0.5)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="BalanceTrainerHud" type="CanvasLayer" node_paths=PackedStringArray("ScoreLabel", "MultiplierLabel", "RingsLabel", "StateLabel", "QrCard", "TiltIndicator", "BannerLabel")]
+script = ExtResource("1_bth")
+ScoreLabel = NodePath("Root/TopMargin/TopHBox/RightBox/ScoreLabel")
+MultiplierLabel = NodePath("Root/TopMargin/TopHBox/RightBox/MultiplierPanel/MultiplierLabel")
+RingsLabel = NodePath("Root/TopMargin/TopHBox/RightBox/RingsLabel")
+StateLabel = NodePath("Root/TopMargin/TopHBox/TitleBox/StateLabel")
+QrCard = NodePath("Root/BottomRightMargin/CompanionQrCard")
+TiltIndicator = NodePath("Root/BottomLeftMargin/BoardTiltIndicator")
+BannerLabel = NodePath("Root/CenterBox/BannerLabel")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopMargin" type="MarginContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 100.0
+grow_horizontal = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 32
+mouse_filter = 2
+
+[node name="TopHBox" type="HBoxContainer" parent="Root/TopMargin"]
+layout_mode = 2
+alignment = 1
+
+[node name="TitleBox" type="HBoxContainer" parent="Root/TopMargin/TopHBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="Root/TopMargin/TopHBox/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.74, 0.97, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.07, 0.12, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 32
+text = "BALANCE TRAINER"
+
+[node name="StateLabel" type="Label" parent="Root/TopMargin/TopHBox/TitleBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "START"
+
+[node name="Spacer" type="Control" parent="Root/TopMargin/TopHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RightBox" type="HBoxContainer" parent="Root/TopMargin/TopHBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="RingsLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.4, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 22
+text = "RINGS: 0"
+
+[node name="MultiplierPanel" type="PanelContainer" parent="Root/TopMargin/TopHBox/RightBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_pill")
+
+[node name="MultiplierLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox/MultiplierPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 22
+text = "x1.0 COMBO"
+
+[node name="ScoreLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.07, 0.12, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 38
+text = "SCORE: 0"
+
+[node name="CenterBox" type="CenterContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -180.0
+offset_right = 300.0
+offset_bottom = -80.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BannerLabel" type="Label" parent="Root/CenterBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.07, 0.12, 1)
+theme_override_constants/outline_size = 12
+theme_override_font_sizes/font_size = 46
+text = "TILT TO BEGIN"
+horizontal_alignment = 1
+
+[node name="BottomLeftMargin" type="MarginContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -160.0
+offset_right = 280.0
+grow_vertical = 0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_bottom = 24
+mouse_filter = 2
+
+[node name="BoardTiltIndicator" parent="Root/BottomLeftMargin" instance=ExtResource("2_ti")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="BottomRightMargin" type="MarginContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -260.0
+offset_top = -220.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+mouse_filter = 2
+
+[node name="CompanionQrCard" parent="Root/BottomRightMargin" instance=ExtResource("3_qc")]
+unique_name_in_owner = true
+layout_mode = 2

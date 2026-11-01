@@ -159,7 +159,10 @@ public partial class GameManager : Node
         // Feed balance board input into current game mode
         CurrentGame?.UpdateBoardInput(state, delta);
 
-        // Update HUD telemetry
+        // Update active mini-game HUD
+        CurrentGame?.UpdateHud(state);
+
+        // Update legacy global HUD if present
         if (Hud != null && CurrentGame != null)
         {
             Hud.UpdateTelemetry(state, CurrentGame.GameTitle, CurrentGame.GameState, CurrentGame.CurrentScore);

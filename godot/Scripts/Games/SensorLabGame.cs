@@ -113,36 +113,7 @@ public partial class SensorLabGame : BaseGameMode
         _bubbleIndicator.MaterialOverride = bubbleMat;
         _boardPivot.AddChild(_bubbleIndicator);
 
-        // 4. Floating 3D Telemetry Readouts
-        _telemetryLabel = new Label3D
-        {
-            Text = "ROLL: +0.0° | PITCH: +0.0°",
-            FontSize = 36,
-            Position = new Vector3(0, 3.2f, 0),
-            Billboard = BaseMaterial3D.BillboardModeEnum.Enabled
-        };
-        AddChild(_telemetryLabel);
-
-        _statusLabel = new Label3D
-        {
-            Text = "STATUS: WAITING FOR CONTROLLER",
-            FontSize = 24,
-            Position = new Vector3(0, 2.4f, 0),
-            Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
-            Modulate = new Color(0.6f, 0.8f, 1.0f)
-        };
-        AddChild(_statusLabel);
-
-        // 5. Session Recording Status Label
-        _recordLabel = new Label3D
-        {
-            Text = "[Press SPACE / Phone to Record Session]",
-            FontSize = 22,
-            Position = new Vector3(0, 1.7f, 0),
-            Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
-            Modulate = new Color(0.85f, 0.85f, 0.9f)
-        };
-        AddChild(_recordLabel);
+        // 4. 2D HUD handles readouts and recording banners via SensorLabHud
 
         // Camera & Lighting
         var camera = new Camera3D

@@ -1,0 +1,51 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/CompanionQrCard.cs" id="1_qc"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+content_margin_left = 12.0
+content_margin_top = 10.0
+content_margin_right = 12.0
+content_margin_bottom = 10.0
+bg_color = Color(0.06, 0.09, 0.16, 0.88)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.22, 0.74, 0.97, 0.4)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[node name="CompanionQrCard" type="PanelContainer" node_paths=PackedStringArray("QrTextureRect", "UrlLabel", "HeaderLabel")]
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+script = ExtResource("1_qc")
+QrTextureRect = NodePath("VBox/QrTextureRect")
+UrlLabel = NodePath("VBox/UrlLabel")
+HeaderLabel = NodePath("VBox/HeaderLabel")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="HeaderLabel" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 14
+text = "SCAN FOR REMOTE"
+horizontal_alignment = 1
+
+[node name="QrTextureRect" type="TextureRect" parent="VBox"]
+custom_minimum_size = Vector2(130, 130)
+layout_mode = 2
+size_flags_horizontal = 4
+stretch_mode = 5
+
+[node name="UrlLabel" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "http://localhost:8080/remote"
+horizontal_alignment = 1

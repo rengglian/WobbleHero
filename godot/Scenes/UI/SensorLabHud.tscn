@@ -1,0 +1,182 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/SensorLabHud.cs" id="1_slh"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/BoardTiltIndicator.tscn" id="2_ti"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/CompanionQrCard.tscn" id="3_qc"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rec_card"]
+content_margin_left = 20.0
+content_margin_top = 10.0
+content_margin_right = 20.0
+content_margin_bottom = 10.0
+bg_color = Color(0.06, 0.09, 0.16, 0.88)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.22, 0.74, 0.97, 0.35)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[node name="SensorLabHud" type="CanvasLayer" node_paths=PackedStringArray("RollDegLabel", "PitchDegLabel", "HeadingDegLabel", "RecordStatusLabel", "RecordPanel", "QrCard", "TiltIndicator", "BannerLabel")]
+script = ExtResource("1_slh")
+RollDegLabel = NodePath("Root/TopMargin/TopHBox/RightBox/RollDegLabel")
+PitchDegLabel = NodePath("Root/TopMargin/TopHBox/RightBox/PitchDegLabel")
+HeadingDegLabel = NodePath("Root/TopMargin/TopHBox/RightBox/HeadingDegLabel")
+RecordStatusLabel = NodePath("Root/TopCenterMargin/RecordPanel/RecordStatusLabel")
+RecordPanel = NodePath("Root/TopCenterMargin/RecordPanel")
+QrCard = NodePath("Root/BottomRightMargin/CompanionQrCard")
+TiltIndicator = NodePath("Root/BottomLeftMargin/BoardTiltIndicator")
+BannerLabel = NodePath("Root/CenterBox/BannerLabel")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopMargin" type="MarginContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 100.0
+grow_horizontal = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 32
+mouse_filter = 2
+
+[node name="TopHBox" type="HBoxContainer" parent="Root/TopMargin"]
+layout_mode = 2
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="Root/TopMargin/TopHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.4, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.07, 0.12, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 32
+text = "SENSOR LAB & BENCH"
+
+[node name="Spacer" type="Control" parent="Root/TopMargin/TopHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RightBox" type="HBoxContainer" parent="Root/TopMargin/TopHBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="RollDegLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.74, 0.97, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 26
+text = "ROLL: +0.0°"
+
+[node name="PitchDegLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 26
+text = "PITCH: +0.0°"
+
+[node name="HeadingDegLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.45, 0.2, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 26
+text = "COMPASS: 0°"
+
+[node name="TopCenterMargin" type="MarginContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -280.0
+offset_top = 80.0
+offset_right = 280.0
+offset_bottom = 140.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="RecordPanel" type="PanelContainer" parent="Root/TopCenterMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_rec_card")
+
+[node name="RecordStatusLabel" type="Label" parent="Root/TopCenterMargin/RecordPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 18
+text = "[PRESS SPACE / PHONE TO RECORD SESSION]"
+horizontal_alignment = 1
+
+[node name="CenterBox" type="CenterContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -200.0
+offset_right = 200.0
+offset_bottom = -150.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BannerLabel" type="Label" parent="Root/CenterBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 36
+horizontal_alignment = 1
+
+[node name="BottomLeftMargin" type="MarginContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -160.0
+offset_right = 280.0
+grow_vertical = 0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_bottom = 24
+mouse_filter = 2
+
+[node name="BoardTiltIndicator" parent="Root/BottomLeftMargin" instance=ExtResource("2_ti")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="BottomRightMargin" type="MarginContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -260.0
+offset_top = -220.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+mouse_filter = 2
+
+[node name="CompanionQrCard" parent="Root/BottomRightMargin" instance=ExtResource("3_qc")]
+unique_name_in_owner = true
+layout_mode = 2

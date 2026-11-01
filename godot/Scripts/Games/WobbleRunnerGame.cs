@@ -105,15 +105,7 @@ public partial class WobbleRunnerGame : BaseGameMode
         riderMesh.MaterialOverride = riderMat;
         _playerNode.AddChild(riderMesh);
 
-        // 3. Feedback label
-        _feedbackLabel = new Label3D
-        {
-            Text = "LEAN LEFT & RIGHT TO WEAVE",
-            FontSize = 32,
-            Position = new Vector3(0, 4.0f, -6.0f),
-            Billboard = BaseMaterial3D.BillboardModeEnum.Enabled
-        };
-        AddChild(_feedbackLabel);
+        // 3. UI feedback handled in 2D by WobbleRunnerHud
 
         // 4. Follow Camera & Light
         var camera = new Camera3D
@@ -205,6 +197,7 @@ public partial class WobbleRunnerGame : BaseGameMode
                     {
                         TriggerGameOver("Crashed into an obstacle!");
                         if (_feedbackLabel != null) _feedbackLabel.Text = "CRASH! Reset to try again";
+                        Hud?.ShowBannerMessage("CRASH! Reset to try again", 3.0f);
                         return;
                     }
                 }
@@ -215,6 +208,7 @@ public partial class WobbleRunnerGame : BaseGameMode
                     {
                         AddScore(50);
                         if (_feedbackLabel != null) _feedbackLabel.Text = "+50 GATE PASS!";
+                        Hud?.ShowBannerMessage("+50 GATE PASS!", 1.2f);
                     }
                 }
                 gate = gate with { Cleared = true };

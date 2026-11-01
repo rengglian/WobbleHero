@@ -22,11 +22,23 @@ public abstract partial class BaseGameMode : Node3D, IGameMode
     public event Action<int>? OnScoreChanged;
     public event Action<string>? OnGameOver;
 
+    [Export] public PackedScene? HudScene { get; set; }
+    public WobbleHero.UI.BaseGameHud? Hud { get; protected set; }
+
     protected GameManager? Manager;
 
     public virtual void Initialize(GameManager manager)
     {
         Manager = manager;
+
+        if (Hud == null && HudScene != null)
+        {
+            var hudInstance = HudScene.Instantiate<WobbleHero.UI.BaseGameHud>();
+            AddChild(hudInstance);
+            Hud = hudInstance;
+        }
+
+        Hud?.Initialize(manager);
         ResetGame();
     }
 
@@ -59,6 +71,11 @@ public abstract partial class BaseGameMode : Node3D, IGameMode
     }
 
     public abstract void UpdateBoardInput(BoardState boardState, double delta);
+
+    public virtual void UpdateHud(BoardState boardState)
+    {
+        Hud?.UpdateState(boardState, this);
+    }
 
     public virtual Dictionary<string, object> GetLiveStats()
     {

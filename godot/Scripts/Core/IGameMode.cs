@@ -45,6 +45,9 @@ public interface IGameMode
     /// <summary>Per-frame physics update receiving balance board tilt</summary>
     void UpdateBoardInput(BoardState boardState, double delta);
 
+    /// <summary>Updates the game's active HUD with current board and game telemetry</summary>
+    void UpdateHud(BoardState boardState);
+
     /// <summary>Returns arbitrary telemetry dictionary for companion remote streaming</summary>
     Dictionary<string, object> GetLiveStats();
 

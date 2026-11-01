@@ -1,4 +1,4 @@
-# WobbleHero ⚖️ 🏃 🔬
+# WobbleHero ⚖️ 🏃 🌀 🔬
 
 A modular, generic **balancing board game engine & companion platform** designed for Android (and desktop) powered by **Godot 4 (.NET C#)** and controlled physically by an **M5Stack AtomS3** motion controller.
 
@@ -15,18 +15,19 @@ A modular, generic **balancing board game engine & companion platform** designed
 2. **Modular Multi-Game Architecture (`IGameMode`)**:
    - Clean, decoupled interface enabling instant runtime game switching without restarting the engine.
    - Registry pattern (`GameRegistry`) enabling discoverable mini-games with dynamic scene mounting.
-   - **3 Included Starter Games**:
+   - **4 Included Starter Games**:
      - **⚖️ Balance Trainer**: 2D marble on an enlarged tilting circular dish with bouncy rim bumpers; guide the ball to glowing target zones while avoiding rolling off the outer edge.
      - **🏃 Wobble Runner**: High-speed Endless Ride-style 3-lane slalom runner with deterministic procedural seed control (Mulberry32 PRNG), wave obstacles, Apples (burst speed) and Golden Horseshoes (score multipliers), and persistent Top-10 leaderboard.
+     - **🌀 Wobble Maze**: 3D wooden labyrinth tilt puzzle with 100% solvable procedural maze generation (Mulberry32 PRNG + DFS recursive backtracker), configurable sizes (Small 9x9, Medium 13x13, Large 17x17) and difficulties (Easy, Medium, Hard), hazard pit traps with vortex pull, golden key and locked barrier gates, bonus emerald gems, and checkpoint respawning.
      - **🔬 Sensor Lab & Diagnostics**: Real-time 3D balance board visualizer that mirrors physical board orientation in 3D space, displaying 9-axis sensor vectors (accel, gyro, compass magnetometer) and an integrated 100 Hz CSV movement recorder for tremor analysis.
 
 3. **Context-Aware Companion Remote Web App**:
    - Zero-install smartphone companion web application (`remote.html`) served directly by Godot via .NET `HttpListener` on port `8080`.
    - Real-time bidirectional WebSocket telemetry (`/ws`) at 30 Hz.
-   - **Context-Aware Dynamic UI**: Automatically adapts to display *only* the needed content and controls of the currently active mini-game (2D bubble level & ball stats for Trainer, steering visualizer, seed control & Top-10 leaderboard for Runner, 100 Hz recorder & 9-axis telemetry for Sensor Lab).
+   - **Context-Aware Dynamic UI**: Automatically adapts to display *only* the needed content and controls of the currently active mini-game (2D bubble level & ball stats for Trainer, steering visualizer, seed control & Top-10 leaderboard for Runner, maze configuration, size/difficulty buttons, timer & gems for Wobble Maze, 100 Hz recorder & 9-axis telemetry for Sensor Lab).
    - **Interactive Game Selector**: Switch between installed games with a single tap from your phone.
    - **Board Controls**: One-tap Tare Zero calibration, calibration reset, sensitivity slider (0.5x to 2.5x), and axis inversion toggles.
-   - **Deterministic Seed & Rider Customization**: Set custom runner seeds or tap 🎲 Random, and customize rider name saved to the persistent leaderboard.
+   - **Deterministic Seed & Rider Customization**: Set custom runner and maze seeds or tap 🎲 Random, and customize rider name saved to the persistent leaderboard.
    - **Zero-Dependency In-Game QR Code**: Godot displays a QR code on screen so players can point their phone camera to instantly connect.
 
 4. **Zero-Hardware Fallback Emulation**:
@@ -73,11 +74,13 @@ WobbleHero/
     │   ├── Games/
     │   │   ├── BalanceTrainer.tscn   # Mini-game 1: Marble dish balance
     │   │   ├── WobbleRunner.tscn     # Mini-game 2: 3-lane slalom runner
-    │   │   └── SensorLab.tscn        # Mini-game 3: 3D board visualizer & diagnostics
+    │   │   ├── WobbleMaze.tscn       # Mini-game 3: Procedural labyrinth marble tilt
+    │   │   └── SensorLab.tscn        # Mini-game 4: 3D board visualizer & diagnostics
     │   └── UI/
     │       ├── CompanionHud.tscn     # Global companion HUD with QR code
     │       ├── BalanceTrainerHud.tscn# Balance trainer score & combo HUD
     │       ├── WobbleRunnerHud.tscn  # Runner HUD & Top-10 leaderboard overlay
+    │       ├── WobbleMazeHud.tscn    # Wobble Maze timer, gems & key HUD
     │       └── SensorLabHud.tscn     # Sensor diagnostics & recording HUD
     └── Scripts/
         ├── Core/
@@ -85,6 +88,7 @@ WobbleHero/
         │   ├── IGameMode.cs          # Universal game mode interface
         │   ├── GameRegistry.cs       # Available games discovery & metadata
         │   ├── LeaderboardService.cs # Persistent Top-10 leaderboard manager
+        │   ├── MazeGenerator.cs      # Procedural solvable labyrinth generator (Mulberry32)
         │   └── GameManager.cs        # Master game & input coordinator
         ├── Input/
         │   ├── HardwareUdpReceiver.cs# 32-byte UDP listener & 2D complementary filter
@@ -95,12 +99,14 @@ WobbleHero/
         │   ├── CompanionHud.cs       # Master HUD & QR code controller
         │   ├── BalanceTrainerHud.cs  # Dedicated Balance Trainer HUD
         │   ├── WobbleRunnerHud.cs    # Dedicated Wobble Runner HUD
+        │   ├── WobbleMazeHud.cs      # Dedicated Wobble Maze HUD
         │   ├── SensorLabHud.cs       # Dedicated Sensor Lab HUD
         │   └── QrCodeGenerator.cs    # Project Nayuki ISO/IEC 18004 QR generator
         └── Games/
             ├── BaseGameMode.cs       # Reusable base class for mini-games
             ├── BalanceTrainerGame.cs # Marble balance logic
             ├── WobbleRunnerGame.cs   # 3-lane slalom runner logic & waves
+            ├── WobbleMazeGame.cs     # 3D labyrinth tilt, key, gate & trap physics
             └── SensorLabGame.cs      # 3D board visualizer & movement recorder
 ```
 
@@ -160,6 +166,7 @@ To capture real movement data while standing on your balancing board:
 3. The companion remote automatically shifts views depending on the active game:
    - **Balance Trainer**: Live 2D balance puck, roll/pitch readouts, Tare Zero calibration, sensitivity slider, and invert toggles.
    - **Wobble Runner**: Slalom steering lean bar, player name input, deterministic seed input + `🎲 Random Seed`, and live Top-10 Leaderboard.
+   - **Wobble Maze**: Live timer, gems collected, key status, falls counter, deterministic seed input + `🎲 Random Seed`, maze size toggles (Small 9x9, Medium 13x13, Large 17x17), and difficulty selector (Easy, Medium, Hard).
    - **Sensor Lab**: 100 Hz Raw IMU movement recorder, CSV download button, and live 9-axis sensor diagnostics (heading, accel, gyro, mag, packet rate).
 
 ### 5. Flash the M5Stack AtomS3 Controller

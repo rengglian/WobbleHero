@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://cx6wmgame001"]
+
+[ext_resource type="Script" path="res://Scripts/Games/WobbleMazeGame.cs" id="1_wm"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/WobbleMazeHud.tscn" id="2_hud"]
+
+[node name="WobbleMaze" type="Node3D"]
+script = ExtResource("1_wm")
+HudScene = ExtResource("2_hud")

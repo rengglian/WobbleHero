@@ -92,6 +92,13 @@ public partial class GameManager : Node
                     runner.SetSeed(seed);
                 }
             };
+            WebServer.OnMazeConfigChanged += (seed, size, diff) =>
+            {
+                if (CurrentGame is WobbleMazeGame maze)
+                {
+                    maze.SetMazeConfig(seed, size, diff);
+                }
+            };
             WebServer.OnStartRecordingRequested += () =>
             {
                 if (CurrentGame is SensorLabGame lab) lab.StartRecording();

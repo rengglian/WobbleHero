@@ -35,6 +35,7 @@ public partial class CompanionWebServer : Node
     public event Action<string>? OnMountingProfileChanged;
     public event Action<string>? OnPlayerNameChanged;
     public event Action<int>? OnSeedChanged;
+    public event Action<int, string, string>? OnMazeConfigChanged;
     public event Action? OnResetLeaderboardRequested;
     public event Action? OnStartRecordingRequested;
     public event Action? OnStopRecordingRequested;
@@ -327,6 +328,8 @@ public partial class CompanionWebServer : Node
             string mountingProfile = "";
             int seedVal = 1337;
             bool hasSeed = false;
+            string mazeSize = "medium";
+            string mazeDifficulty = "medium";
 
             using (var doc = JsonDocument.Parse(messageJson))
             {
@@ -362,6 +365,12 @@ public partial class CompanionWebServer : Node
                         hasSeed = true;
                     }
                 }
+
+                if (root.TryGetProperty("size", out var sizeProp))
+                    mazeSize = sizeProp.GetString() ?? "medium";
+
+                if (root.TryGetProperty("difficulty", out var diffProp))
+                    mazeDifficulty = diffProp.GetString() ?? "medium";
             }
 
             Callable.From(() =>
@@ -407,6 +416,9 @@ public partial class CompanionWebServer : Node
                         {
                             OnSeedChanged?.Invoke(seedVal);
                         }
+                        break;
+                    case "set_maze_config":
+                        OnMazeConfigChanged?.Invoke(seedVal, mazeSize, mazeDifficulty);
                         break;
                     case "set_player_name":
                         if (!string.IsNullOrEmpty(playerName))

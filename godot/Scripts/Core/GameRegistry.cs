@@ -34,6 +34,13 @@ public static class GameRegistry
             "res://Scenes/Games/WobbleRunner.tscn"
         ),
         new(
+            "WobbleMaze",
+            "Wobble Maze",
+            "Guide a rolling marble through tilting labyrinths, collect gems, unlock gates, and avoid hazard pits!",
+            "🌀",
+            "res://Scenes/Games/WobbleMaze.tscn"
+        ),
+        new(
             "SensorLab",
             "Sensor Lab & Diagnostics",
             "Real-time 3D balance board visualizer and IMU calibration bench",

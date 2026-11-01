@@ -823,6 +823,103 @@
   </main>
 
   <!-- ============================================================ -->
+  <!-- VIEW: WOBBLE MAZE -->
+  <!-- ============================================================ -->
+  <main class="game-view" id="view-WobbleMaze">
+    <!-- Telemetry Strip -->
+    <section class="card">
+      <div class="card-title">
+        <span>Maze Telemetry</span>
+        <span id="wmStateBadge" style="color:#60a5fa; font-size:0.75rem;">START</span>
+      </div>
+      <div class="telemetry-grid-4">
+        <div class="telem-item">
+          <div class="telem-label">Timer</div>
+          <div class="telem-val" id="wmTime" style="color:#38bdf8;">0.0s</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Gems</div>
+          <div class="telem-val" id="wmGems" style="color:var(--gold);">0/3</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Key Status</div>
+          <div class="telem-val" id="wmKey" style="color:#94a3b8; font-size:0.92rem;">NO</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Falls</div>
+          <div class="telem-val" id="wmFalls" style="color:#f87171;">0</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Maze Configuration Controls -->
+    <section class="card">
+      <div class="card-title">
+        <span>Maze Configuration</span>
+        <span id="wmConfigBadge" style="font-size:0.7rem; color:#facc15;">Seed: 1337</span>
+      </div>
+      <div class="runner-controls">
+        <div class="form-group">
+          <label class="form-label" for="wmSeedInput">Maze Seed</label>
+          <div class="input-row">
+            <input type="number" id="wmSeedInput" class="text-input" value="1337" />
+            <button class="btn-action-small" onclick="applyMazeConfig()">Apply</button>
+            <button class="btn-action-small" style="background:rgba(234, 179, 8, 0.15); border-color:#eab308; color:#fef08a;" onclick="randomizeMazeSeed()">🎲 Random Seed</button>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+          <label class="form-label">Maze Size</label>
+          <div class="invert-deck" style="grid-template-columns: repeat(3, 1fr); margin-top:4px;">
+            <button class="btn-toggle" id="wmSizeSmall" onclick="setMazeSize('small')">Small</button>
+            <button class="btn-toggle active" id="wmSizeMedium" onclick="setMazeSize('medium')">Medium</button>
+            <button class="btn-toggle" id="wmSizeLarge" onclick="setMazeSize('large')">Large</button>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+          <label class="form-label">Difficulty</label>
+          <div class="invert-deck" style="grid-template-columns: repeat(3, 1fr); margin-top:4px;">
+            <button class="btn-toggle" id="wmDiffEasy" onclick="setMazeDifficulty('easy')">Easy</button>
+            <button class="btn-toggle active" id="wmDiffMedium" onclick="setMazeDifficulty('medium')">Medium</button>
+            <button class="btn-toggle" id="wmDiffHard" onclick="setMazeDifficulty('hard')">Hard</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2D Balance Board Tilt Card & Tare -->
+    <section class="card">
+      <div class="card-title">
+        <span>Balance Board Tilt (2D)</span>
+        <span id="wmRateLabel" style="font-size:0.7rem; color:#34d399;">-- Hz</span>
+      </div>
+      <div class="level-2d-box">
+        <div class="level-crosshair-x"></div>
+        <div class="level-crosshair-y"></div>
+        <div class="level-rings"></div>
+        <div class="level-center-bullseye"></div>
+        <div class="bubble-puck" id="wmBubblePuck"></div>
+      </div>
+      <div class="cal-readouts">
+        <div>ROLL: <span id="wmRollDeg" style="color:#38bdf8;">+0.0°</span></div>
+        <div>PITCH: <span id="wmPitchDeg" style="color:#818cf8;">+0.0°</span></div>
+      </div>
+      <div class="cal-actions">
+        <button class="btn-tare" onclick="sendWsMessage({ type: 'tare_board' })">🎯 Tare Zero (Set Level)</button>
+        <button class="btn-secondary" onclick="sendWsMessage({ type: 'reset_cal' })">Reset Zero</button>
+      </div>
+      <div class="slider-row">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Sensitivity:</span>
+        <input type="range" id="wmSensitivitySlider" min="0.5" max="2.5" step="0.1" value="1.0" oninput="onSensitivityInput(this.value)">
+        <span id="wmSensitivityText" style="font-size:0.8rem; font-weight:800; min-width:36px;">1.0x</span>
+      </div>
+      <div class="invert-deck" style="margin-top:8px;">
+        <button class="btn-toggle active" id="wmBtnInvertRoll" onclick="toggleInvert('roll')">Invert Left/Right</button>
+        <button class="btn-toggle active" id="wmBtnInvertPitch" onclick="toggleInvert('pitch')">Invert Front/Back</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================================ -->
   <!-- VIEW 3: SENSOR LAB & DIAGNOSTICS -->
   <!-- ============================================================ -->
   <main class="game-view" id="view-SensorLab">
@@ -970,6 +1067,33 @@
     const wrSeedInput = document.getElementById('wrSeedInput');
     const leaderboardBody = document.getElementById('leaderboardBody');
 
+    // Wobble Maze Elements
+    const viewWobbleMaze = document.getElementById('view-WobbleMaze');
+    const wmStateBadge = document.getElementById('wmStateBadge');
+    const wmTime = document.getElementById('wmTime');
+    const wmGems = document.getElementById('wmGems');
+    const wmKey = document.getElementById('wmKey');
+    const wmFalls = document.getElementById('wmFalls');
+    const wmConfigBadge = document.getElementById('wmConfigBadge');
+    const wmSeedInput = document.getElementById('wmSeedInput');
+    const wmSizeSmall = document.getElementById('wmSizeSmall');
+    const wmSizeMedium = document.getElementById('wmSizeMedium');
+    const wmSizeLarge = document.getElementById('wmSizeLarge');
+    const wmDiffEasy = document.getElementById('wmDiffEasy');
+    const wmDiffMedium = document.getElementById('wmDiffMedium');
+    const wmDiffHard = document.getElementById('wmDiffHard');
+    const wmRateLabel = document.getElementById('wmRateLabel');
+    const wmBubblePuck = document.getElementById('wmBubblePuck');
+    const wmRollDeg = document.getElementById('wmRollDeg');
+    const wmPitchDeg = document.getElementById('wmPitchDeg');
+    const wmSensitivitySlider = document.getElementById('wmSensitivitySlider');
+    const wmSensitivityText = document.getElementById('wmSensitivityText');
+    const wmBtnInvertRoll = document.getElementById('wmBtnInvertRoll');
+    const wmBtnInvertPitch = document.getElementById('wmBtnInvertPitch');
+
+    let mazeSize = 'medium';
+    let mazeDifficulty = 'medium';
+
     // Sensor Lab Elements
     const viewSensorLab = document.getElementById('view-SensorLab');
     const slRecHzBadge = document.getElementById('slRecHzBadge');
@@ -1000,6 +1124,7 @@
     const views = {
       'BalanceTrainer': viewBalanceTrainer,
       'WobbleRunner': viewWobbleRunner,
+      'WobbleMaze': viewWobbleMaze,
       'SensorLab': viewSensorLab
     };
 
@@ -1137,6 +1262,59 @@
         const steerPct = 50 + (normX * 40);
         wrRiderPuck.style.left = `${Math.max(10, Math.min(90, steerPct))}%`;
       }
+      else if (current === 'wobblemaze') {
+        // Wobble Maze
+        wmStateBadge.textContent = currentGameState;
+
+        if (data.game && data.game.stats) {
+          const stats = data.game.stats;
+          const timeElapsed = typeof stats.timeElapsed === 'number' ? stats.timeElapsed : (data.game.score || 0);
+          wmTime.textContent = `${timeElapsed.toFixed(1)}s`;
+
+          const gems = typeof stats.gemsCollected === 'number' ? stats.gemsCollected : 0;
+          const totalGems = typeof stats.totalGems === 'number' ? stats.totalGems : 3;
+          wmGems.textContent = `${gems}/${totalGems}`;
+
+          if (stats.gateUnlocked) {
+            wmKey.innerHTML = '<span style="color:#34d399; font-weight:800;">🔓 OPEN</span>';
+          } else if (stats.hasKey) {
+            wmKey.innerHTML = '<span style="color:#fbbf24; font-weight:800;">🗝️ YES</span>';
+          } else {
+            wmKey.innerHTML = '<span style="color:#94a3b8;">NO</span>';
+          }
+
+          wmFalls.textContent = stats.falls || 0;
+
+          if (typeof stats.seed === 'number') {
+            wmConfigBadge.textContent = `Seed: ${stats.seed}`;
+            if (document.activeElement !== wmSeedInput) {
+              wmSeedInput.value = stats.seed;
+            }
+          }
+
+          if (stats.size && typeof stats.size === 'string') {
+            const s = stats.size.toLowerCase();
+            mazeSize = s;
+            wmSizeSmall.classList.toggle('active', s === 'small');
+            wmSizeMedium.classList.toggle('active', s === 'medium');
+            wmSizeLarge.classList.toggle('active', s === 'large');
+          }
+
+          if (stats.difficulty && typeof stats.difficulty === 'string') {
+            const d = stats.difficulty.toLowerCase();
+            mazeDifficulty = d;
+            wmDiffEasy.classList.toggle('active', d === 'easy');
+            wmDiffMedium.classList.toggle('active', d === 'medium');
+            wmDiffHard.classList.toggle('active', d === 'hard');
+          }
+        }
+
+        wmRateLabel.textContent = `${b.hz || 0} Hz`;
+        wmRollDeg.textContent = `${signR}${rollDeg.toFixed(1)}°`;
+        wmPitchDeg.textContent = `${signP}${pitchDeg.toFixed(1)}°`;
+        wmBubblePuck.style.left = `${leftPct}%`;
+        wmBubblePuck.style.top = `${topPct}%`;
+      }
       else if (current === 'sensorlab') {
         // Sensor Lab
         slSourceBadge.textContent = `${(b.source || 'atoms3').toUpperCase()}`;
@@ -1205,6 +1383,8 @@
           if (btSensitivityText) btSensitivityText.textContent = sensText;
           if (wrSensitivitySlider) wrSensitivitySlider.value = s.sensitivity;
           if (wrSensitivityText) wrSensitivityText.textContent = sensText;
+          if (wmSensitivitySlider) wmSensitivitySlider.value = s.sensitivity;
+          if (wmSensitivityText) wmSensitivityText.textContent = sensText;
         }
 
         const invRoll = !!s.invertRoll;
@@ -1212,6 +1392,8 @@
         if (btBtnInvertRoll) btBtnInvertRoll.classList.toggle('active', invRoll);
         if (btBtnInvertPitch) btBtnInvertPitch.classList.toggle('active', invPitch);
         if (wrBtnInvertRoll) wrBtnInvertRoll.classList.toggle('active', invRoll);
+        if (wmBtnInvertRoll) wmBtnInvertRoll.classList.toggle('active', invRoll);
+        if (wmBtnInvertPitch) wmBtnInvertPitch.classList.toggle('active', invPitch);
         if (slBtnInvertRoll) slBtnInvertRoll.classList.toggle('active', invRoll);
         if (slBtnInvertPitch) slBtnInvertPitch.classList.toggle('active', invPitch);
 
@@ -1290,6 +1472,7 @@
       const text = `${num.toFixed(1)}x`;
       if (btSensitivityText) btSensitivityText.textContent = text;
       if (wrSensitivityText) wrSensitivityText.textContent = text;
+      if (wmSensitivityText) wmSensitivityText.textContent = text;
       sendWsMessage({ type: 'set_sensitivity', value: num });
     }
 
@@ -1327,6 +1510,42 @@
       const randomSeed = Math.floor(Math.random() * 900000) + 1000;
       wrSeedInput.value = randomSeed;
       sendWsMessage({ type: 'set_seed', seed: randomSeed });
+    }
+
+    function setMazeSize(size) {
+      mazeSize = size.toLowerCase();
+      wmSizeSmall.classList.toggle('active', mazeSize === 'small');
+      wmSizeMedium.classList.toggle('active', mazeSize === 'medium');
+      wmSizeLarge.classList.toggle('active', mazeSize === 'large');
+      sendMazeConfig();
+    }
+
+    function setMazeDifficulty(diff) {
+      mazeDifficulty = diff.toLowerCase();
+      wmDiffEasy.classList.toggle('active', mazeDifficulty === 'easy');
+      wmDiffMedium.classList.toggle('active', mazeDifficulty === 'medium');
+      wmDiffHard.classList.toggle('active', mazeDifficulty === 'hard');
+      sendMazeConfig();
+    }
+
+    function applyMazeConfig() {
+      sendMazeConfig();
+    }
+
+    function randomizeMazeSeed() {
+      const randomSeed = Math.floor(Math.random() * 900000) + 1000;
+      wmSeedInput.value = randomSeed;
+      sendMazeConfig();
+    }
+
+    function sendMazeConfig() {
+      const seed = parseInt(wmSeedInput.value, 10) || 1337;
+      sendWsMessage({
+        type: 'set_maze_config',
+        seed: seed,
+        size: mazeSize,
+        difficulty: mazeDifficulty
+      });
     }
 
     function resetLeaderboard() {

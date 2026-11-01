@@ -1,0 +1,255 @@
+[gd_scene format=3 uid="uid://cx6wmhud001"]
+
+[ext_resource type="Script" path="res://Scripts/UI/WobbleMazeHud.cs" id="1_wmh"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/BoardTiltIndicator.tscn" id="2_ti"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/CompanionQrCard.tscn" id="3_qc"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pill"]
+content_margin_left = 12.0
+content_margin_top = 4.0
+content_margin_right = 12.0
+content_margin_bottom = 4.0
+bg_color = Color(0.06, 0.09, 0.16, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.22, 0.74, 0.97, 0.45)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel_victory"]
+content_margin_left = 36.0
+content_margin_top = 28.0
+content_margin_right = 36.0
+content_margin_bottom = 28.0
+bg_color = Color(0.05, 0.08, 0.15, 0.95)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.2, 0.95, 0.45, 0.8)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[node name="WobbleMazeHud" type="CanvasLayer" node_paths=PackedStringArray("ScoreLabel", "TimerLabel", "GemsLabel", "KeyLabel", "FallsLabel", "StateLabel", "ConfigBadgeLabel", "VictoryOverlay", "VictoryTitleLabel", "VictoryStatsLabel", "QrCard", "TiltIndicator", "BannerLabel")]
+script = ExtResource("1_wmh")
+ScoreLabel = NodePath("Root/TopMargin/TopHBox/RightBox/ScoreLabel")
+TimerLabel = NodePath("Root/TopMargin/TopHBox/RightBox/TimerPanel/TimerLabel")
+GemsLabel = NodePath("Root/TopMargin/TopHBox/RightBox/GemsLabel")
+KeyLabel = NodePath("Root/TopMargin/TopHBox/RightBox/KeyLabel")
+FallsLabel = NodePath("Root/TopMargin/TopHBox/RightBox/FallsLabel")
+StateLabel = NodePath("Root/TopMargin/TopHBox/TitleBox/StateLabel")
+ConfigBadgeLabel = NodePath("Root/TopMargin/TopHBox/TitleBox/ConfigBadgePanel/ConfigBadgeLabel")
+VictoryOverlay = NodePath("Root/VictoryOverlay")
+VictoryTitleLabel = NodePath("Root/VictoryOverlay/VictoryPanel/VBox/VictoryTitleLabel")
+VictoryStatsLabel = NodePath("Root/VictoryOverlay/VictoryPanel/VBox/VictoryStatsLabel")
+QrCard = NodePath("Root/BottomRightMargin/CompanionQrCard")
+TiltIndicator = NodePath("Root/BottomLeftMargin/BoardTiltIndicator")
+BannerLabel = NodePath("Root/TopBannerBox/BannerLabel")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopMargin" type="MarginContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 100.0
+grow_horizontal = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 32
+mouse_filter = 2
+
+[node name="TopHBox" type="HBoxContainer" parent="Root/TopMargin"]
+layout_mode = 2
+alignment = 1
+
+[node name="TitleBox" type="HBoxContainer" parent="Root/TopMargin/TopHBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="Root/TopMargin/TopHBox/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.65, 0.98, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.07, 0.12, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 32
+text = "WOBBLE MAZE"
+
+[node name="ConfigBadgePanel" type="PanelContainer" parent="Root/TopMargin/TopHBox/TitleBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_pill")
+
+[node name="ConfigBadgeLabel" type="Label" parent="Root/TopMargin/TopHBox/TitleBox/ConfigBadgePanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 18
+text = "MED • MED • #1337"
+
+[node name="StateLabel" type="Label" parent="Root/TopMargin/TopHBox/TitleBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "START"
+
+[node name="Spacer" type="Control" parent="Root/TopMargin/TopHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RightBox" type="HBoxContainer" parent="Root/TopMargin/TopHBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="GemsLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.45, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 22
+text = "💎 0/3"
+
+[node name="KeyLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.65, 0.75, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 22
+text = "🗝️ LOCKED"
+
+[node name="FallsLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 22
+text = "FALLS: 0"
+
+[node name="TimerPanel" type="PanelContainer" parent="Root/TopMargin/TopHBox/RightBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_pill")
+
+[node name="TimerLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox/TimerPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.74, 0.97, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 22
+text = "TIME: 00:00.0"
+
+[node name="ScoreLabel" type="Label" parent="Root/TopMargin/TopHBox/RightBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.07, 0.12, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 36
+text = "SCORE: 0"
+
+[node name="TopBannerBox" type="CenterContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -350.0
+offset_top = 110.0
+offset_right = 350.0
+offset_bottom = 155.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="BannerLabel" type="Label" parent="Root/TopBannerBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.07, 0.12, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 24
+text = "TILT TO NAVIGATE"
+horizontal_alignment = 1
+
+[node name="VictoryOverlay" type="CenterContainer" parent="Root"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="VictoryPanel" type="PanelContainer" parent="Root/VictoryOverlay"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel_victory")
+
+[node name="VBox" type="VBoxContainer" parent="Root/VictoryOverlay/VictoryPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="VictoryTitleLabel" type="Label" parent="Root/VictoryOverlay/VictoryPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.45, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.07, 0.12, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 42
+text = "🏆 MAZE CLEARED!"
+horizontal_alignment = 1
+
+[node name="VictoryStatsLabel" type="Label" parent="Root/VictoryOverlay/VictoryPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "TIME: 0.0s\nGEMS: 0\nFALLS: 0\nFINAL SCORE: 0"
+horizontal_alignment = 1
+
+[node name="BottomLeftMargin" type="MarginContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -160.0
+offset_right = 280.0
+grow_vertical = 0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_bottom = 24
+mouse_filter = 2
+
+[node name="BoardTiltIndicator" parent="Root/BottomLeftMargin" instance=ExtResource("2_ti")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="BottomRightMargin" type="MarginContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -260.0
+offset_top = -220.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+mouse_filter = 2
+
+[node name="CompanionQrCard" parent="Root/BottomRightMargin" instance=ExtResource("3_qc")]
+unique_name_in_owner = true
+layout_mode = 2

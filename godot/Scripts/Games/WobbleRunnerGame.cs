@@ -217,7 +217,7 @@ public partial class WobbleRunnerGame : BaseGameMode
         _playerX = 0f;
         _distanceRun = 0f;
         _currentSpeed = BaseSpeed;
-        _waveSpawnDistance = 35.0f; // first obstacles appear at 35m
+        _waveSpawnDistance = 65.0f; // first obstacles appear at 65m, giving player ample runway to settle in
         _multiplier = 1.0f;
         _applesCollected = 0;
         _horseshoesCollected = 0;
@@ -287,8 +287,9 @@ public partial class WobbleRunnerGame : BaseGameMode
         if (_distanceRun >= _waveSpawnDistance)
         {
             SpawnProceduralWave();
-            // Wave spacing scales down with distance (from 28m down to 17m for intense slalom!)
-            float waveSpacing = 28.0f - 11.0f * progress + _rng.NextFloat() * 5.0f;
+            // Generous wave spacing (58m down to 42m) giving balance board players ample time to shift weight between lanes
+            float baseSpacing = 58.0f - 16.0f * progress;
+            float waveSpacing = baseSpacing + _rng.NextFloat() * 12.0f;
             _waveSpawnDistance = _distanceRun + waveSpacing;
         }
 
@@ -324,7 +325,7 @@ public partial class WobbleRunnerGame : BaseGameMode
                         _multiplier = Math.Min(4.0f, _multiplier + 0.3f);
                         int bonus = (int)(150 * _multiplier);
                         AddScore(bonus);
-                        Hud?.ShowBannerMessage($"🐴 GOLDEN HORSESHOE! +{bonus} (x{_multiplier:F1})", 1.2f);
+                        Hud?.ShowBannerMessage($"🧲 +{bonus} (x{_multiplier:F1})", 0.5f);
                         ent.Node.QueueFree();
                         _activeEntities.RemoveAt(i);
                         continue;
@@ -335,7 +336,7 @@ public partial class WobbleRunnerGame : BaseGameMode
                         _applesCollected++;
                         AddScore((int)(50 * _multiplier));
                         _currentSpeed = Math.Min(MaxSpeed + 3f, _currentSpeed + 1.5f);
-                        Hud?.ShowBannerMessage($"+50 SPEED BOOST! ({_applesCollected} 🍎)", 0.9f);
+                        Hud?.ShowBannerMessage($"🍏 SPEED BOOST! (+50)", 0.5f);
                         ent.Node.QueueFree();
                         _activeEntities.RemoveAt(i);
                         continue;

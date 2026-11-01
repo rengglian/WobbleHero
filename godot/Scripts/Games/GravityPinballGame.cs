@@ -138,6 +138,7 @@ public partial class GravityPinballGame : BaseGameMode
     private bool _isTilted = false;
     private float _tiltFreezeTimer = 0f;
     private float _screenshakeIntensity = 0f;
+    private float _nudgeCooldownTimer = 0.5f;
 
     public override void _Ready()
     {
@@ -375,6 +376,9 @@ public partial class GravityPinballGame : BaseGameMode
         _isTilted = false;
         _tiltFreezeTimer = 0f;
         _screenshakeIntensity = 0f;
+        _nudgeCooldownTimer = 0.8f;
+        _lastBoardAngle = Vector2.Zero;
+        _lastAngularVel = Vector2.Zero;
         _tiltWarningTimestamps.Clear();
 
         // Deactivate all balls
@@ -424,7 +428,9 @@ public partial class GravityPinballGame : BaseGameMode
 
     public void NudgeTable()
     {
-        if (_isTilted) return;
+        if (_isTilted || _nudgeCooldownTimer > 0f) return;
+
+        _nudgeCooldownTimer = 0.8f; // Cooldown so a single physical slap doesn't register multiple strikes
 
         float now = (float)Time.GetTicksMsec() / 1000.0f;
         _tiltWarningTimestamps.Add(now);
@@ -457,6 +463,17 @@ public partial class GravityPinballGame : BaseGameMode
             if (_balls[i].IsActive)
             {
                 _balls[i].Vel += new Vector2((float)(_rng.NextDouble() * 5.0f - 2.5f), -3.5f);
+            }
+        }
+    }
+
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo)
+        {
+            if (keyEvent.Keycode == Key.Space)
+            {
+                NudgeTable();
             }
         }
     }
@@ -555,33 +572,52 @@ public partial class GravityPinballGame : BaseGameMode
 
     private void UpdateJerkDetection(BoardState boardState, float dt)
     {
+        if (_nudgeCooldownTimer > 0f)
+        {
+            _nudgeCooldownTimer -= dt;
+        }
+
         if (_isTilted)
         {
             _tiltFreezeTimer -= dt;
             if (_tiltFreezeTimer <= 0f)
             {
                 _isTilted = false;
+                _tiltWarningTimestamps.Clear();
+                _nudgeCooldownTimer = 1.5f; // Grace period after recovery
+                Vector2 resetAngle = new(boardState.FusedRollDeg, boardState.FusedPitchDeg);
+                _lastBoardAngle = resetAngle;
+                _lastAngularVel = Vector2.Zero;
                 Hud?.ShowBannerMessage("CONTROLS RESTORED!", 1.5f);
             }
             return;
         }
 
-        Vector2 currentAngle = new(boardState.FusedRollDeg, boardState.FusedPitchDeg);
-        if (boardState.Source != "atoms3")
+        // Physical jerk detection is strictly for AtomS3 hardware sensor slap-nudges.
+        // Keyboard, gamepad, and touch use Space key or the companion Nudge button.
+        if (boardState.Source == "atoms3")
         {
-            currentAngle = new(boardState.Roll * 28.0f, boardState.Pitch * 28.0f);
+            Vector2 currentAngle = new(boardState.FusedRollDeg, boardState.FusedPitchDeg);
+            Vector2 angularVel = (currentAngle - _lastBoardAngle) / Math.Max(0.0001f, dt);
+            Vector2 angularAccel = (angularVel - _lastAngularVel) / Math.Max(0.0001f, dt);
+            float jerk = angularAccel.Length();
+
+            _lastBoardAngle = currentAngle;
+            _lastAngularVel = angularVel;
+
+            // Only trigger a physical slap-nudge on genuine hard stomps (> 2200 deg/s^2)
+            if (jerk > 2200.0f && _nudgeCooldownTimer <= 0f)
+            {
+                NudgeTable();
+            }
         }
-
-        Vector2 angularVel = (currentAngle - _lastBoardAngle) / Math.Max(0.0001f, dt);
-        Vector2 angularAccel = (angularVel - _lastAngularVel) / Math.Max(0.0001f, dt);
-        float jerk = angularAccel.Length();
-
-        _lastBoardAngle = currentAngle;
-        _lastAngularVel = angularVel;
-
-        if (jerk > 160.0f || boardState.IsButtonPressed)
+        else
         {
-            NudgeTable();
+            // For keyboard/controller, only explicit button press triggers nudge
+            if (boardState.IsButtonPressed && _nudgeCooldownTimer <= 0f)
+            {
+                NudgeTable();
+            }
         }
     }
 

@@ -44,7 +44,7 @@
       padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)) 16px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
       overflow-x: hidden;
     }
 
@@ -52,14 +52,14 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 4px;
+      padding-bottom: 2px;
     }
 
     .brand {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 1.2rem;
+      font-size: 1.25rem;
       font-weight: 900;
       letter-spacing: -0.02em;
     }
@@ -104,23 +104,24 @@
       box-shadow: 0 0 8px var(--rose);
     }
 
+    /* Cards */
     .card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
-      padding: 16px;
+      padding: 14px;
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
 
     .card-title {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--text-muted);
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -129,20 +130,20 @@
     /* Game Selector Carousel / Grid */
     .game-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
     }
 
     .game-card {
       background: rgba(255, 255, 255, 0.04);
       border: 2px solid transparent;
-      border-radius: 14px;
-      padding: 12px 8px;
+      border-radius: 12px;
+      padding: 10px 6px;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: 6px;
+      gap: 4px;
       cursor: pointer;
       transition: all 0.2s ease;
     }
@@ -158,32 +159,100 @@
     }
 
     .game-icon {
-      font-size: 2rem;
+      font-size: 1.6rem;
     }
 
     .game-title {
-      font-size: 0.8rem;
+      font-size: 0.72rem;
       font-weight: 700;
       color: var(--text);
+      line-height: 1.1;
     }
 
-    /* Telemetry Grid */
-    .telemetry-grid {
+    /* Action Deck Buttons */
+    .action-row {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 3fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-main {
+      width: 100%;
+      padding: 14px 16px;
+      border: none;
+      border-radius: 14px;
+      color: #ffffff;
+      font-size: 1.05rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: transform 0.1s ease, filter 0.2s ease;
+    }
+
+    .btn-main:active {
+      transform: scale(0.97);
+    }
+
+    .btn-start {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 6px 20px var(--emerald-glow);
+    }
+
+    .btn-pause {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      box-shadow: 0 6px 20px var(--amber-glow);
+    }
+
+    .btn-resume {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-reset {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .btn-reset:active {
+      transform: scale(0.95);
+    }
+
+    /* Telemetry Grids */
+    .telemetry-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      text-align: center;
+    }
+
+    .telemetry-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 8px;
       text-align: center;
     }
 
     .telem-item {
       background: rgba(0, 0, 0, 0.25);
-      padding: 10px 6px;
-      border-radius: 12px;
+      padding: 8px 4px;
+      border-radius: 10px;
       border: 1px solid rgba(255, 255, 255, 0.04);
     }
 
     .telem-label {
-      font-size: 0.65rem;
+      font-size: 0.62rem;
       font-weight: 700;
       text-transform: uppercase;
       color: var(--text-muted);
@@ -191,27 +260,24 @@
     }
 
     .telem-val {
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       font-weight: 900;
       font-variant-numeric: tabular-nums;
     }
 
-    .telem-val.score { color: var(--gold); }
-    .telem-val.state { color: #60a5fa; font-size: 0.95rem; }
-
     /* 2D Bubble Level Indicator */
     .level-2d-box {
       width: 100%;
-      height: 180px;
+      height: 170px;
       background: rgba(0, 0, 0, 0.35);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
+      border-radius: 14px;
       position: relative;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .level-crosshair-x {
@@ -232,8 +298,8 @@
 
     .level-rings {
       position: absolute;
-      width: 90px;
-      height: 90px;
+      width: 86px;
+      height: 86px;
       border-radius: 50%;
       border: 2px dashed rgba(255, 255, 255, 0.18);
       pointer-events: none;
@@ -241,80 +307,40 @@
 
     .level-center-bullseye {
       position: absolute;
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
-      border: 2px solid rgba(16, 185, 129, 0.4);
+      border: 2px solid rgba(16, 185, 129, 0.45);
       background: rgba(16, 185, 129, 0.06);
       pointer-events: none;
     }
 
     .bubble-puck {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #93c5fd, #2563eb);
-      box-shadow: 0 0 16px rgba(59, 130, 246, 0.9), inset 0 0 6px #fff;
       position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #60a5fa, #2563eb);
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.8);
       transform: translate(-50%, -50%);
-      left: 50%;
-      top: 50%;
       transition: left 0.04s linear, top 0.04s linear;
+      pointer-events: none;
     }
 
     .cal-readouts {
       display: flex;
-      justify-content: space-between;
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* Buttons */
-    .btn-main {
-      appearance: none;
-      border: none;
-      outline: none;
-      width: 100%;
-      padding: 16px 20px;
-      border-radius: 14px;
-      font-size: 1.15rem;
+      justify-content: space-around;
+      font-size: 0.85rem;
       font-weight: 800;
-      letter-spacing: 0.02em;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      cursor: pointer;
-      touch-action: manipulation;
-      transition: transform 0.1s ease;
-    }
-
-    .btn-main:active { transform: scale(0.97); }
-
-    .btn-start {
-      background: linear-gradient(135deg, #10b981, #059669);
-      box-shadow: 0 6px 20px var(--emerald-glow);
-    }
-
-    .btn-pause {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      box-shadow: 0 6px 20px var(--amber-glow);
-    }
-
-    .btn-resume {
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+      margin-bottom: 10px;
+      font-variant-numeric: tabular-nums;
     }
 
     .cal-actions {
       display: grid;
       grid-template-columns: 2fr 1fr;
-      gap: 10px;
-      margin-bottom: 12px;
+      gap: 8px;
+      margin-bottom: 10px;
     }
 
     .btn-tare {
@@ -322,9 +348,9 @@
       border: 1px solid var(--emerald);
       color: #34d399;
       font-weight: 800;
-      font-size: 0.95rem;
-      padding: 12px;
-      border-radius: 12px;
+      font-size: 0.9rem;
+      padding: 10px;
+      border-radius: 10px;
       cursor: pointer;
     }
 
@@ -333,18 +359,17 @@
       border: 1px solid rgba(255, 255, 255, 0.12);
       color: var(--text-muted);
       font-weight: 700;
-      font-size: 0.85rem;
-      padding: 12px;
-      border-radius: 12px;
+      font-size: 0.82rem;
+      padding: 10px;
+      border-radius: 10px;
       cursor: pointer;
     }
 
-    /* Slider Row */
     .slider-row {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-top: 8px;
+      gap: 10px;
+      margin-top: 6px;
     }
 
     input[type=range] {
@@ -356,7 +381,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      margin-top: 10px;
+      margin-top: 8px;
     }
 
     .btn-toggle {
@@ -376,44 +401,68 @@
       color: #93c5fd;
     }
 
-    /* Recording Session Deck */
-    .btn-record {
-      background: linear-gradient(135deg, #ef4444, #b91c1c);
-      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+    /* Slalom Steer Bar (Wobble Runner) */
+    .slalom-track {
+      width: 100%;
+      height: 48px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      overflow: hidden;
     }
 
-    .btn-record.recording {
-      background: linear-gradient(135deg, #dc2626, #991b1b);
-      box-shadow: 0 0 24px rgba(239, 68, 68, 0.7);
-      animation: pulseRecord 1s ease infinite alternate;
+    .slalom-lane-marker {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(255, 255, 255, 0.12);
     }
 
-    @keyframes pulseRecord {
-      from { transform: scale(1.0); }
-      to { transform: scale(1.02); }
+    .slalom-lane-label {
+      position: absolute;
+      top: 4px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      transform: translateX(-50%);
     }
 
-    .btn-download {
-      background: linear-gradient(135deg, #10b981, #059669);
-      box-shadow: 0 6px 20px var(--emerald-glow);
+    .slalom-rider {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #fbbf24, #d97706);
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.8);
+      transform: translate(-50%, 0);
+      transition: left 0.04s linear;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
     }
 
-    /* Leaderboard & Runner Controls */
+    /* Runner Form Controls */
     .runner-controls {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      margin-bottom: 14px;
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
     }
 
     .form-label {
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       font-weight: 700;
       text-transform: uppercase;
       color: var(--text-muted);
@@ -422,7 +471,7 @@
 
     .input-row {
       display: flex;
-      gap: 8px;
+      gap: 6px;
     }
 
     .text-input {
@@ -430,12 +479,11 @@
       background: rgba(0, 0, 0, 0.35);
       border: 1px solid rgba(255, 255, 255, 0.15);
       color: var(--text);
-      padding: 10px 14px;
+      padding: 9px 12px;
       border-radius: 10px;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 700;
       outline: none;
-      transition: border-color 0.2s;
     }
 
     .text-input:focus {
@@ -448,29 +496,29 @@
       border: 1px solid #38bdf8;
       color: #93c5fd;
       font-weight: 700;
-      font-size: 0.85rem;
-      padding: 10px 14px;
+      font-size: 0.8rem;
+      padding: 9px 12px;
       border-radius: 10px;
       cursor: pointer;
       white-space: nowrap;
-      transition: transform 0.1s, background 0.15s;
     }
 
     .btn-action-small:active {
       transform: scale(0.96);
     }
 
+    /* Leaderboard Table */
     .leaderboard-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       margin-top: 4px;
     }
 
     .leaderboard-table th {
       text-align: left;
-      padding: 8px 6px;
-      font-size: 0.68rem;
+      padding: 7px 5px;
+      font-size: 0.65rem;
       font-weight: 800;
       text-transform: uppercase;
       color: var(--text-muted);
@@ -478,13 +526,9 @@
     }
 
     .leaderboard-table td {
-      padding: 8px 6px;
+      padding: 7px 5px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       font-variant-numeric: tabular-nums;
-    }
-
-    .leaderboard-table tr:hover {
-      background: rgba(255, 255, 255, 0.02);
     }
 
     .rank-cell {
@@ -510,8 +554,65 @@
     .seed-cell {
       color: var(--text-muted);
       font-family: monospace;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       text-align: right;
+    }
+
+    /* Recording Session Deck */
+    .btn-record {
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-record.recording {
+      background: linear-gradient(135deg, #dc2626, #991b1b);
+      box-shadow: 0 0 24px rgba(239, 68, 68, 0.7);
+      animation: pulseRecord 1s ease infinite alternate;
+    }
+
+    @keyframes pulseRecord {
+      from { transform: scale(1.0); }
+      to { transform: scale(1.02); }
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 6px 20px var(--emerald-glow);
+    }
+
+    /* Diagnostics Table */
+    .diag-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .diag-table td {
+      padding: 6px 4px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .diag-key {
+      color: var(--text-muted);
+      font-weight: 700;
+      width: 40%;
+    }
+
+    .diag-val {
+      color: #e2e8f0;
+      font-family: monospace;
+    }
+
+    /* Game View Container – Visibility Toggle */
+    .game-view {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .game-view.active {
+      display: flex;
     }
   </style>
 </head>
@@ -530,10 +631,10 @@
     </div>
   </header>
 
-  <!-- Choose Game Card -->
-  <section class="card">
-    <div class="card-title">
-      <span>Select Game</span>
+  <!-- Choose Game Bar (Universal) -->
+  <section class="card" style="padding:10px;">
+    <div class="card-title" style="margin-bottom:8px;">
+      <span>Select Mini Game</span>
       <span id="activeGameBadge" style="color:#38bdf8; font-weight:800;">-</span>
     </div>
     <div class="game-grid" id="gameGrid">
@@ -541,168 +642,328 @@
     </div>
   </section>
 
-  <!-- Telemetry Card -->
-  <section class="card">
-    <div class="card-title">
-      <span>Live Game Telemetry</span>
-      <span id="sourceBadge" style="font-size:0.7rem; color:var(--text-muted);">AtomS3 UDP</span>
-    </div>
-    <div class="telemetry-grid">
-      <div class="telem-item">
-        <div class="telem-label">Score</div>
-        <div class="telem-val score" id="telemScore">0</div>
-      </div>
-      <div class="telem-item">
-        <div class="telem-label">State</div>
-        <div class="telem-val state" id="telemState">START</div>
-      </div>
-      <div class="telem-item">
-        <div class="telem-label">Rate</div>
-        <div class="telem-val" id="telemHz" style="color:#34d399;">-- Hz</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Main Action Deck -->
-  <button id="mainBtn" class="btn-main btn-start" onclick="onMainBtnClick()">
-    <span id="mainBtnIcon">▶️</span>
-    <span id="mainBtnText">Start Game</span>
-  </button>
-
-  <!-- 2D Balance Board Tilt Card -->
-  <section class="card">
-    <div class="card-title">
-      <span>Board Tilt Level (2D)</span>
-      <span id="deviceIpLabel" style="font-size:0.7rem; color:var(--text-muted);">IP: --</span>
-    </div>
-    <div class="level-2d-box">
-      <div class="level-crosshair-x"></div>
-      <div class="level-crosshair-y"></div>
-      <div class="level-rings"></div>
-      <div class="level-center-bullseye"></div>
-      <div class="bubble-puck" id="bubblePuck"></div>
-    </div>
-    <div class="cal-readouts">
-      <div>ROLL: <span id="rollDegText" style="color:#38bdf8;">+0.0°</span></div>
-      <div>PITCH: <span id="pitchDegText" style="color:#818cf8;">+0.0°</span></div>
-    </div>
-    <div class="cal-actions">
-      <button class="btn-tare" onclick="sendWsMessage({ type: 'tare_board' })">🎯 Tare Zero (Set Level)</button>
-      <button class="btn-secondary" onclick="sendWsMessage({ type: 'reset_cal' })">Reset Zero</button>
-    </div>
-    <div class="slider-row">
-      <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Sensitivity:</span>
-      <input type="range" id="sensitivitySlider" min="0.5" max="2.5" step="0.1" value="1.0" oninput="onSensitivityInput(this.value)">
-      <span id="sensitivityText" style="font-size:0.8rem; font-weight:800; min-width:36px;">1.0x</span>
-    </div>
-    <div class="invert-deck">
-      <button class="btn-toggle" id="btnInvertRoll" onclick="toggleInvert('roll')">Invert Left/Right</button>
-      <button class="btn-toggle" id="btnInvertPitch" onclick="toggleInvert('pitch')">Invert Front/Back</button>
-    </div>
-  </section>
-
-  <!-- SensorLab Motion Recording Card -->
-  <section class="card" id="recordingCard">
-    <div class="card-title">
-      <span>Movement Data Recorder</span>
-      <span id="recStatusBadge" style="font-size:0.7rem; color:var(--text-muted);">100 Hz Raw IMU</span>
-    </div>
-    <div style="margin-bottom:12px; font-size:0.8rem; color:var(--text-muted); line-height:1.4;">
-      Record raw accelerometer, gyroscope, and fused angles to analyze standing wobble and evaluate custom filters.
-    </div>
-    <button id="btnRecordToggle" class="btn-main btn-record" onclick="toggleRecordingSession()">
-      <span id="btnRecordIcon">⏺️</span>
-      <span id="btnRecordText">Start Recording Session</span>
+  <!-- Universal Action Deck (Start / Pause / Reset) -->
+  <div class="action-row">
+    <button id="mainBtn" class="btn-main btn-start" onclick="onMainBtnClick()">
+      <span id="mainBtnIcon">▶️</span>
+      <span id="mainBtnText">Start Game</span>
     </button>
-    <div id="recordingStatsRow" style="display:none; margin-top:12px; font-size:0.85rem; display:flex; justify-content:space-between; color:var(--text-muted); font-variant-numeric:tabular-nums;">
-      <div>Duration: <span id="recDurationText" style="color:#f87171; font-weight:800;">0.0s</span></div>
-      <div>Samples: <span id="recSampleText" style="color:#60a5fa; font-weight:800;">0</span></div>
-    </div>
-    <div id="downloadRow" style="display:none; margin-top:12px;">
-      <a id="btnDownloadCsv" href="/api/recording/latest.csv" download="wobble_sensor_session.csv" class="btn-main btn-download" style="text-decoration:none;">
-        <span>📥</span>
-        <span>Download CSV Session</span>
-      </a>
-    </div>
-  </section>
+    <button class="btn-reset" onclick="sendWsMessage({ type: 'reset_game' })" title="Reset Current Game">
+      🔄
+    </button>
+  </div>
 
-  <!-- Wobble Runner & Leaderboard Card -->
-  <section class="card" id="runnerCard">
-    <div class="card-title">
-      <span>🏃 Wobble Runner & Leaderboard</span>
-      <span id="runnerSeedBadge" style="font-size:0.75rem; color:#facc15; font-weight:800;">Seed: 1337</span>
-    </div>
-
-    <div class="runner-controls">
-      <!-- Player Name -->
-      <div class="form-group">
-        <label class="form-label" for="playerNameInput">Rider / Player Name</label>
-        <div class="input-row">
-          <input type="text" id="playerNameInput" class="text-input" placeholder="Hero 1" maxlength="16" />
-          <button class="btn-action-small" onclick="savePlayerName()">Save Name</button>
+  <!-- ============================================================ -->
+  <!-- VIEW 1: BALANCE TRAINER -->
+  <!-- ============================================================ -->
+  <main class="game-view" id="view-BalanceTrainer">
+    <!-- Telemetry Strip -->
+    <section class="card">
+      <div class="card-title">
+        <span>Trainer Telemetry</span>
+        <span id="btStateBadge" style="color:#60a5fa; font-size:0.75rem;">START</span>
+      </div>
+      <div class="telemetry-grid-4">
+        <div class="telem-item">
+          <div class="telem-label">Score</div>
+          <div class="telem-val" id="btScore" style="color:var(--gold);">0</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Multiplier</div>
+          <div class="telem-val" id="btMultiplier" style="color:#34d399;">1.0x</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Time</div>
+          <div class="telem-val" id="btTime" style="color:#38bdf8;">60s</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Falls</div>
+          <div class="telem-val" id="btFalls" style="color:#f87171;">0</div>
         </div>
       </div>
+    </section>
 
-      <!-- Seed Control -->
-      <div class="form-group">
-        <label class="form-label" for="seedInput">Deterministic Track Seed</label>
-        <div class="input-row">
-          <input type="number" id="seedInput" class="text-input" value="1337" />
-          <button class="btn-action-small" onclick="applySeed()">Apply</button>
-          <button class="btn-action-small" style="background:rgba(234, 179, 8, 0.15); border-color:#eab308; color:#fef08a;" onclick="randomizeSeed()">🎲 Random</button>
+    <!-- 2D Balance Board Tilt Card -->
+    <section class="card">
+      <div class="card-title">
+        <span>Balance Board Tilt (2D)</span>
+        <span id="btRateLabel" style="font-size:0.7rem; color:#34d399;">-- Hz</span>
+      </div>
+      <div class="level-2d-box">
+        <div class="level-crosshair-x"></div>
+        <div class="level-crosshair-y"></div>
+        <div class="level-rings"></div>
+        <div class="level-center-bullseye"></div>
+        <div class="bubble-puck" id="btBubblePuck"></div>
+      </div>
+      <div class="cal-readouts">
+        <div>ROLL: <span id="btRollDeg" style="color:#38bdf8;">+0.0°</span></div>
+        <div>PITCH: <span id="btPitchDeg" style="color:#818cf8;">+0.0°</span></div>
+      </div>
+      <div class="cal-actions">
+        <button class="btn-tare" onclick="sendWsMessage({ type: 'tare_board' })">🎯 Tare Zero (Set Level)</button>
+        <button class="btn-secondary" onclick="sendWsMessage({ type: 'reset_cal' })">Reset Zero</button>
+      </div>
+      <div class="slider-row">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Sensitivity:</span>
+        <input type="range" id="btSensitivitySlider" min="0.5" max="2.5" step="0.1" value="1.0" oninput="onSensitivityInput(this.value)">
+        <span id="btSensitivityText" style="font-size:0.8rem; font-weight:800; min-width:36px;">1.0x</span>
+      </div>
+      <div class="invert-deck">
+        <button class="btn-toggle" id="btBtnInvertRoll" onclick="toggleInvert('roll')">Invert Left/Right</button>
+        <button class="btn-toggle" id="btBtnInvertPitch" onclick="toggleInvert('pitch')">Invert Front/Back</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================================ -->
+  <!-- VIEW 2: WOBBLE RUNNER -->
+  <!-- ============================================================ -->
+  <main class="game-view" id="view-WobbleRunner">
+    <!-- Telemetry Strip -->
+    <section class="card">
+      <div class="card-title">
+        <span>Runner Telemetry</span>
+        <span id="wrSeedBadge" style="color:#facc15; font-weight:800; font-size:0.75rem;">Seed: 1337</span>
+      </div>
+      <div class="telemetry-grid-4">
+        <div class="telem-item">
+          <div class="telem-label">Score</div>
+          <div class="telem-val" id="wrScore" style="color:var(--gold);">0</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Distance</div>
+          <div class="telem-val" id="wrDistance" style="color:#38bdf8;">0m</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Speed</div>
+          <div class="telem-val" id="wrSpeed" style="color:#fb923c;">0 km/h</div>
+        </div>
+        <div class="telem-item">
+          <div class="telem-label">Multiplier</div>
+          <div class="telem-val" id="wrMultiplier" style="color:#34d399;">1x</div>
         </div>
       </div>
-    </div>
+      <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:0.75rem; font-weight:700; color:var(--text-muted);">
+        <span>🍏 Apples: <strong id="wrApples" style="color:#f87171;">0</strong></span>
+        <span>🧲 Horseshoes: <strong id="wrHorseshoes" style="color:#fbbf24;">0</strong></span>
+      </div>
+    </section>
+
+    <!-- Slalom Steering & Lane Visualizer -->
+    <section class="card">
+      <div class="card-title">
+        <span>Slalom Steering Tilt</span>
+        <span id="wrSteerDeg" style="color:#38bdf8; font-weight:800;">+0.0°</span>
+      </div>
+      <div class="slalom-track">
+        <div class="slalom-lane-marker" style="left: 20%;"></div>
+        <div class="slalom-lane-marker" style="left: 50%;"></div>
+        <div class="slalom-lane-marker" style="left: 80%;"></div>
+        <span class="slalom-lane-label" style="left: 20%;">LEFT</span>
+        <span class="slalom-lane-label" style="left: 50%;">CENTER</span>
+        <span class="slalom-lane-label" style="left: 80%;">RIGHT</span>
+        <div class="slalom-rider" id="wrRiderPuck" style="left: 50%;">🏇</div>
+      </div>
+      <div class="slider-row">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">Steer Sensitivity:</span>
+        <input type="range" id="wrSensitivitySlider" min="0.5" max="2.5" step="0.1" value="1.0" oninput="onSensitivityInput(this.value)">
+        <span id="wrSensitivityText" style="font-size:0.8rem; font-weight:800; min-width:36px;">1.0x</span>
+      </div>
+      <div class="invert-deck" style="margin-top:8px;">
+        <button class="btn-toggle" id="wrBtnInvertRoll" onclick="toggleInvert('roll')" style="grid-column: span 2;">Invert Steering Direction</button>
+      </div>
+    </section>
+
+    <!-- Runner Deterministic Seed & Rider Controls -->
+    <section class="card">
+      <div class="card-title">
+        <span>Rider & Deterministic Seed</span>
+      </div>
+      <div class="runner-controls">
+        <div class="form-group">
+          <label class="form-label" for="wrPlayerNameInput">Rider Name</label>
+          <div class="input-row">
+            <input type="text" id="wrPlayerNameInput" class="text-input" placeholder="Hero 1" maxlength="16" />
+            <button class="btn-action-small" onclick="savePlayerName()">Save Name</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="wrSeedInput">Track Seed</label>
+          <div class="input-row">
+            <input type="number" id="wrSeedInput" class="text-input" value="1337" />
+            <button class="btn-action-small" onclick="applySeed()">Apply</button>
+            <button class="btn-action-small" style="background:rgba(234, 179, 8, 0.15); border-color:#eab308; color:#fef08a;" onclick="randomizeSeed()">🎲 Random</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Leaderboard Table -->
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; margin-bottom:6px;">
-      <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-muted);">Top 10 High Scores</span>
-      <button class="btn-secondary" style="padding:4px 8px; font-size:0.7rem; border-radius:6px;" onclick="resetLeaderboard()">Reset</button>
-    </div>
+    <section class="card">
+      <div class="card-title">
+        <span>Top 10 High Scores</span>
+        <button class="btn-secondary" style="padding:4px 8px; font-size:0.7rem; border-radius:6px;" onclick="resetLeaderboard()">Reset</button>
+      </div>
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Player</th>
+            <th style="text-align:right;">Score</th>
+            <th style="text-align:right;">Dist</th>
+            <th style="text-align:right;">Seed</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboardBody">
+          <tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">Loading leaderboard...</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
 
-    <table class="leaderboard-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Player</th>
-          <th style="text-align:right;">Score</th>
-          <th style="text-align:right;">Dist</th>
-          <th style="text-align:right;">Seed</th>
-        </tr>
-      </thead>
-      <tbody id="leaderboardBody">
-        <tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">Loading leaderboard...</td></tr>
-      </tbody>
-    </table>
-  </section>
+  <!-- ============================================================ -->
+  <!-- VIEW 3: SENSOR LAB & DIAGNOSTICS -->
+  <!-- ============================================================ -->
+  <main class="game-view" id="view-SensorLab">
+    <!-- Movement Data Recorder Card -->
+    <section class="card">
+      <div class="card-title">
+        <span>Movement Session Recorder</span>
+        <span id="slRecHzBadge" style="font-size:0.7rem; color:#34d399;">100 Hz Raw IMU</span>
+      </div>
+      <div style="margin-bottom:10px; font-size:0.8rem; color:var(--text-muted); line-height:1.4;">
+        Record raw accelerometer, gyroscope, magnetometer, and fused angles to analyze movement or test custom filters.
+      </div>
+      <button id="btnRecordToggle" class="btn-main btn-record" onclick="toggleRecordingSession()">
+        <span id="btnRecordIcon">⏺️</span>
+        <span id="btnRecordText">Start Recording Session</span>
+      </button>
+      <div id="recordingStatsRow" style="display:none; margin-top:10px; font-size:0.85rem; display:flex; justify-content:space-between; color:var(--text-muted); font-variant-numeric:tabular-nums;">
+        <div>Duration: <span id="recDurationText" style="color:#f87171; font-weight:800;">0.0s</span></div>
+        <div>Samples: <span id="recSampleText" style="color:#60a5fa; font-weight:800;">0</span></div>
+      </div>
+      <div id="downloadRow" style="display:none; margin-top:10px;">
+        <a id="btnDownloadCsv" href="/api/recording/latest.csv" download="wobble_sensor_session.csv" class="btn-main btn-download" style="text-decoration:none;">
+          <span>📥</span>
+          <span>Download CSV Session</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 2D Level & Zeroing Bench -->
+    <section class="card">
+      <div class="card-title">
+        <span>Sensor Zero Bench</span>
+        <span id="slSourceBadge" style="font-size:0.7rem; color:var(--text-muted);">AtomS3</span>
+      </div>
+      <div class="level-2d-box">
+        <div class="level-crosshair-x"></div>
+        <div class="level-crosshair-y"></div>
+        <div class="level-rings"></div>
+        <div class="level-center-bullseye"></div>
+        <div class="bubble-puck" id="slBubblePuck"></div>
+      </div>
+      <div class="cal-readouts">
+        <div>ROLL: <span id="slRollDeg" style="color:#38bdf8;">+0.0°</span></div>
+        <div>PITCH: <span id="slPitchDeg" style="color:#818cf8;">+0.0°</span></div>
+      </div>
+      <div class="cal-actions">
+        <button class="btn-tare" onclick="sendWsMessage({ type: 'tare_board' })">🎯 Tare Zero</button>
+        <button class="btn-secondary" onclick="sendWsMessage({ type: 'reset_cal' })">Reset Zero</button>
+      </div>
+    </section>
+
+    <!-- Deep 9-Axis Diagnostics Table -->
+    <section class="card">
+      <div class="card-title">
+        <span>9-Axis IMU & Hardware Telemetry</span>
+        <span id="slDeviceIpLabel" style="font-size:0.7rem; color:var(--text-muted);">IP: --</span>
+      </div>
+      <table class="diag-table">
+        <tbody>
+          <tr>
+            <td class="diag-key">Compass Heading</td>
+            <td class="diag-val" id="slHeadingVal" style="color:#facc15;">--°</td>
+          </tr>
+          <tr>
+            <td class="diag-key">Magnetometer (µT)</td>
+            <td class="diag-val" id="slMagVal">X: 0.0, Y: 0.0, Z: 0.0</td>
+          </tr>
+          <tr>
+            <td class="diag-key">Accelerometer (g)</td>
+            <td class="diag-val" id="slAccelVal">X: 0.00, Y: 0.00, Z: 0.00</td>
+          </tr>
+          <tr>
+            <td class="diag-key">Gyroscope (°/s)</td>
+            <td class="diag-val" id="slGyroVal">X: 0.0, Y: 0.0, Z: 0.0</td>
+          </tr>
+          <tr>
+            <td class="diag-key">UDP Stream Rate</td>
+            <td class="diag-val" id="slHzVal" style="color:#34d399;">-- Hz</td>
+          </tr>
+          <tr>
+            <td class="diag-key">Hardware Source</td>
+            <td class="diag-val" id="slSourceVal">AtomS3 (BMI270)</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
 
   <script>
     let ws = null;
     let currentGameState = 'START';
     let activeGameId = '';
     let lastPacketTime = 0;
+    let isRecordingActive = false;
 
+    // Shell Elements
     const wsDot = document.getElementById('wsDot');
     const wsText = document.getElementById('wsText');
     const gameGrid = document.getElementById('gameGrid');
     const activeGameBadge = document.getElementById('activeGameBadge');
-    const telemScore = document.getElementById('telemScore');
-    const telemState = document.getElementById('telemState');
-    const telemHz = document.getElementById('telemHz');
-    const sourceBadge = document.getElementById('sourceBadge');
-    const deviceIpLabel = document.getElementById('deviceIpLabel');
-    const bubblePuck = document.getElementById('bubblePuck');
-    const rollDegText = document.getElementById('rollDegText');
-    const pitchDegText = document.getElementById('pitchDegText');
     const mainBtn = document.getElementById('mainBtn');
     const mainBtnIcon = document.getElementById('mainBtnIcon');
     const mainBtnText = document.getElementById('mainBtnText');
-    const sensitivitySlider = document.getElementById('sensitivitySlider');
-    const sensitivityText = document.getElementById('sensitivityText');
-    const btnInvertRoll = document.getElementById('btnInvertRoll');
-    const btnInvertPitch = document.getElementById('btnInvertPitch');
 
-    const recordingCard = document.getElementById('recordingCard');
+    // Balance Trainer Elements
+    const viewBalanceTrainer = document.getElementById('view-BalanceTrainer');
+    const btStateBadge = document.getElementById('btStateBadge');
+    const btScore = document.getElementById('btScore');
+    const btMultiplier = document.getElementById('btMultiplier');
+    const btTime = document.getElementById('btTime');
+    const btFalls = document.getElementById('btFalls');
+    const btRateLabel = document.getElementById('btRateLabel');
+    const btBubblePuck = document.getElementById('btBubblePuck');
+    const btRollDeg = document.getElementById('btRollDeg');
+    const btPitchDeg = document.getElementById('btPitchDeg');
+    const btSensitivitySlider = document.getElementById('btSensitivitySlider');
+    const btSensitivityText = document.getElementById('btSensitivityText');
+    const btBtnInvertRoll = document.getElementById('btBtnInvertRoll');
+    const btBtnInvertPitch = document.getElementById('btBtnInvertPitch');
+
+    // Wobble Runner Elements
+    const viewWobbleRunner = document.getElementById('view-WobbleRunner');
+    const wrSeedBadge = document.getElementById('wrSeedBadge');
+    const wrScore = document.getElementById('wrScore');
+    const wrDistance = document.getElementById('wrDistance');
+    const wrSpeed = document.getElementById('wrSpeed');
+    const wrMultiplier = document.getElementById('wrMultiplier');
+    const wrApples = document.getElementById('wrApples');
+    const wrHorseshoes = document.getElementById('wrHorseshoes');
+    const wrSteerDeg = document.getElementById('wrSteerDeg');
+    const wrRiderPuck = document.getElementById('wrRiderPuck');
+    const wrSensitivitySlider = document.getElementById('wrSensitivitySlider');
+    const wrSensitivityText = document.getElementById('wrSensitivityText');
+    const wrBtnInvertRoll = document.getElementById('wrBtnInvertRoll');
+    const wrPlayerNameInput = document.getElementById('wrPlayerNameInput');
+    const wrSeedInput = document.getElementById('wrSeedInput');
+    const leaderboardBody = document.getElementById('leaderboardBody');
+
+    // Sensor Lab Elements
+    const viewSensorLab = document.getElementById('view-SensorLab');
+    const slRecHzBadge = document.getElementById('slRecHzBadge');
     const btnRecordToggle = document.getElementById('btnRecordToggle');
     const btnRecordIcon = document.getElementById('btnRecordIcon');
     const btnRecordText = document.getElementById('btnRecordText');
@@ -710,13 +971,24 @@
     const recDurationText = document.getElementById('recDurationText');
     const recSampleText = document.getElementById('recSampleText');
     const downloadRow = document.getElementById('downloadRow');
-    let isRecordingActive = false;
+    const slSourceBadge = document.getElementById('slSourceBadge');
+    const slBubblePuck = document.getElementById('slBubblePuck');
+    const slRollDeg = document.getElementById('slRollDeg');
+    const slPitchDeg = document.getElementById('slPitchDeg');
+    const slDeviceIpLabel = document.getElementById('slDeviceIpLabel');
+    const slHeadingVal = document.getElementById('slHeadingVal');
+    const slMagVal = document.getElementById('slMagVal');
+    const slAccelVal = document.getElementById('slAccelVal');
+    const slGyroVal = document.getElementById('slGyroVal');
+    const slHzVal = document.getElementById('slHzVal');
+    const slSourceVal = document.getElementById('slSourceVal');
 
-    const runnerCard = document.getElementById('runnerCard');
-    const runnerSeedBadge = document.getElementById('runnerSeedBadge');
-    const playerNameInput = document.getElementById('playerNameInput');
-    const seedInput = document.getElementById('seedInput');
-    const leaderboardBody = document.getElementById('leaderboardBody');
+    // Map of Views
+    const views = {
+      'BalanceTrainer': viewBalanceTrainer,
+      'WobbleRunner': viewWobbleRunner,
+      'SensorLab': viewSensorLab
+    };
 
     function connectWs() {
       const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -756,104 +1028,184 @@
       }
     }
 
+    function switchActiveGameView(targetGameId) {
+      if (!targetGameId) return;
+      activeGameId = targetGameId;
+
+      // Show only active game view
+      Object.keys(views).forEach(key => {
+        if (views[key]) {
+          views[key].classList.toggle('active', key.toLowerCase() === targetGameId.toLowerCase());
+        }
+      });
+
+      // Update game switcher tabs active state
+      Array.from(gameGrid.children).forEach(card => {
+        const id = card.getAttribute('data-id');
+        card.classList.toggle('active', id && id.toLowerCase() === targetGameId.toLowerCase());
+      });
+    }
+
     function onTelemetry(data) {
       lastPacketTime = Date.now();
 
-      // 1. Board state
-      if (data.board) {
-        const b = data.board;
-        const rollDeg = typeof b.fusedRollDeg === 'number' ? b.fusedRollDeg : 0;
-        const pitchDeg = typeof b.fusedPitchDeg === 'number' ? b.fusedPitchDeg : 0;
-        const signR = rollDeg >= 0 ? '+' : '';
-        const signP = pitchDeg >= 0 ? '+' : '';
-
-        rollDegText.textContent = `${signR}${rollDeg.toFixed(1)}°`;
-        pitchDegText.textContent = `${signP}${pitchDeg.toFixed(1)}°`;
-
-        // 2D Bubble puck position: map roll to X (10%..90%), pitch to Y (10%..90%)
-        const normX = Math.max(-1, Math.min(1, b.roll || 0));
-        const normY = Math.max(-1, Math.min(1, b.pitch || 0));
-        const leftPct = 50 + (normX * 40);
-        const topPct = 50 + (normY * 40);
-        bubblePuck.style.left = `${leftPct}%`;
-        bubblePuck.style.top = `${topPct}%`;
-
-        telemHz.textContent = `${b.hz || 0} Hz`;
-        sourceBadge.textContent = `${(b.source || 'atoms3').toUpperCase()} (${b.isActive ? 'Active' : 'Idle'})`;
-        if (b.deviceIp) {
-          deviceIpLabel.textContent = `IP: ${b.deviceIp}`;
-        }
-      }
-
-      // 2. Game telemetry
+      // 1. Determine active game and switch view if changed
       if (data.game) {
         const g = data.game;
-        activeGameId = g.activeGameId || '';
-        activeGameBadge.textContent = g.activeGameTitle || activeGameId;
+        const gId = g.activeGameId || '';
+        if (gId && gId !== activeGameId) {
+          switchActiveGameView(gId);
+        }
+        activeGameBadge.textContent = g.activeGameTitle || gId;
         currentGameState = g.state || 'START';
-        telemState.textContent = currentGameState;
-        telemScore.textContent = g.score || 0;
-
         updateMainBtnState(currentGameState);
       }
 
-      // 3. Available games list
+      // 2. Render available games in switcher if not populated or changed
       if (Array.isArray(data.availableGames)) {
         renderGames(data.availableGames, activeGameId);
       }
 
-      // 4. Settings
-      if (data.settings) {
-        if (typeof data.settings.sensitivity === 'number') {
-          sensitivitySlider.value = data.settings.sensitivity;
-          sensitivityText.textContent = `${data.settings.sensitivity.toFixed(1)}x`;
-        }
-        btnInvertRoll.classList.toggle('active', !!data.settings.invertRoll);
-        btnInvertPitch.classList.toggle('active', !!data.settings.invertPitch);
-        if (data.settings.playerName && document.activeElement !== playerNameInput) {
-          playerNameInput.value = data.settings.playerName;
-        }
-      }
+      const b = data.board || {};
+      const rollDeg = typeof b.fusedRollDeg === 'number' ? b.fusedRollDeg : 0;
+      const pitchDeg = typeof b.fusedPitchDeg === 'number' ? b.fusedPitchDeg : 0;
+      const signR = rollDeg >= 0 ? '+' : '';
+      const signP = pitchDeg >= 0 ? '+' : '';
 
-      // 5. Motion Recording Session Telemetry
-      if (data.game && data.game.stats) {
-        const stats = data.game.stats;
-        if (typeof stats.isRecording === 'boolean') {
-          isRecordingActive = stats.isRecording;
-          if (isRecordingActive) {
-            btnRecordToggle.className = 'btn-main btn-record recording';
-            btnRecordIcon.textContent = '⏹️';
-            btnRecordText.textContent = 'Stop Recording Session';
-            recordingStatsRow.style.display = 'flex';
-            recDurationText.textContent = `${(stats.recordDuration || 0).toFixed(1)}s`;
-            recSampleText.textContent = stats.sampleCount || 0;
-            downloadRow.style.display = 'none';
-          } else {
-            btnRecordToggle.className = 'btn-main btn-record';
-            btnRecordIcon.textContent = '⏺️';
-            btnRecordText.textContent = 'Start Recording Session';
-            if (stats.hasRecording) {
+      // 2D Puck coordinates (-1..1 to 10%..90%)
+      const normX = Math.max(-1, Math.min(1, b.roll || 0));
+      const normY = Math.max(-1, Math.min(1, b.pitch || 0));
+      const leftPct = 50 + (normX * 40);
+      const topPct = 50 + (normY * 40);
+
+      // 3. Update view-specific content based on active game
+      const current = (activeGameId || '').toLowerCase();
+
+      if (current === 'balancetrainer') {
+        // Balance Trainer
+        btStateBadge.textContent = currentGameState;
+        btScore.textContent = data.game ? (data.game.score || 0) : 0;
+
+        if (data.game && data.game.stats) {
+          const stats = data.game.stats;
+          btMultiplier.textContent = `${(stats.multiplier || 1.0).toFixed(1)}x`;
+          btTime.textContent = `${Math.ceil(stats.timeRemaining || 60)}s`;
+          btFalls.textContent = stats.falls || 0;
+        }
+
+        btRateLabel.textContent = `${b.hz || 0} Hz`;
+        btRollDeg.textContent = `${signR}${rollDeg.toFixed(1)}°`;
+        btPitchDeg.textContent = `${signP}${pitchDeg.toFixed(1)}°`;
+        btBubblePuck.style.left = `${leftPct}%`;
+        btBubblePuck.style.top = `${topPct}%`;
+      }
+      else if (current === 'wobblerunner') {
+        // Wobble Runner
+        wrScore.textContent = data.game ? (data.game.score || 0).toLocaleString() : 0;
+
+        if (data.game && data.game.stats) {
+          const stats = data.game.stats;
+          wrDistance.textContent = `${(stats.distance || 0).toLocaleString()}m`;
+          wrSpeed.textContent = `${stats.speed || 0} km/h`;
+          wrMultiplier.textContent = `${stats.multiplier || 1}x`;
+          wrApples.textContent = stats.apples || 0;
+          wrHorseshoes.textContent = stats.horseshoes || 0;
+
+          if (typeof stats.seed === 'number') {
+            wrSeedBadge.textContent = `Seed: ${stats.seed}`;
+            if (document.activeElement !== wrSeedInput) {
+              wrSeedInput.value = stats.seed;
+            }
+          }
+        }
+
+        // Steer indicator puck (lateral position from roll)
+        wrSteerDeg.textContent = `${signR}${rollDeg.toFixed(1)}°`;
+        const steerPct = 50 + (normX * 40);
+        wrRiderPuck.style.left = `${Math.max(10, Math.min(90, steerPct))}%`;
+      }
+      else if (current === 'sensorlab') {
+        // Sensor Lab
+        slSourceBadge.textContent = `${(b.source || 'atoms3').toUpperCase()}`;
+        slRollDeg.textContent = `${signR}${rollDeg.toFixed(1)}°`;
+        slPitchDeg.textContent = `${signP}${pitchDeg.toFixed(1)}°`;
+        slBubblePuck.style.left = `${leftPct}%`;
+        slBubblePuck.style.top = `${topPct}%`;
+
+        if (b.deviceIp) slDeviceIpLabel.textContent = `IP: ${b.deviceIp}`;
+        slHzVal.textContent = `${b.hz || 0} Hz (${b.isActive ? 'Active' : 'Idle'})`;
+        slSourceVal.textContent = `${(b.source || 'atoms3').toUpperCase()} (Seq: ${b.seq || 0})`;
+
+        // Magnetometer & Compass
+        if (b.hasMag) {
+          slHeadingVal.textContent = `${(b.compassHeadingDeg || 0).toFixed(1)}°`;
+          if (b.rawMag) {
+            slMagVal.textContent = `X: ${b.rawMag.x.toFixed(1)}, Y: ${b.rawMag.y.toFixed(1)}, Z: ${b.rawMag.z.toFixed(1)}`;
+          }
+        } else {
+          slHeadingVal.textContent = 'Compass Not Available';
+          slMagVal.textContent = 'No Magnetometer Detected';
+        }
+
+        // Accel & Gyro
+        if (b.rawAccel) {
+          slAccelVal.textContent = `X: ${b.rawAccel.x.toFixed(2)}, Y: ${b.rawAccel.y.toFixed(2)}, Z: ${b.rawAccel.z.toFixed(2)}`;
+        }
+        if (b.rawGyro) {
+          slGyroVal.textContent = `X: ${b.rawGyro.x.toFixed(1)}, Y: ${b.rawGyro.y.toFixed(1)}, Z: ${b.rawGyro.z.toFixed(1)}`;
+        }
+
+        // Recording stats
+        if (data.game && data.game.stats) {
+          const stats = data.game.stats;
+          if (typeof stats.isRecording === 'boolean') {
+            isRecordingActive = stats.isRecording;
+            if (isRecordingActive) {
+              btnRecordToggle.className = 'btn-main btn-record recording';
+              btnRecordIcon.textContent = '⏹️';
+              btnRecordText.textContent = 'Stop Recording Session';
               recordingStatsRow.style.display = 'flex';
               recDurationText.textContent = `${(stats.recordDuration || 0).toFixed(1)}s`;
               recSampleText.textContent = stats.sampleCount || 0;
-              downloadRow.style.display = 'block';
+              downloadRow.style.display = 'none';
+            } else {
+              btnRecordToggle.className = 'btn-main btn-record';
+              btnRecordIcon.textContent = '⏺️';
+              btnRecordText.textContent = 'Start Recording Session';
+              if (stats.hasRecording) {
+                recordingStatsRow.style.display = 'flex';
+                recDurationText.textContent = `${(stats.recordDuration || 0).toFixed(1)}s`;
+                recSampleText.textContent = stats.sampleCount || 0;
+                downloadRow.style.display = 'block';
+              }
             }
           }
         }
       }
 
-      // 6. Wobble Runner deterministic seed & stats
-      if (data.game && data.game.stats) {
-        const stats = data.game.stats;
-        if (typeof stats.seed === 'number') {
-          runnerSeedBadge.textContent = `Seed: ${stats.seed}`;
-          if (document.activeElement !== seedInput) {
-            seedInput.value = stats.seed;
-          }
+      // 4. Global Settings Sync (Sliders, Invert toggles, Player Name)
+      if (data.settings) {
+        const s = data.settings;
+        if (typeof s.sensitivity === 'number') {
+          const sensText = `${s.sensitivity.toFixed(1)}x`;
+          if (btSensitivitySlider) btSensitivitySlider.value = s.sensitivity;
+          if (btSensitivityText) btSensitivityText.textContent = sensText;
+          if (wrSensitivitySlider) wrSensitivitySlider.value = s.sensitivity;
+          if (wrSensitivityText) wrSensitivityText.textContent = sensText;
+        }
+
+        const invRoll = !!s.invertRoll;
+        const invPitch = !!s.invertPitch;
+        if (btBtnInvertRoll) btBtnInvertRoll.classList.toggle('active', invRoll);
+        if (btBtnInvertPitch) btBtnInvertPitch.classList.toggle('active', invPitch);
+        if (wrBtnInvertRoll) wrBtnInvertRoll.classList.toggle('active', invRoll);
+
+        if (s.playerName && document.activeElement !== wrPlayerNameInput) {
+          wrPlayerNameInput.value = s.playerName;
         }
       }
 
-      // 7. Persistent Leaderboard
+      // 5. Leaderboard Sync
       if (Array.isArray(data.leaderboard)) {
         renderLeaderboard(data.leaderboard);
       }
@@ -861,9 +1213,8 @@
 
     function renderGames(games, activeId) {
       if (gameGrid.children.length === games.length) {
-        // Just update active styling
         Array.from(gameGrid.children).forEach((child, idx) => {
-          child.classList.toggle('active', games[idx].id === activeId);
+          child.classList.toggle('active', games[idx].id.toLowerCase() === (activeId || '').toLowerCase());
         });
         return;
       }
@@ -871,13 +1222,16 @@
       gameGrid.innerHTML = '';
       games.forEach(g => {
         const card = document.createElement('div');
-        card.className = `game-card ${g.id === activeId ? 'active' : ''}`;
+        const isActive = g.id.toLowerCase() === (activeId || '').toLowerCase();
+        card.className = `game-card ${isActive ? 'active' : ''}`;
+        card.setAttribute('data-id', g.id);
         card.innerHTML = `
           <div class="game-icon">${g.icon}</div>
           <div class="game-title">${g.title}</div>
         `;
         card.onclick = () => {
           sendWsMessage({ type: 'switch_game', gameId: g.id });
+          switchActiveGameView(g.id);
         };
         gameGrid.appendChild(card);
       });
@@ -911,7 +1265,9 @@
 
     function onSensitivityInput(val) {
       const num = parseFloat(val);
-      sensitivityText.textContent = `${num.toFixed(1)}x`;
+      const text = `${num.toFixed(1)}x`;
+      if (btSensitivityText) btSensitivityText.textContent = text;
+      if (wrSensitivityText) wrSensitivityText.textContent = text;
       sendWsMessage({ type: 'set_sensitivity', value: num });
     }
 
@@ -928,14 +1284,14 @@
     }
 
     function savePlayerName() {
-      const val = playerNameInput.value.trim();
+      const val = wrPlayerNameInput.value.trim();
       if (val) {
         sendWsMessage({ type: 'set_player_name', playerName: val });
       }
     }
 
     function applySeed() {
-      const val = parseInt(seedInput.value, 10);
+      const val = parseInt(wrSeedInput.value, 10);
       if (!isNaN(val)) {
         sendWsMessage({ type: 'set_seed', seed: val });
       }
@@ -943,7 +1299,7 @@
 
     function randomizeSeed() {
       const randomSeed = Math.floor(Math.random() * 900000) + 1000;
-      seedInput.value = randomSeed;
+      wrSeedInput.value = randomSeed;
       sendWsMessage({ type: 'set_seed', seed: randomSeed });
     }
 
@@ -985,8 +1341,11 @@
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
-    // Connect WebSocket on load
-    window.addEventListener('DOMContentLoaded', connectWs);
+    // Default view on initial load
+    window.addEventListener('DOMContentLoaded', () => {
+      switchActiveGameView('BalanceTrainer');
+      connectWs();
+    });
   </script>
 </body>
 </html>

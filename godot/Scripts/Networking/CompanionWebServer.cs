@@ -60,7 +60,23 @@ public partial class CompanionWebServer : Node
 
     private void LoadStaticHtml()
     {
-        // 1. Try reading from embedded assembly resource
+        // 1. Prefer reading directly from Godot virtual filesystem (res://remote.html)
+        if (Godot.FileAccess.FileExists("res://remote.html"))
+        {
+            try
+            {
+                using var file = Godot.FileAccess.Open("res://remote.html", Godot.FileAccess.ModeFlags.Read);
+                _cachedRemoteHtml = file.GetAsText();
+                GD.Print("[CompanionWebServer] Loaded remote.html from res://remote.html.");
+                return;
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"[CompanionWebServer] FileAccess read error: {ex.Message}");
+            }
+        }
+
+        // 2. Fallback to embedded assembly resource (e.g. standalone/Android export)
         try
         {
             var asm = Assembly.GetExecutingAssembly();
@@ -75,21 +91,6 @@ public partial class CompanionWebServer : Node
         catch (Exception ex)
         {
             GD.PrintErr($"[CompanionWebServer] Assembly resource read error: {ex.Message}");
-        }
-
-        // 2. Fallback to Godot virtual filesystem
-        if (string.IsNullOrEmpty(_cachedRemoteHtml) && Godot.FileAccess.FileExists("res://remote.html"))
-        {
-            try
-            {
-                using var file = Godot.FileAccess.Open("res://remote.html", Godot.FileAccess.ModeFlags.Read);
-                _cachedRemoteHtml = file.GetAsText();
-                GD.Print("[CompanionWebServer] Loaded remote.html from res://remote.html.");
-            }
-            catch (Exception ex)
-            {
-                GD.PrintErr($"[CompanionWebServer] FileAccess read error: {ex.Message}");
-            }
         }
     }
 

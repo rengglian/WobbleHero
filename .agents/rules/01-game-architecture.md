@@ -48,3 +48,10 @@ WobbleHero embeds an asynchronous HTTP & WebSocket server (`CompanionWebServer`)
 - **Game Switching**: The companion remote can query registered games via WebSocket and request runtime switching (`switch_game: "BalanceTrainer"`).
 - **Board Calibration**: Provides instant **Tare Zero** (`tare`), **Reset Calibration** (`reset_cal`), **Sensitivity Slider**, and **Invert Axis** toggles.
 - **HUD QR Code**: Main scene must project a zero-dependency QR code on screen so players can effortlessly scan to connect.
+
+---
+
+## 4. Game-Specific HUDs & Persistent Scoring
+
+1. **Decoupled HUD Scenes**: Each mini-game mounts its own dedicated HUD (`res://Scenes/UI/BalanceTrainerHud.tscn`, `WobbleRunnerHud.tscn`, `SensorLabHud.tscn`) using the arcade **Luckiest Guy** font for distinct visual flair and specialized overlays (e.g., Top-10 Leaderboard overlays, live telemetry gauges).
+2. **Persistent Leaderboards (`LeaderboardService`)**: Games record competitive runs to `user://leaderboard.json`. The service tracks Player Name, Score, Distance, Seed, and Date, exposing rankings to both in-game HUDs and the Companion Web Remote via WebSocket and `/api/leaderboard`.

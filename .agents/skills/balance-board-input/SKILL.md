@@ -65,7 +65,7 @@ To make balance mini-games playable and satisfying when standing:
 
 ---
 
-## 4. Fallback Emulation (Zero Hardware Required)
+## 5. Fallback Emulation (Zero Hardware Required)
 When no AtomS3 hardware packet is received within 350 ms:
 - **Keyboard Emulation**:
   - `A` / `Left Arrow`: Smoothly ramps Roll left to $-1.0$.
@@ -74,3 +74,15 @@ When no AtomS3 hardware packet is received within 350 ms:
   - `S` / `Down Arrow`: Smoothly ramps Pitch backward to $+1.0$.
 - **Touch Emulation**:
   - Touching left/right screen halves or dragging across the screen produces proportional Roll and Pitch deflection.
+
+---
+
+## 6. 9-Axis Sensing & Magnetometer Compass Fusion
+When an external or integrated magnetometer (e.g., AK09918, BMM150) is connected to the AtomS3:
+- **Binary Telemetry**: Extends the raw IMU stream with 3-axis magnetic flux density ($B_x, B_y, B_z$) in microteslas ($\mu\text{T}$).
+- **Tilt-Compensated Compass Heading**:
+  Computed from fused roll ($\theta_{\text{roll}}$), fused pitch ($\theta_{\text{pitch}}$), and normalized magnetic field:
+  $$B_{xh} = B_x \cos(\theta_{\text{pitch}}) + B_z \sin(\theta_{\text{pitch}})$$
+  $$B_{yh} = B_x \sin(\theta_{\text{roll}}) \sin(\theta_{\text{pitch}}) + B_y \cos(\theta_{\text{roll}}) - B_z \sin(\theta_{\text{roll}}) \cos(\theta_{\text{pitch}})$$
+  $$\text{Heading} = \text{atan2}(-B_{yh}, B_{xh}) \cdot \frac{180^\circ}{\pi} \pmod{360^\circ}$$
+- **Forwarding in `BoardState`**: Exposed via `RawMag`, `HasMag`, and `CompassHeadingDeg` for display in SensorLab and broadcast over telemetry.

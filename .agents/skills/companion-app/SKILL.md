@@ -52,26 +52,38 @@ Broadcasted to all connected smartphones at 25-50 Hz:
     "calOffsetRoll": 0.5,
     "calOffsetPitch": 0.0,
     "isActive": true,
-    "hz": 98,
-    "button": 0,
+    "hz": 99,
+    "seq": 4812,
+    "isButtonPressed": false,
+    "hasMag": true,
+    "compassHeadingDeg": 142.0,
+    "rawMag": { "x": 12.4, "y": -4.1, "z": 45.2 },
+    "rawAccel": { "x": -0.07, "y": 0.02, "z": 0.99 },
+    "rawGyro": { "x": 1.2, "y": -0.8, "z": 0.1 },
     "source": "atoms3",
     "deviceIp": "192.168.1.145"
   },
   "game": {
-    "activeGameId": "BalanceTrainer",
-    "activeGameTitle": "Balance Trainer",
+    "activeGameId": "WobbleRunner",
+    "activeGameTitle": "Wobble Runner",
     "state": "RUNNING",
-    "score": 420,
+    "score": 1450,
     "stats": {
-      "timeRemaining": 45.2,
-      "ringsCollected": 8,
-      "multiplier": 2.0
+      "distance": 840,
+      "speed": 72,
+      "multiplier": 3,
+      "seed": 1337,
+      "apples": 4,
+      "horseshoes": 2
     }
   },
   "availableGames": [
     { "id": "BalanceTrainer", "title": "Balance Trainer", "icon": "⚖️", "description": "Keep the ball centered on the tilting plate" },
-    { "id": "WobbleRunner", "title": "Wobble Runner", "icon": "🏃", "description": "Slalom through gates and dodge obstacles" },
-    { "id": "SensorLab", "title": "Sensor Lab", "icon": "🔬", "description": "3D board diagnostics and calibration" }
+    { "id": "WobbleRunner", "title": "Wobble Runner", "icon": "🏃", "description": "3-lane slalom runner with seed control & leaderboard" },
+    { "id": "SensorLab", "title": "Sensor Lab", "icon": "🔬", "description": "3D board diagnostics and 100 Hz CSV recorder" }
+  ],
+  "leaderboard": [
+    { "rank": 1, "playerName": "Hero 1", "score": 4520, "distance": 1820, "seed": 1337, "date": "2026-11-01" }
   ],
   "settings": {
     "sensitivity": 1.0,
@@ -90,8 +102,36 @@ Broadcasted to all connected smartphones at 25-50 Hz:
 | `start_game` | `{}` | Starts or restarts the active game |
 | `pause_game` | `{}` | Pauses gameplay physics |
 | `resume_game` | `{}` | Resumes gameplay |
+| `reset_game` | `{}` | Resets the active game state |
 | `tare_board` | `{}` | Calibrates current board tilt as horizontal zero |
 | `reset_cal` | `{}` | Resets calibration tare offsets |
 | `set_sensitivity` | `{"value": 1.5}` | Adjusts input sensitivity multiplier ($0.5 \dots 2.5$) |
 | `toggle_invert` | `{"axis": "roll"}` | Toggles roll or pitch axis inversion |
-| `set_player_name` | `{"playerName": "Alex"}` | Updates player profile name |
+| `set_seed` | `{"seed": 42}` | Sets deterministic Mulberry32 seed for Wobble Runner |
+| `set_player_name` | `{"playerName": "Alex"}` | Updates player profile name for leaderboard records |
+| `reset_leaderboard` | `{}` | Clears persistent top-10 leaderboard records |
+| `start_recording` | `{}` | Begins 100 Hz movement recording session in SensorLab |
+| `stop_recording` | `{}` | Finalizes movement recording session |
+
+---
+
+## 3. HTTP REST Endpoints
+
+| Endpoint | Method | Response | Purpose |
+| :--- | :--- | :--- | :--- |
+| `/` or `/remote` | `GET` | `text/html` | Serves the single-page companion remote web app |
+| `/health` | `GET` | `application/json` | Health check (`{"status":"ok","service":"WobbleHero"}`) |
+| `/api/leaderboard` | `GET` | `application/json` | Returns Top-10 persistent leaderboard entries |
+| `/api/recording/latest.csv` | `GET` | `text/csv` | Downloads latest 100 Hz IMU session as CSV file |
+
+---
+
+## 4. Context-Aware Modular UI Architecture (`remote.html`)
+
+To eliminate clutter on mobile devices, `remote.html` uses a **context-aware modular view architecture**:
+- **Universal Shell**: Brand, WebSocket live status, interactive Game Switcher tabs, and Universal Action buttons (`Start`/`Pause`/`Reset`).
+- **View Container (`.game-view`)**: Each game has a dedicated container (`view-BalanceTrainer`, `view-WobbleRunner`, `view-SensorLab`) where only the active game's view is rendered (`display: flex`).
+- **Dynamic Content**:
+  - `BalanceTrainer`: Shows 2D bubble puck level, roll/pitch degrees, Tare Zero, sensitivity slider, and invert toggles.
+  - `WobbleRunner`: Shows 3-lane slalom steering bar with real-time lean puck, player name input, deterministic seed input + 🎲 Random button, and the Top-10 leaderboard table.
+  - `SensorLab`: Shows 100 Hz recording controls (with duration and sample counters), instant CSV download link, and live 9-axis sensor diagnostics (heading, accel, gyro, mag, packet rate).
